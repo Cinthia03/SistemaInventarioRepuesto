@@ -1,0 +1,42 @@
+<div class="container">
+
+  <div class="header-section">
+    <h1 class="titulo">Inventario General</h1>
+    <p class="subtitulo">
+      Administra los recursos del proyecto: materiales, mano de obra y equipos.
+    </p>
+  </div>
+
+  <div class="cards">
+
+    <mat-card class="card materiales" (click)="abrirCategoriaMateriales()">
+      <mat-icon>inventory_2</mat-icon>
+      <h2>Materiales</h2>
+      <p>
+        Cemento, acero, bloques, pinturas, instalaciones eléctricas,
+        sanitarias y más.
+      </p>
+    </mat-card>
+
+    <mat-card class="card manobra" (click)="abrirCategoriaManObra()">
+      <mat-icon>engineering</mat-icon>
+      <h2>Mano de Obra</h2>
+      <p>
+        Albañiles, electricistas, plomeros, carpinteros
+        y personal técnico.
+      </p>
+    </mat-card>
+
+    <mat-card class="card equipos" (click)="abrirCategoriaEquipos()">
+      <mat-icon>construction</mat-icon>
+      <h2>Equipos</h2>
+      <p>
+        Mezcladoras, andamios, herramientas eléctricas,
+        maquinaria pesada.
+      </p>
+    </mat-card>
+
+  </div>
+
+</div>
+

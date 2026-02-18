@@ -1,0 +1,140 @@
+.contenedor {
+  min-height: 100vh;
+  width: 100%;
+  padding: 60px 20px;
+  box-sizing: border-box;
+  font-family: 'Roboto', sans-serif;
+  display: block;
+  background: linear-gradient(
+      rgba(0, 0, 0, 0.75),
+      rgba(0, 0, 0, 0.75)
+    ),
+    url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDHp9UkU_HxEtSDtk-ixxiNdG1tUT-xslOSg&s')
+    no-repeat center center/cover;
+}
+
+/* ================= TITULO ================= */
+
+.titulo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 26px;
+  font-weight: 500;
+  color: white;
+  margin-bottom: 30px;
+}
+
+.titulo mat-icon {
+  font-size: 30px;
+  color: white;
+}
+
+/* ================= BUSCADOR ================= */
+
+.buscador {
+  width: 80%;
+  margin-bottom: 20px;
+  color: white;
+}
+
+.buscador mat-label{
+  color: white;
+}
+
+.buscador .mat-form-field-flex {
+  background: white !important;
+  border-radius: 12px;
+  padding: 4px 8px;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.buscador .mat-form-field-outline {
+  border-radius: 12px;
+  color: white;
+}
+
+.buscador:hover .mat-form-field-flex {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  color: white;
+}
+
+.buscador.mat-focused .mat-form-field-flex {
+  box-shadow: 0 0 0 3px white;
+  color: white;
+}
+
+.buscador input {
+  font-size: 14px;
+  color: white;
+}
+
+.buscador input::placeholder {
+  color: white;
+}
+
+.buscador mat-icon {
+  color: white;
+  transition: 0.3s;
+}
+
+.buscador.mat-focused mat-icon {
+  color: white;
+}
+
+
+
+
+/* ================= TABLA ================= */
+
+table{
+  background: white;
+  border-radius: 10px;
+}
+
+th {
+  font-weight: 600;
+  font-size: 14px;
+  color: black;
+  padding: 14px !important;
+  border-bottom: 2px solid rgba(128, 128, 128, 0.616);
+}
+
+td {
+  padding: 14px !important;
+  font-size: 14px;
+  color: black;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.616);
+}
+
+tr.mat-mdc-row:hover {
+  background-color: #f8fafc;
+  transition: 0.2s ease;
+}
+
+/* ================= BOTONES ================= */
+button {
+  transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+  transform: scale(1.15);
+}
+
+button[color="primary"] mat-icon {
+  color: green;
+}
+
+button[color="warn"] mat-icon {
+  color: red;
+}
+
+
+/* ================= PAGINADOR ================= */
+
+mat-paginator {
+  margin-top: 20px;
+  border-top: 1px solid white;
+  padding-top: 5px;
+}

@@ -1,0 +1,32 @@
+.header {
+  background: wheat;
+  color: black;
+  height: 64px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+.titulo {
+  cursor: pointer;
+  margin-left: 15px;
+  font-weight: 500;
+  transition: opacity 0.2s ease;
+}
+
+.titulo:hover {
+  opacity: 0.8;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .header {
+    height: 56px;
+    padding: 0 16px;
+  }
+
+  .header span {
+    font-size: 16px;
+  }
+}

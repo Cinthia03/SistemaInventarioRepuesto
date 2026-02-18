@@ -1,0 +1,29 @@
+<div class="login-container">
+  <mat-card class="login-card">
+    
+    <div class="logo-section">
+      <mat-icon class="logo-icon">engineering</mat-icon>
+      <h2>Constructora -----</h2>
+      <p>Acceso al sistema corporativo</p>
+    </div>
+
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>Usuario</mat-label>
+      <mat-icon matPrefix>person</mat-icon>
+      <input matInput [(ngModel)]="user">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>Contraseña</mat-label>
+      <mat-icon matPrefix>lock</mat-icon>
+      <input matInput type="password" [(ngModel)]="password">
+    </mat-form-field>
+
+    <button mat-raised-button color="primary" class="login-btn" (click)="login()">
+      Ingresar
+    </button>
+
+    <p class="error" *ngIf="error">{{ error }}</p>
+
+  </mat-card>
+</div>

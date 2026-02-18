@@ -1,0 +1,96 @@
+.container {
+  height: 90vh;
+  display: flex;
+  flex-direction: column; /* Para separar título y cards */
+  justify-content: center; /* Centrado vertical */
+  align-items: center; /* Centrado horizontal */
+  text-align: center;
+  padding: 10px;
+  box-sizing: border-box;
+  background: linear-gradient(
+      rgba(0, 0, 0, 0.800),
+      rgba(0, 0, 0, 0.800)
+    ),
+    url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDHp9UkU_HxEtSDtk-ixxiNdG1tUT-xslOSg&s') no-repeat center center/cover;
+  font-family: 'Roboto', sans-serif;
+}
+
+.header-section {
+  margin-bottom: 50px;
+}
+
+.titulo {
+  font-size: clamp(28px, 4vw, 48px);
+  color: white;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.subtitulo {
+  color: white;
+  font-size: 16px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 35px;
+  max-width: 1200px;
+}
+
+.card {
+  width: 280px;
+  padding: 30px 25px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.35s ease;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+}
+
+.card mat-icon {
+  font-size: 25px;
+  margin-bottom: 15px;
+}
+
+.card h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.card p {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.5;
+}
+
+.card:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+
+/* Colores personalizados */
+.materiales mat-icon { color: #1565c0; }
+.manobra mat-icon { color: #00897b; }
+.equipos mat-icon { color: #ef6c00; }
+
+.materiales h2 { color: #1565c0; }
+.manobra h2 { color: #00897b; }
+.equipos h2 { color: #ef6c00; }
+
+@media (max-width: 768px) {
+  .card {
+    width: 90%;
+    max-width: 350px;
+  }
+
+  .titulo {
+    font-size: 30px;
+  }
+}
