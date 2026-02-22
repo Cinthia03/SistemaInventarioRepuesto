@@ -20,7 +20,8 @@ app.use(express.json());
 
 app.use(cors({
   origin: 'http://localhost:4200', // SOLO Angular
-  methods: ['GET', 'POST'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type'],
   credentials: true
 }));
 
@@ -82,64 +83,79 @@ app.post('/Login', async (req, res) => {
 // ================================================
 //           MATERIALES
 // ================================================
-app.post('/guardarMateriales', async (req, res) => {
+// OBTENER TODOS
+app.get('/materiales', async (req, res) => {
   try {
-    const { codigo, descripcion, unidad, precio, stock, categoria } = req.body;
-    await pool.query(
-      'INSERT INTO Materiales (codigo, descripcion, unidad, precio, stock, categoria) VALUES (?, ?, ?, ?, ?, ?)',
-      [codigo, descripcion, unidad, precio, stock, categoria]
-    );
-    res.status(201).json({ message: 'Material guardado' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.put('/actualizarMateriales/:id', async (req, res) => {
-  try {
-    const id = req.params.id;
-    const { codigo, descripcion, unidad, precio, stock, categoria } = req.body;
-    await pool.query(
-      'UPDATE Materiales SET codigo=?, descripcion=?, unidad=?, precio=?, stock=?, categoria=? WHERE id=?',
-      [codigo, descripcion, unidad, precio, stock, categoria, id]
-    );
-    res.json({ message: 'Material actualizado' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.delete('/eliminarMateriales/:id', async (req, res) => {
-  try {
-    const id = req.params.id;
-    await pool.query('DELETE FROM Materiales WHERE id = ?', [id]);
-    res.json({ message: 'Material eliminado' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.get('/buscarMateriales', async (req, res) => {
-  try {
-    const { categoria } = req.query;  // ← NUEVO parámetro
-    let query = 'SELECT * FROM Materiales';
-    let params = [];
-    
-    if (categoria) {
-      query += ' WHERE categoria LIKE ?';
-      params = [`%${categoria}%`];
-    }
-    
-    const [rows] = await pool.query(query, params);
-    console.log(`📊 Materiales ${categoria || 'TODOS'}:`, rows.length);
+    const [rows] = await pool.query('SELECT * FROM Materiales');
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
+// OBTENER POR ID
+app.get('/materiales/:id', async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      'SELECT * FROM Materiales WHERE id = ?',
+      [req.params.id]
+    );
 
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Material no encontrado' });
+    }
 
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// CREAR
+app.post('/materiales', async (req, res) => {
+  try {
+    const { codigo, descripcion, unidad, precio, stock, categoria } = req.body;
+
+    await pool.query(
+      'INSERT INTO Materiales (codigo, descripcion, unidad, precio, stock, categoria) VALUES (?, ?, ?, ?, ?, ?)',
+      [codigo, descripcion, unidad, precio, stock, categoria]
+    );
+
+    res.status(201).json({ message: 'Material creado' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ACTUALIZAR
+app.put('/materiales/:id', async (req, res) => {
+  try {
+    const { codigo, descripcion, unidad, precio, stock, categoria } = req.body;
+
+    await pool.query(
+      'UPDATE Materiales SET codigo=?, descripcion=?, unidad=?, precio=?, stock=?, categoria=? WHERE id=?',
+      [codigo, descripcion, unidad, precio, stock, categoria, req.params.id]
+    );
+
+    res.json({ message: 'Material actualizado' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ELIMINAR
+app.delete('/materiales/:id', async (req, res) => {
+  try {
+    await pool.query(
+      'DELETE FROM Materiales WHERE id = ?',
+      [req.params.id]
+    );
+
+    res.json({ message: 'Material eliminado' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 
 // ================================================

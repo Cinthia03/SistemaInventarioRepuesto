@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Material {
-  id: number;
+  id?: number;
   codigo: string;
   descripcion: string;
   unidad: string;
@@ -17,12 +17,12 @@ export interface Material {
 })
 export class MaterialeService {
 
-  private apiUrl = 'http://localhost:3000';
+  private apiUrl = 'http://localhost:3000/materiales';
 
   constructor(private http: HttpClient) {}
 
   obtenerTodos(): Observable<Material[]> {
-    return this.http.get<Material[]>('http://localhost:3000/buscarMateriales'); 
+    return this.http.get<Material[]>(this.apiUrl);
   }
 
   obtenerPorId(id: number): Observable<Material> {
@@ -40,5 +40,4 @@ export class MaterialeService {
   eliminar(id: number) {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
-
 }

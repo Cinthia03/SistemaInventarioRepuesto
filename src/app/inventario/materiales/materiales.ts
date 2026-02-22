@@ -74,19 +74,32 @@ export class Materiales implements OnInit{
   }
 
   guardarMaterial() {
-    if (!this.materialForm.valid) return;
+  if (this.materialForm.invalid) return;
     if (this.modoEdicion) {
       this.service.actualizar(this.materialId, this.materialForm.value)
-        .subscribe(() => {
-          this.router.navigate(
-            ['/acerovarilla'],
-            { queryParams: { page: this.pagina } }
-          );
+        .subscribe({
+          next: () => {
+            console.log("✅ Actualizado correctamente");
+
+            this.router.navigate(
+              ['/acerovarilla'],
+              { queryParams: { page: this.pagina } }
+            );
+          },
+          error: (err) => {
+            console.error("❌ Error actualizando:", err);
+          }
         });
     } else {
       this.service.crear(this.materialForm.value)
-        .subscribe(() => {
-          this.materialForm.reset();
+        .subscribe({
+          next: () => {
+            console.log("✅ Creado correctamente");
+            this.materialForm.reset();
+          },
+          error: (err) => {
+            console.error("❌ Error creando:", err);
+          }
         });
     }
   }

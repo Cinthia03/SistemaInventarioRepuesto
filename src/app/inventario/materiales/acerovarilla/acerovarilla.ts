@@ -53,10 +53,11 @@ export class Acerovarilla implements AfterViewInit {
   cargarMateriales() {
     this.service.obtenerTodos().subscribe({
       next: (todosMateriales) => {
-        const soloAceroVarillas = todosMateriales.filter(m => 
-          m.categoria && m.categoria.toLowerCase().includes('acero') ||
-          m.categoria.toLowerCase().includes('varilla')
-        );
+        const soloAceroVarillas = todosMateriales.filter(m => {
+          if (!m.categoria) return false;
+          const cat = m.categoria.toLowerCase();
+          return cat.includes('acero') || cat.includes('varilla');
+        });
         
         console.log('🎯 Solo AceroVarillas:', soloAceroVarillas.length);
         this.dataSource.data = soloAceroVarillas;
@@ -71,7 +72,13 @@ export class Acerovarilla implements AfterViewInit {
   }
 
   editar(element: Material) {
+    if (!element.id) {
+      console.error('❌ ID no definido:', element);
+      return;
+    }
+
     const paginaActual = this.paginator?.pageIndex || 0;
+
     this.router.navigate(['/materiales/editar', element.id], { 
       queryParams: { page: paginaActual } 
     });
