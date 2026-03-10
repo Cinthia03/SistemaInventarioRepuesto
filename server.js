@@ -3,8 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
 const bcrypt = require('bcryptjs');
-const mysql = require('mysql2/promise'); 
-
+const { Pool } = require("pg");   
 
 // ================================================
 //           CONFIGURACIÓN APP
@@ -19,7 +18,7 @@ const PORT = 3000;
 app.use(express.json());
 
 app.use(cors({
-  origin: 'http://localhost:4200', // SOLO Angular
+  origin: 'http://localhost:4200', 
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type'],
   credentials: true
@@ -27,55 +26,46 @@ app.use(cors({
 
 
 // ================================================
-//           CONEXIÓN MYSQL FREESQLDATABASE
+//           CONEXIÓN 
 // ================================================
-const pool = mysql.createPool({
-  host: 'sql10.freesqldatabase.com',
-  port: 3306,
-  database: 'sql10817260',
-  user: 'sql10817260',
-  password: 'bgjUupfprV',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
+const pool = new Pool({
+  connectionString: "postgresql://postgres:!Ddh*MxDT_6Y7Sz@db.rjccxgdmkkljqnywellt.supabase.co:5432/postgres",
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
-pool.getConnection()
-  .then(() => console.log('✅ Conectado a MySQL Freesqldatabase'))
-  .catch(err => console.error('❌ Error MySQL:', err));
-
+pool.connect()
+  .then(() => console.log("✅ Conectado a Supabase"))
+  .catch(err => console.error("❌ Error conexión:", err));
 
 // ================================================
 //           LOGIN - USUARIOS
 // ================================================
 app.post('/Login', async (req, res) => {
-  const { user, password } = req.body;
+
+  const { user, password } = req.body
 
   try {
-    const [rows] = await pool.query(
-      'SELECT * FROM Usuarios WHERE usuario = ?',
+    const result = await pool.query(
+      'SELECT * FROM usuarios WHERE usuario = $1',
       [user]
-    );
-
-    if (rows.length === 0) {
-      return res.status(401).json({ message: 'Usuario no encontrado.' });
+    )
+    if (result.rows.length === 0) {
+      return res.status(401).json({ message: 'Usuario no encontrado.' })
     }
-
-    const usuario = rows[0];
-
-    if (password !== usuario.contrasena) {
-      return res.status(401).json({ message: 'Contraseña incorrecta.' });
+    const usuario = result.rows[0]
+    if (password !== usuario.password) {
+      return res.status(401).json({ message: 'Contraseña incorrecta.' })
     }
-
     res.json({
       message: 'Inicio de sesión exitoso',
-      tipo: usuario.tipo_usuario
-    });
-
+      tipo: usuario.rol
+    })
   } catch (error) {
-    console.error('❌ Error Login:', error);
-    res.status(500).json({ message: 'Error del servidor' });
+    console.error('❌ Error Login:', error)
+    res.status(500).json({ message: 'Error del servidor' })
   }
-});
+})
 
 
 
@@ -86,26 +76,22 @@ app.post('/Login', async (req, res) => {
 // OBTENER TODOS
 app.get('/materiales', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM Materiales');
-    res.json(rows);
+    const result = await pool.query('SELECT * FROM materiales');
+    res.json(result.rows);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: err.message });
   }
 });
 
 // OBTENER POR ID
-app.get('/materiales/:id', async (req, res) => {
+app.get('/materiales/:codigo', async (req, res) => {
   try {
-    const [rows] = await pool.query(
-      'SELECT * FROM Materiales WHERE id = ?',
-      [req.params.id]
+    const result = await pool.query(
+      'SELECT * FROM materiales WHERE codigo=$1',
+      [req.params.codigo]
     );
-
-    if (rows.length === 0) {
-      return res.status(404).json({ message: 'Material no encontrado' });
-    }
-
-    res.json(rows[0]);
+    res.json(result.rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -115,47 +101,50 @@ app.get('/materiales/:id', async (req, res) => {
 app.post('/materiales', async (req, res) => {
   try {
     const { codigo, descripcion, unidad, precio, stock, categoria } = req.body;
-
     await pool.query(
-      'INSERT INTO Materiales (codigo, descripcion, unidad, precio, stock, categoria) VALUES (?, ?, ?, ?, ?, ?)',
+      `INSERT INTO materiales
+      (codigo, descripcion, unidad, precio, stock, categoria)
+      VALUES ($1,$2,$3,$4,$5,$6)`,
       [codigo, descripcion, unidad, precio, stock, categoria]
     );
-
-    res.status(201).json({ message: 'Material creado' });
+    res.json({ message: "Material creado" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
 // ACTUALIZAR
-app.put('/materiales/:id', async (req, res) => {
+app.put('/materiales/:codigo', async (req, res) => {
   try {
-    const { codigo, descripcion, unidad, precio, stock, categoria } = req.body;
-
+    const { descripcion, unidad, precio, stock, categoria } = req.body;
     await pool.query(
-      'UPDATE Materiales SET codigo=?, descripcion=?, unidad=?, precio=?, stock=?, categoria=? WHERE id=?',
-      [codigo, descripcion, unidad, precio, stock, categoria, req.params.id]
+      `UPDATE materiales
+       SET descripcion=$1, unidad=$2, precio=$3, stock=$4, categoria=$5
+       WHERE codigo=$6`,
+      [descripcion, unidad, precio, stock, categoria, req.params.codigo]
     );
-
-    res.json({ message: 'Material actualizado' });
+    res.json({ message: "Material actualizado" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
 // ELIMINAR
-app.delete('/materiales/:id', async (req, res) => {
+app.delete('/materiales/:codigo', async (req, res) => {
   try {
     await pool.query(
-      'DELETE FROM Materiales WHERE id = ?',
-      [req.params.id]
+      'DELETE FROM materiales WHERE codigo=$1',
+      [req.params.codigo]
     );
-
-    res.json({ message: 'Material eliminado' });
+    res.json({ message: "Material eliminado" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
+
+
+
 
 
 // ================================================

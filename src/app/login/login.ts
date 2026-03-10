@@ -19,13 +19,13 @@ import { MatFormFieldModule } from '@angular/material/form-field'
     MatButtonModule,
     MatInputModule,
     MatCardModule,
-    MatIconModule,          // ✅ agregado
-    MatFormFieldModule      // ✅ agregado
+    MatIconModule,          
+    MatFormFieldModule      
   ],
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
-export class LoginComponent {
+export class Login {
 
   user = ''
   password = ''

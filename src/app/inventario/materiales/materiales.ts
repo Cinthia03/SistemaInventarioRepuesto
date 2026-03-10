@@ -1,16 +1,17 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router'
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
-import { MatTableModule } from '@angular/material/table';
-import { ActivatedRoute } from '@angular/router';
-import { MaterialeService } from './materiales.service';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MaterialeService, Material } from './materiales.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-materiales',
@@ -24,91 +25,110 @@ import { MaterialeService } from './materiales.service';
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    MatTableModule
+    MatTableModule,
+    MatPaginatorModule,  
+    MatSortModule 
   ],
   templateUrl: './materiales.html',
   styleUrls: ['./materiales.css'],
 })
-export class Materiales implements OnInit{
-
-  /*materialForm!: FormGroup;
-  materiales: any[] = [];
-  columnas: string[] = ['codigo','descripcion','unidad','precio','stock','categoria','acciones'];
-*/
-
+export class Materiales implements AfterViewInit {
   materialForm!: FormGroup;
-  modoEdicion = false;
-  materialId!: number;
-  pagina!: number;
+  displayedColumns = ['codigo','descripcion','unidad','precio','stock','acciones'];
+
+  dataSource = new MatTableDataSource<Material>();
+
+  materiales: Material[] = [];
+  materialesFiltrados: Material[] = [];
+
+   categoriaActual = "TODOS";
+    filtroTexto = "";
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
-  private fb: FormBuilder,
-  private router: Router,
-  private route: ActivatedRoute,
-  private service: MaterialeService
-  ) {
+    private service: MaterialeService,
+    private fb: FormBuilder
+  ){
+
     this.materialForm = this.fb.group({
       codigo: ['', Validators.required],
       descripcion: ['', Validators.required],
       unidad: ['', Validators.required],
-      precio: [0, [Validators.required, Validators.min(0)]],
-      stock: [0, [Validators.required, Validators.min(0)]],
+      precio: [0, Validators.required],
+      stock: [0, Validators.required],
       categoria: ['', Validators.required]
     });
+
   }
 
-
-  ngOnInit() {
-    this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
-      if (id) {
-        this.modoEdicion = true;
-        this.materialId = Number(id);
-        this.pagina = Number(this.route.snapshot.queryParamMap.get('page'));
-        this.service.obtenerPorId(this.materialId)
-          .subscribe(data => {
-            this.materialForm.patchValue(data);
-          });
-      }
-    });
+  ngAfterViewInit(){
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+    this.cargarMateriales();
   }
 
-  guardarMaterial() {
-  if (this.materialForm.invalid) return;
-    if (this.modoEdicion) {
-      this.service.actualizar(this.materialId, this.materialForm.value)
-        .subscribe({
-          next: () => {
-            console.log("✅ Actualizado correctamente");
+  cargarMateriales(){
+    this.service.obtenerTodos().subscribe(data=>{
+      this.materiales = data;
+      this.materialesFiltrados = data;
+      this.actualizarTabla();
+    })
+  }
 
-            this.router.navigate(
-              ['/acerovarilla'],
-              { queryParams: { page: this.pagina } }
-            );
-          },
-          error: (err) => {
-            console.error("❌ Error actualizando:", err);
-          }
-        });
-    } else {
-      this.service.crear(this.materialForm.value)
-        .subscribe({
-          next: () => {
-            console.log("✅ Creado correctamente");
-            this.materialForm.reset();
-          },
-          error: (err) => {
-            console.error("❌ Error creando:", err);
-          }
-        });
+  aplicarFiltro(event: Event){
+    const valor = (event.target as HTMLInputElement).value;
+    this.filtroTexto = valor;
+    this.dataSource.filter = valor.trim().toLowerCase();
+    if (this.paginator) {
+      this.paginator.firstPage();
     }
   }
 
-  abrirAceroVarilla() {
-    this.router.navigate(['/acerovarilla']);
+  filtrarCategoria(categoria:string){
+    this.categoriaActual = categoria;
+    this.filtrar();
   }
 
-  abrirCategoria(ruta: string) {
-    this.router.navigate(['/' + ruta.toLowerCase()]);
+  filtrar(){
+    this.materialesFiltrados = this.materiales.filter(m => {
+      const coincideTexto =
+        m.codigo.toLowerCase().includes(this.filtroTexto) ||
+        m.descripcion.toLowerCase().includes(this.filtroTexto);
+      const coincideCategoria =
+        this.categoriaActual === "TODOS" ||
+        m.categoria?.toLowerCase() === this.categoriaActual.toLowerCase();
+      return coincideTexto && coincideCategoria;
+    });
+    this.actualizarTabla();
   }
+
+  actualizarTabla(){
+    this.dataSource.data = this.materialesFiltrados;
+    if(this.paginator){
+      this.paginator.firstPage();
+      this.dataSource.paginator = this.paginator;
+    }
+  }
+
+  guardarMaterial(){
+    const material = this.materialForm.value;
+    this.service.crear(material).subscribe(()=>{
+      this.materialForm.reset();
+      this.cargarMateriales();
+    })
+  }
+
+
+  eliminar(id:number){
+    this.service.eliminar(id).subscribe(()=>{
+      this.cargarMateriales();
+    })
+  }
+
+  editar(material:Material){
+    console.log(material);
+  }
+
 }
