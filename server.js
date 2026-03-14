@@ -73,7 +73,6 @@ app.post('/Login', async (req, res) => {
 // ================================================
 //           MATERIALES
 // ================================================
-// OBTENER TODOS
 app.get('/materiales', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM materiales');
@@ -84,8 +83,6 @@ app.get('/materiales', async (req, res) => {
   }
 });
 
-
-//OBTENER CODIGO PARA REGISTRO
 app.get('/materiales/generar-codigo/:categoria', async (req, res) => {
   try {
     const categoria = decodeURIComponent(req.params.categoria);
@@ -122,7 +119,6 @@ app.get('/materiales/generar-codigo/:categoria', async (req, res) => {
   }
 });
 
-
 // OBTENER POR ID
 app.get('/materiales/:codigo', async (req, res) => {
   try {
@@ -136,8 +132,6 @@ app.get('/materiales/:codigo', async (req, res) => {
   }
 });
 
-
-// CREAR
 app.post('/materiales', async (req, res) => {
   try {
     const { descripcion, unidad, precio, stock, categoria } = req.body;
@@ -181,8 +175,6 @@ app.post('/materiales', async (req, res) => {
     }
   );
 
-
-// ACTUALIZAR
 app.put('/materiales/:codigo', async (req, res) => {
   try {
     const { descripcion, unidad, precio, stock, categoria } = req.body;
@@ -198,7 +190,6 @@ app.put('/materiales/:codigo', async (req, res) => {
   }
 });
 
-// ELIMINAR
 app.delete('/materiales/:id', async (req, res) => {
   try {
     await pool.query(
@@ -216,7 +207,6 @@ app.delete('/materiales/:id', async (req, res) => {
 // ================================================
 //              MANO DE OBRA
 // ================================================
-// OBTENER TODOS
 app.get('/mano-obra', async (req, res) => {
   try {
     const result = await pool.query(
@@ -229,15 +219,15 @@ app.get('/mano-obra', async (req, res) => {
   }
 });
 
-
-// GENERAR CODIGO AUTOMATICO
 app.get('/mano-obra/generar-codigo', async (req, res) => {
   try {
     const prefijo = 20;
     const result = await pool.query(
-      `SELECT COUNT(*) FROM mano_obra`
+      `SELECT COALESCE(MAX(codigo),'20.000') AS ultimo
+      FROM mano_obra `
     );
-    const numero = parseInt(result.rows[0].count) + 1;
+    const ultimo = result.rows[0].ultimo;
+    const numero = parseInt(ultimo.split('.')[1]) + 1;
     const codigo = `${prefijo}.${numero.toString().padStart(3,'0')}`;
     res.json({ codigo });
   } catch (err) {
@@ -245,8 +235,6 @@ app.get('/mano-obra/generar-codigo', async (req, res) => {
   }
 });
 
-
-// OBTENER POR CODIGO
 app.get('/mano-obra/:codigo', async (req, res) => {
   try {
     const result = await pool.query(
@@ -259,16 +247,16 @@ app.get('/mano-obra/:codigo', async (req, res) => {
   }
 });
 
-
-// CREAR
 app.post('/mano-obra', async (req, res) => {
   try {
     const { descripcion, unidad, precio } = req.body;
     const prefijo = 20;
     const result = await pool.query(
-      `SELECT COUNT(*) FROM mano_obra`
+      `SELECT COALESCE(MAX(codigo),'20.000') AS ultimo
+      FROM mano_obra`
     );
-    const numero = parseInt(result.rows[0].count) + 1;
+    const ultimoCodigo = result.rows[0].ultimo;
+    const numero = parseInt(ultimoCodigo.split('.')[1]) + 1;
     const codigo = `${prefijo}.${numero.toString().padStart(3,'0')}`;
     await pool.query(
       `INSERT INTO mano_obra
@@ -285,8 +273,6 @@ app.post('/mano-obra', async (req, res) => {
   }
 });
 
-
-// ACTUALIZAR
 app.put('/mano-obra/:codigo', async (req, res) => {
   try {
     const { descripcion, unidad, precio } = req.body;
@@ -304,8 +290,6 @@ app.put('/mano-obra/:codigo', async (req, res) => {
   }
 });
 
-
-// ELIMINAR
 app.delete('/mano-obra/:id', async (req, res) => {
   try {
     await pool.query(
@@ -323,56 +307,104 @@ app.delete('/mano-obra/:id', async (req, res) => {
 
 
 
-
-
 // ================================================
 //           EQUIPOS CONSTRUCCIÓN
 // ================================================
-app.post('/guardar', async (req, res) => {
+app.get('/equipos', async (req, res) => {
   try {
-    const { codigo, equipo, unidad, precio } = req.body;
-    await pool.query(
-      'INSERT INTO Equipos_Construccion (codigo, equipo, unidad, precio) VALUES (?, ?, ?, ?)',
-      [codigo, equipo, unidad, precio]
+    const result = await pool.query(
+      'SELECT * FROM equipos ORDER BY codigo'
     );
-    res.status(201).json({ message: 'Equipo guardado' });
+    res.json(result.rows);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: err.message });
   }
 });
 
-app.put('/actualizar/:id', async (req, res) => {
+app.get('/equipos/generar-codigo', async (req, res) => {
   try {
-    const id = req.params.id;
-    const { codigo, equipo, unidad, precio } = req.body;
-    await pool.query(
-      'UPDATE Equipos_Construccion SET codigo=?, equipo=?, unidad=?, precio=? WHERE id=?',
-      [codigo, equipo, unidad, precio, id]
+    const prefijo = 19;
+    const result = await pool.query(
+      `SELECT COALESCE(MAX(codigo),'19.000') AS ultimo
+      FROM equipos `
     );
-    res.json({ message: 'Equipo actualizado' });
+    const ultimo = result.rows[0].ultimo;
+    const numero = parseInt(ultimo.split('.')[1]) + 1;
+    const codigo = `${prefijo}.${numero.toString().padStart(3,'0')}`;
+    res.json({ codigo });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.delete('/eliminar/:id', async (req, res) => {
+app.get('/equipos/:codigo', async (req, res) => {
   try {
-    const id = req.params.id;
-    await pool.query('DELETE FROM Equipos_Construccion WHERE id = ?', [id]);
-    res.json({ message: 'Equipo eliminado' });
+    const result = await pool.query(
+      'SELECT * FROM equipos WHERE codigo=$1',
+      [req.params.codigo]
+    );
+    res.json(result.rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.get('/buscar', async (req, res) => {
+app.post('/equipos', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM Equipos_Construccion');
-    res.json(rows);
+    const { descripcion, unidad, precio } = req.body;
+    const prefijo = 19;
+    const result = await pool.query(
+      `SELECT COALESCE(MAX(codigo),'19.000') AS ultimo
+      FROM equipos`
+    );
+    const ultimoCodigo = result.rows[0].ultimo;
+    const numero = parseInt(ultimoCodigo.split('.')[1]) + 1;
+    const codigo = `${prefijo}.${numero.toString().padStart(3,'0')}`;
+    await pool.query(
+      `INSERT INTO equipos
+      (codigo, descripcion, unidad, precio)
+      VALUES ($1,$2,$3,$4)`,
+      [codigo, descripcion, unidad, precio]
+    );
+    res.json({
+      message: "Equipo de construccion creado",
+      codigo
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
+app.put('/equipos/:codigo', async (req, res) => {
+  try {
+    const { descripcion, unidad, precio } = req.body;
+    await pool.query(
+      `UPDATE equipos
+       SET descripcion=$1,
+           unidad=$2,
+           precio=$3
+       WHERE codigo=$4`,
+      [descripcion, unidad, precio, req.params.codigo]
+    );
+    res.json({ message: "Equipos de construccion actualizada" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/equipos/:id', async (req, res) => {
+  try {
+    await pool.query(
+      'DELETE FROM equipos WHERE id=$1',
+      [req.params.id]
+    );
+    res.json({ message: "Registro eliminado" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 
 

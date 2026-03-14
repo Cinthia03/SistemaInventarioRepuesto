@@ -123,7 +123,6 @@ export class Materiales implements AfterViewInit {
   }
 
   actualizarTabla(){
-   //this.dataSource.data = this.materialesFiltrados;
    this.dataSource.data = this.materialesFiltrados;
     if(this.paginator){
       this.dataSource.paginator = this.paginator;
@@ -176,6 +175,17 @@ export class Materiales implements AfterViewInit {
           this.cargarMateriales();
         });
       }
+  }
+
+  nuevoRegistro(){
+    this.materialForm.reset();
+    this.modoEdicion = false;
+    this.codigoEditar = null;
+    const categoria = this.materialForm.get('categoria')?.value;
+      if(categoria){
+        this.generarCodigo(categoria);
+      }
+    this.cargarMateriales();
   }
 
   editar(material: Material){

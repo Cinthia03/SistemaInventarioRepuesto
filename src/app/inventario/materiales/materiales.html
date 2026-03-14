@@ -65,11 +65,19 @@
       </mat-form-field>
 
       <button mat-raised-button
-              color="primary"
+              class="btn-guardar"
               type="submit"
               [disabled]="materialForm.invalid">
         <mat-icon>{{ modoEdicion ? 'edit' : 'save' }}</mat-icon>
-        {{ modoEdicion ? 'Actualizar Material' : 'Guardar Material' }}
+        {{ modoEdicion ? 'Actalizar Material' : 'Guardar Material' }}
+      </button>
+
+      <button mat-raised-button
+          class="btn-nuevo"
+          type="button"
+          (click)="nuevoRegistro()">
+        <mat-icon>add</mat-icon>
+        Nuevo registro
       </button>
 
     </form>
@@ -107,7 +115,7 @@
           <mat-option value="MATERIAL ELECTRICO">Material Electrico</mat-option>
   </mat-select>
 </mat-form-field>
- 
+ u
 
   <!-- ================= TABLA ================= -->
 <mat-card class="tabla-section">

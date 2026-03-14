@@ -12,9 +12,9 @@
           class="material-form">
 
       <!-- CODIGO -->
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="outline" class="codigo-field">
         <mat-label>Código</mat-label>
-        <input matInput formControlName="codigo">
+        <input matInput formControlName="codigo" readonly>
         <mat-icon matPrefix>qr_code</mat-icon>
       </mat-form-field>
 
@@ -40,13 +40,21 @@
       </mat-form-field>
 
       <button mat-raised-button
-              color="primary"
+              class="btn-guardar"
               type="submit"
               [disabled]="form.invalid">
-
         <mat-icon>{{ modoEdicion ? 'edit' : 'save' }}</mat-icon>
         {{ modoEdicion ? 'Actualizar' : 'Guardar' }}
       </button>
+
+      <button mat-raised-button
+          class="btn-nuevo"
+          type="button"
+          (click)="nuevoRegistro()">
+        <mat-icon>add</mat-icon>
+        Nuevo registro
+      </button>
+
     </form>
   </div>
 
@@ -108,7 +116,11 @@
         </td>
       </ng-container>
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      <tr mat-row
+          *matRowDef="let row; columns: displayedColumns;"
+          [attr.data-codigo]="row.codigo"
+          [class.fila-destacada]="row.codigo === filaActualizada">
+      </tr>
     </table>
 
     <!-- PAGINADOR -->

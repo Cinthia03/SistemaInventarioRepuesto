@@ -40,6 +40,7 @@ export class ManoDeObra implements AfterViewInit {
   filtroTexto = "";
   modoEdicion = false;
   codigoEditar:string|null = null;
+  filaActualizada:string|null = null;
 
   @ViewChild(MatPaginator) paginator!:MatPaginator;
   @ViewChild(MatSort) sort!:MatSort;
@@ -61,6 +62,7 @@ export class ManoDeObra implements AfterViewInit {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
     this.cargarDatos();
+    this.generarCodigo();
   }
 
   cargarDatos(){
@@ -68,8 +70,6 @@ export class ManoDeObra implements AfterViewInit {
       next:(data)=>{
         this.manoObra = data;
         this.dataSource.data = data;
-
-        // 🔹 volver a asignar paginator y sort
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
       },
@@ -88,29 +88,94 @@ export class ManoDeObra implements AfterViewInit {
     );
   }
 
+  irAFilaActualizada(codigo:string){
+    const index = this.manoObra.findIndex(m => m.codigo === codigo);
+    if(index === -1) return;
+    const pageSize = this.paginator.pageSize;
+    const pageIndex = Math.floor(index / pageSize);
+    this.paginator.pageIndex = pageIndex;
+    this.dataSource.paginator = this.paginator;
+    setTimeout(()=>{
+      const fila = document.querySelector(
+        `[data-codigo="${codigo}"]`
+      );
+      if(fila){
+        fila.scrollIntoView({
+          behavior:'smooth',
+          block:'center'
+        });
+      }
+      setTimeout(()=>{
+        this.filaActualizada = null;
+      },3000);
+    },400);
+  }
+
+  generarCodigo(){
+    this.service.generarCodigo().subscribe({
+      next:(res)=>{
+        this.form.patchValue({
+          codigo: res.codigo
+        });
+      },
+      error:(err)=>console.error(err)
+    });
+  }
+
+
   guardar(){
     const data = this.form.value;
     if(this.modoEdicion){
       this.service.actualizar(this.codigoEditar!,data).subscribe({
         next:()=>{
-          this.snackBar.open("Mano de obra actualizada","Cerrar",{duration:3000});
+          this.filaActualizada = this.codigoEditar;
+          this.snackBar.open(
+              "✏️ Mano de obra actualizado correctamente",
+              "Cerrar",
+              {
+                duration: 3000,
+                horizontalPosition: "center",
+                verticalPosition: "top"
+              }
+            );
+          const codigo = this.codigoEditar!;
           this.form.reset();
           this.modoEdicion=false;
           this.cargarDatos();
+            setTimeout(()=>{
+              this.irAFilaActualizada(codigo);
+              },300);
         },
         error:(err)=>console.error(err)
       });
     }else{
       this.service.crear(data).subscribe({
         next:()=>{
-          this.snackBar.open("Registro guardado","Cerrar",{duration:3000});
+          this.snackBar.open(
+            "✅ Mano de obra registrado correctamente",
+            "Cerrar",
+            {
+              duration: 3000,
+              horizontalPosition: "center",
+              verticalPosition: "top"
+            }
+          );
           this.form.reset();
+          this.generarCodigo();
           this.cargarDatos();
         },
         error:(err)=>console.error(err)
       });
     }
-}
+  }
+
+  nuevoRegistro(){
+    this.form.reset();
+    this.modoEdicion = false;
+    this.codigoEditar = null;
+    this.generarCodigo();
+    this.cargarDatos();
+  }
 
   editar(item:ManoObra){
     this.modoEdicion=true;

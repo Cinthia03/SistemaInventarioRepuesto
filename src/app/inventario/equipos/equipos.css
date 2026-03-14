@@ -1,0 +1,206 @@
+.container {
+  min-height: 100vh;
+  width: 100%;
+  padding: 60px 20px;
+  box-sizing: border-box;
+  font-family: 'Roboto', sans-serif;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* centra horizontal */
+  justify-content: flex-start;
+
+  background: linear-gradient(
+      rgba(0,0,0,0.75),
+      rgba(0,0,0,0.75)
+    ),
+    url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDHp9UkU_HxEtSDtk-ixxiNdG1tUT-xslOSg&s')
+    no-repeat center center/cover;
+}
+
+/* ================= FORMULARIO ================= */
+
+.form-section {
+  width: 90%;
+  max-width: 1200px;
+  padding: 50px;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 25px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+  margin-bottom: 70px;
+}
+
+.form-title {
+  text-align: center;
+  margin-bottom: 45px;
+  font-size: 28px;
+  font-weight: 500;
+  color: black;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.title-icon {
+  font-size: 25px;
+  color: black;
+}
+
+.material-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 30px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+::ng-deep .codigo-field .mat-mdc-text-field-wrapper{
+  background-color:#eeeeee !important;
+}
+
+::ng-deep .codigo-field input{
+  color:#424242 !important;
+  font-weight:500;
+}
+
+.botones-form{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+
+.btn-guardar{
+  background: rgb(164, 240, 164);
+  font-weight:500;
+  padding:10px 18px;
+  border-radius:8px;
+  border:1px solid #2e7d35;
+  transition: all .3s ease;
+}
+
+.btn-guardar:hover{
+  background:rgb(173, 228, 173);
+  color: black;
+  box-shadow:0 4px 12px green;
+  transform: translateY(-2px);
+}
+
+.btn-nuevo{
+  background:#e8f2f5;
+  font-weight:500;
+  padding:10px 18px;
+  border-radius:8px;
+  border:1px solid #2e717d;
+  transition: all .3s ease;
+}
+
+.btn-nuevo:hover{
+  background:#aee3f3;
+  color: black;
+  box-shadow:0 4px 12px #2e717d;
+  transform: translateY(-2px);
+}
+
+/* ================= FILTROS ================= */
+.filtro-campo {
+  width: 90%;
+}
+
+::ng-deep .filtro-campo input{
+  color: white !important;
+}
+
+::ng-deep .filtro-campo input::placeholder{
+  color: rgba(255,255,255,0.7);
+}
+
+::ng-deep .filtro-campo .mdc-floating-label{
+  color: white !important;
+}
+
+::ng-deep .filtro-campo .mat-mdc-select-value{
+  color: white !important;
+}
+
+::ng-deep .filtro-campo .mdc-text-field__input{
+  color: white;
+}
+
+::ng-deep .filtro-campo .mdc-floating-label{
+  color: white;
+}
+
+::ng-deep .filtro-campo .mdc-notched-outline__leading,
+::ng-deep .filtro-campo .mdc-notched-outline__notch,
+::ng-deep .filtro-campo .mdc-notched-outline__trailing{
+  border-color: white;
+}
+
+::ng-deep .filtro-campo.mat-focused .mdc-notched-outline__leading,
+::ng-deep .filtro-campo.mat-focused .mdc-notched-outline__notch,
+::ng-deep .filtro-campo.mat-focused .mdc-notched-outline__trailing{
+  border-color: white;
+}
+
+::ng-deep .filtro-campo mat-icon{
+  color: white;
+}
+
+::ng-deep .filtro-campo input::placeholder{
+  color: rgba(255,255,255,0.7);
+}
+
+
+
+/* ================= TABLA ================= */
+
+.tabla-section{
+  width: 90%;
+  padding: 5px;
+  background: rgba(255,255,255,0.97);
+  border-radius: 25px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+  backdrop-filter: blur(8px);
+}
+
+table{
+  width:100%;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+th{
+  background:#111;
+  color:blackrgb(252, 227, 227)
+}
+
+td{
+  font-size:14px;
+}
+
+tr:hover{
+  background:#f2f4f8;
+}
+
+.fila-destacada{
+  background-color: #fff3cd !important;
+  transition: background 0.5s ease;
+}
+
+.btn-editar{
+  color: green;
+}
+
+.btn-eliminar{
+  color: red;
+}
+
+mat-paginator{
+  margin-top:25px;
+  border-radius:10px;
+}

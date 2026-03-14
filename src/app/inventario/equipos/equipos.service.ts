@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-export interface ManoObra {
+export interface equipos {
   id?: number;
   codigo: string;
   descripcion: string;
@@ -13,25 +13,25 @@ export interface ManoObra {
 @Injectable({
   providedIn: 'root'
 })
-export class ManoDeObraService {
+export class EquiposService {
 
-  private apiUrl = 'http://localhost:3000/mano-obra';
+  private apiUrl = 'http://localhost:3000/equipos';
 
   constructor(private http: HttpClient) {}
 
-  obtenerTodos(): Observable<ManoObra[]> {
-    return this.http.get<ManoObra[]>(this.apiUrl);
+  obtenerTodos(): Observable<equipos[]> {
+    return this.http.get<equipos[]>(this.apiUrl);
   }
 
   generarCodigo(){
     return this.http.get<{codigo:string}>(`${this.apiUrl}/generar-codigo`);
   }
 
-  crear(data: ManoObra) {
+  crear(data: equipos) {
     return this.http.post(this.apiUrl, data);
   }
 
-  actualizar(codigo: string, data: ManoObra) {
+  actualizar(codigo: string, data: equipos) {
     return this.http.put(`${this.apiUrl}/${codigo}`, data);
   }
 
