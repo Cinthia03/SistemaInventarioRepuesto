@@ -33,11 +33,15 @@ export class MaterialeService {
     return this.http.post(this.apiUrl, data);
   }
 
-  actualizar(id: number, data: Material) {
-    return this.http.put(`${this.apiUrl}/${id}`, data);
+  actualizar(codigo: string, data: Material) {
+    return this.http.put(`${this.apiUrl}/${codigo}`, data);
   }
 
   eliminar(id: number) {
     return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+
+  generarCodigo(categoria:string){
+    return this.http.get<any>(`${this.apiUrl}/generar-codigo/${categoria}`)
   }
 }

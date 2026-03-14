@@ -125,8 +125,8 @@ button {
 /* ================= TABLA ================= */
 
 .tabla-section{
-  width: 100%;
-  padding: 40px;
+  width: 90%;
+  padding: 5px;
   background: rgba(255,255,255,0.97);
   border-radius: 25px;
   box-shadow: 0 25px 60px rgba(0,0,0,0.35);
@@ -152,29 +152,20 @@ tr:hover{
   background:#f2f4f8;
 }
 
-
-.acciones{
-  display:flex;
-  gap:10px;
+.fila-destacada{
+  background-color: #fff3cd !important;
+  transition: background 0.5s;
 }
 
-.acciones button{
-  width:40px;
-  height:40px;
-  border-radius:50%;
+.btn-editar{
+  color: green;
 }
 
+.btn-eliminar{
+  color: red;
+}
 
 mat-paginator{
   margin-top:25px;
-}
-
-.stock-bajo{
-  color:#e53935;
-  font-weight:600;
-}
-
-.stock-ok{
-  color:#2e7d32;
-  font-weight:600;
+  border-radius:10px;
 }

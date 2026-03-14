@@ -12,6 +12,7 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MaterialeService, Material } from './materiales.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-materiales',
@@ -27,7 +28,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
     MatButtonModule,
     MatTableModule,
     MatPaginatorModule,  
-    MatSortModule 
+    MatSortModule,
+    MatSnackBarModule
   ],
   templateUrl: './materiales.html',
   styleUrls: ['./materiales.css'],
@@ -35,32 +37,37 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 export class Materiales implements AfterViewInit {
   materialForm!: FormGroup;
   displayedColumns = ['codigo','descripcion','unidad','precio','stock','acciones'];
-
   dataSource = new MatTableDataSource<Material>();
-
   materiales: Material[] = [];
   materialesFiltrados: Material[] = [];
-
-   categoriaActual = "TODOS";
-    filtroTexto = "";
+  categoriaActual = "TODOS";
+  filtroTexto = "";
+  modoEdicion = false;
+  codigoEditar: string | null = null;
+  codigoScroll: string | null = null;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
     private service: MaterialeService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private snackBar: MatSnackBar
   ){
-
     this.materialForm = this.fb.group({
-      codigo: ['', Validators.required],
+      codigo: [{ value: '', disabled: true }],
       descripcion: ['', Validators.required],
       unidad: ['', Validators.required],
       precio: [0, Validators.required],
       stock: [0, Validators.required],
       categoria: ['', Validators.required]
     });
-
+      this.dataSource.sortingDataAccessor = (item: any, property) => {
+      if(property === 'codigo'){
+        return Number(item.codigo.replace('.', ''));
+      }
+      return item[property];
+    };
   }
 
   ngAfterViewInit(){
@@ -72,18 +79,23 @@ export class Materiales implements AfterViewInit {
   cargarMateriales(){
     this.service.obtenerTodos().subscribe(data=>{
       this.materiales = data;
-      this.materialesFiltrados = data;
+      this.materialesFiltrados = [...data];
       this.actualizarTabla();
+    })
+  }
+
+  generarCodigo(categoria:string){
+    this.service.generarCodigo(categoria).subscribe((res:any)=>{
+      this.materialForm.patchValue({
+        codigo:res.codigo
+      })
     })
   }
 
   aplicarFiltro(event: Event){
     const valor = (event.target as HTMLInputElement).value;
-    this.filtroTexto = valor;
-    this.dataSource.filter = valor.trim().toLowerCase();
-    if (this.paginator) {
-      this.paginator.firstPage();
-    }
+    this.filtroTexto = valor.toLowerCase();
+    this.filtrar();
   }
 
   filtrarCategoria(categoria:string){
@@ -93,42 +105,121 @@ export class Materiales implements AfterViewInit {
 
   filtrar(){
     this.materialesFiltrados = this.materiales.filter(m => {
+      const codigo = (m.codigo ?? '').toLowerCase();
+      const descripcion = (m.descripcion ?? '').toLowerCase();
+      const categoria = (m.categoria ?? '').toLowerCase();
+
       const coincideTexto =
         m.codigo.toLowerCase().includes(this.filtroTexto) ||
         m.descripcion.toLowerCase().includes(this.filtroTexto);
+      
       const coincideCategoria =
         this.categoriaActual === "TODOS" ||
         m.categoria?.toLowerCase() === this.categoriaActual.toLowerCase();
+      
       return coincideTexto && coincideCategoria;
     });
     this.actualizarTabla();
   }
 
   actualizarTabla(){
-    this.dataSource.data = this.materialesFiltrados;
+   //this.dataSource.data = this.materialesFiltrados;
+   this.dataSource.data = this.materialesFiltrados;
     if(this.paginator){
-      this.paginator.firstPage();
       this.dataSource.paginator = this.paginator;
     }
   }
 
   guardarMaterial(){
-    const material = this.materialForm.value;
-    this.service.crear(material).subscribe(()=>{
-      this.materialForm.reset();
-      this.cargarMateriales();
-    })
+    const material = this.materialForm.getRawValue();
+      if(this.modoEdicion){
+        this.service.actualizar(this.codigoEditar!, material).subscribe(()=>{
+          const index = this.materiales.findIndex(m => m.codigo === this.codigoEditar);
+          if(index !== -1){
+            this.materiales[index] = {
+              ...this.materiales[index],
+              ...material
+            };
+          }
+            this.filtrar();
+            this.snackBar.open(
+              "✏️ Material actualizado correctamente",
+              "Cerrar",
+              {
+                duration: 3000,
+                horizontalPosition: "center",
+                verticalPosition: "top"
+              }
+            );
+            this.materialForm.reset();
+            this.modoEdicion = false;
+            setTimeout(()=>{
+              this.scrollToMaterial(this.codigoScroll!);
+            },200);
+            this.codigoEditar = null;
+          });
+      }else{
+        this.service.crear(material).subscribe(()=>{
+          this.snackBar.open(
+            "✅ Material registrado correctamente",
+            "Cerrar",
+            {
+              duration: 3000,
+              horizontalPosition: "center",
+              verticalPosition: "top"
+            }
+          );
+          this.materialForm.reset();
+          this.materialForm.patchValue({
+            codigo: ''
+          });
+          this.cargarMateriales();
+        });
+      }
   }
 
+  editar(material: Material){
+    this.codigoScroll = material.codigo;
+    this.modoEdicion = true;
+    this.codigoEditar = material.codigo;
+    this.materialForm.patchValue({
+      codigo: material.codigo,
+      descripcion: material.descripcion,
+      unidad: material.unidad,
+      precio: material.precio,
+      stock: material.stock,
+      categoria: material.categoria
+    });
+  }
 
-  eliminar(id:number){
+  scrollToMaterial(codigo: string){
+    const fila = document.querySelector(`[data-codigo="${codigo}"]`);
+    if(fila){
+      fila.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+      fila.classList.add("fila-destacada");
+      setTimeout(()=>{
+        fila.classList.remove("fila-destacada");
+      },2000);
+    }
+  }
+
+  eliminar(id: number){
     this.service.eliminar(id).subscribe(()=>{
-      this.cargarMateriales();
+      this.materiales = this.materiales.filter(m => m.id !== id);
+      this.filtrar();
+      this.snackBar.open(
+        "🗑️ Material eliminado",
+        "Cerrar",
+        {
+          duration:3000,
+          horizontalPosition:"center",
+          verticalPosition:"top"
+        }
+      );
     })
-  }
-
-  editar(material:Material){
-    console.log(material);
   }
 
 }

@@ -42,12 +42,12 @@ export const routes: Routes = [
       import('./inventario/equipos/equipos')
         .then(m => m.Equipos)
   },
-  {
+  /*{
     path: 'acerovarilla',
     loadComponent: () =>
       import('./inventario/materiales/acerovarilla/acerovarilla')
         .then(m => m.Acerovarilla)
-  },
+  },*/
   {
     path: 'materiales/editar/:id',
     loadComponent: () =>

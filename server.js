@@ -84,6 +84,45 @@ app.get('/materiales', async (req, res) => {
   }
 });
 
+
+//OBTENER CODIGO PARA REGISTRO
+app.get('/materiales/generar-codigo/:categoria', async (req, res) => {
+  try {
+    const categoria = decodeURIComponent(req.params.categoria);
+    const prefijos = {
+      "ACERO Y VARILLAS": 1,
+      "ALUMINIO Y VIDRIO": 2,
+      "ADOQUINES": 3,
+      "AGLOMERANTES": 4,
+      "AGREGADOS": 5,
+      "AZULEJOS": 6,
+      "PISOS": 7,
+      "BLOQUE CONCRETO": 8,
+      "BLOQUE ARCILLA": 9,
+      "MADERAS PUERTAS ACCESORIOS": 10,
+      "ENCOFRADO": 11,
+      "CUBIERTA Y TUMBADO": 12,
+      "PINTURAS": 13,
+      "VARIOS": 14,
+      "AGUA POTABLE": 15,
+      "AGUA SERVIDAS": 16,
+      "PIEZAS SANITARIAS": 17,
+      "MATERIAL ELECTRICO": 18
+    };
+    const prefijo = prefijos[categoria];
+    const result = await pool.query(
+      `SELECT COUNT(*) FROM materiales WHERE categoria=$1`,
+      [categoria]
+    );
+    const numero = parseInt(result.rows[0].count) + 1;
+    const codigo = `${prefijo}.${numero.toString().padStart(3,'0')}`;
+    res.json({ codigo });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 // OBTENER POR ID
 app.get('/materiales/:codigo', async (req, res) => {
   try {
@@ -97,21 +136,51 @@ app.get('/materiales/:codigo', async (req, res) => {
   }
 });
 
+
 // CREAR
 app.post('/materiales', async (req, res) => {
   try {
-    const { codigo, descripcion, unidad, precio, stock, categoria } = req.body;
-    await pool.query(
-      `INSERT INTO materiales
-      (codigo, descripcion, unidad, precio, stock, categoria)
-      VALUES ($1,$2,$3,$4,$5,$6)`,
-      [codigo, descripcion, unidad, precio, stock, categoria]
-    );
-    res.json({ message: "Material creado" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+    const { descripcion, unidad, precio, stock, categoria } = req.body;
+    const prefijos = {
+      "ACERO Y VARILLAS": 1,
+      "ALUMINIO Y VIDRIO": 2,
+      "ADOQUINES": 3,
+      "AGLOMERANTES": 4,
+      "AGREGADOS": 5,
+      "AZULEJOS": 6,
+      "PISOS": 7,
+      "BLOQUE CONCRETO": 8,
+      "BLOQUE ARCILLA": 9,
+      "MADERAS PUERTAS ACCESORIOS": 10,
+      "ENCOFRADO": 11,
+      "CUBIERTA Y TUMBADO": 12,
+      "PINTURAS": 13,
+      "VARIOS": 14,
+      "AGUA POTABLE": 15,
+      "AGUA SERVIDAS": 16,
+      "PIEZAS SANITARIAS": 17,
+      "MATERIAL ELECTRICO": 18
+    };
+      const prefijo = prefijos[categoria];
+      const result = await pool.query(
+        `SELECT COUNT(*) FROM materiales WHERE categoria=$1`,
+        [categoria]
+      );
+      const numero = parseInt(result.rows[0].count) + 1;
+      const codigo = `${prefijo}.${numero.toString().padStart(3,'0')}`;
+        await pool.query(
+          `INSERT INTO materiales
+          (codigo, descripcion, unidad, precio, stock, categoria)
+          VALUES ($1,$2,$3,$4,$5,$6)`,
+          [codigo, descripcion, unidad, precio, stock, categoria]
+        );
+        res.json({ message: "Material creado", codigo });
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    }
+  );
+
 
 // ACTUALIZAR
 app.put('/materiales/:codigo', async (req, res) => {
@@ -130,17 +199,126 @@ app.put('/materiales/:codigo', async (req, res) => {
 });
 
 // ELIMINAR
-app.delete('/materiales/:codigo', async (req, res) => {
+app.delete('/materiales/:id', async (req, res) => {
   try {
     await pool.query(
-      'DELETE FROM materiales WHERE codigo=$1',
-      [req.params.codigo]
+      'DELETE FROM materiales WHERE id=$1',
+      [req.params.id]
     );
     res.json({ message: "Material eliminado" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
+
+
+// ================================================
+//              MANO DE OBRA
+// ================================================
+// OBTENER TODOS
+app.get('/mano-obra', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM mano_obra ORDER BY codigo'
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// GENERAR CODIGO AUTOMATICO
+app.get('/mano-obra/generar-codigo', async (req, res) => {
+  try {
+    const prefijo = 20;
+    const result = await pool.query(
+      `SELECT COUNT(*) FROM mano_obra`
+    );
+    const numero = parseInt(result.rows[0].count) + 1;
+    const codigo = `${prefijo}.${numero.toString().padStart(3,'0')}`;
+    res.json({ codigo });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// OBTENER POR CODIGO
+app.get('/mano-obra/:codigo', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM mano_obra WHERE codigo=$1',
+      [req.params.codigo]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// CREAR
+app.post('/mano-obra', async (req, res) => {
+  try {
+    const { descripcion, unidad, precio } = req.body;
+    const prefijo = 20;
+    const result = await pool.query(
+      `SELECT COUNT(*) FROM mano_obra`
+    );
+    const numero = parseInt(result.rows[0].count) + 1;
+    const codigo = `${prefijo}.${numero.toString().padStart(3,'0')}`;
+    await pool.query(
+      `INSERT INTO mano_obra
+      (codigo, descripcion, unidad, precio)
+      VALUES ($1,$2,$3,$4)`,
+      [codigo, descripcion, unidad, precio]
+    );
+    res.json({
+      message: "Mano de obra creada",
+      codigo
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// ACTUALIZAR
+app.put('/mano-obra/:codigo', async (req, res) => {
+  try {
+    const { descripcion, unidad, precio } = req.body;
+    await pool.query(
+      `UPDATE mano_obra
+       SET descripcion=$1,
+           unidad=$2,
+           precio=$3
+       WHERE codigo=$4`,
+      [descripcion, unidad, precio, req.params.codigo]
+    );
+    res.json({ message: "Mano de obra actualizada" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// ELIMINAR
+app.delete('/mano-obra/:id', async (req, res) => {
+  try {
+    await pool.query(
+      'DELETE FROM mano_obra WHERE id=$1',
+      [req.params.id]
+    );
+    res.json({ message: "Registro eliminado" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 
 
 
@@ -201,54 +379,7 @@ app.get('/buscar', async (req, res) => {
 
 
 
-// ================================================
-//           MANO DE OBRA
-// ================================================
-app.post('/guardarManoObra', async (req, res) => {
-  try {
-    const { codigo, persona, unidad, precio } = req.body;
-    await pool.query(
-      'INSERT INTO ManoDeObra (codigo, persona, unidad, precio) VALUES (?, ?, ?, ?)',
-      [codigo, persona, unidad, precio]
-    );
-    res.status(201).json({ message: 'Mano de obra guardada' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
-app.put('/actualizarManoObra/:id', async (req, res) => {
-  try {
-    const id = req.params.id;
-    const { codigo, persona, unidad, precio } = req.body;
-    await pool.query(
-      'UPDATE ManoDeObra SET codigo=?, persona=?, unidad=?, precio=? WHERE id=?',
-      [codigo, persona, unidad, precio, id]
-    );
-    res.json({ message: 'Mano de obra actualizada' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.delete('/eliminarManoObra/:id', async (req, res) => {
-  try {
-    const id = req.params.id;
-    await pool.query('DELETE FROM ManoDeObra WHERE id = ?', [id]);
-    res.json({ message: 'Mano de obra eliminada' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.get('/buscarManoObra', async (req, res) => {
-  try {
-    const [rows] = await pool.query('SELECT * FROM ManoDeObra');
-    res.json(rows);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
 // ================================================
 //           MANEJO DE ERRORES GLOBAL
