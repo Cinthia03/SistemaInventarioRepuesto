@@ -1,36 +1,26 @@
 .container {
   height: 90vh;
   display: flex;
-  flex-direction: column; /* Para separar título y cards */
-  justify-content: center; /* Centrado vertical */
-  align-items: center; /* Centrado horizontal */
+  flex-direction: column; 
+  justify-content: center; 
+  align-items: center; 
   text-align: center;
   padding: 10px;
   box-sizing: border-box;
-  background: linear-gradient(
-      rgba(0, 0, 0, 0.800),
-      rgba(0, 0, 0, 0.800)
-    ),
-    url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDHp9UkU_HxEtSDtk-ixxiNdG1tUT-xslOSg&s') no-repeat center center/cover;
+  background: #F1F5F9;
   font-family: 'Roboto', sans-serif;
 }
 
-.header-section {
-  margin-bottom: 50px;
-}
-
 .titulo {
-  font-size: clamp(28px, 4vw, 48px);
-  color: white;
-  font-weight: 500;
-  margin-bottom: 20px;
+  font-size:32px;
+  margin-bottom:10px;
+  color: black;
 }
 
 .subtitulo {
-  color: white;
-  font-size: 16px;
-  max-width: 600px;
-  margin: 0 auto;
+  color: black;
+  max-width:750px;
+  margin-bottom:40px;
 }
 
 .cards {
@@ -58,16 +48,14 @@
   margin-bottom: 15px;
 }
 
-.card h2 {
-  font-size: 20px;
-  margin-bottom: 10px;
-  font-weight: 500;
+.card h2{
+margin-top:10px;
+font-size:20px;
 }
 
-.card p {
-  font-size: 14px;
-  color: #555;
-  line-height: 1.5;
+.card p{
+margin-top:10px;
+color:black;
 }
 
 .card:hover {
@@ -80,9 +68,6 @@
 .manobra mat-icon { color: #00897b; }
 .equipos mat-icon { color: #ef6c00; }
 
-.materiales h2 { color: #1565c0; }
-.manobra h2 { color: #00897b; }
-.equipos h2 { color: #ef6c00; }
 
 @media (max-width: 768px) {
   .card {

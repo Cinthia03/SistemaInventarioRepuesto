@@ -4,18 +4,12 @@
   padding: 60px 20px;
   box-sizing: border-box;
   font-family: 'Roboto', sans-serif;
-
   display: flex;
   flex-direction: column;
-  align-items: center;   /* centra horizontal */
+  align-items: center;  
   justify-content: flex-start;
-
-  background: linear-gradient(
-      rgba(0,0,0,0.75),
-      rgba(0,0,0,0.75)
-    ),
-    url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDHp9UkU_HxEtSDtk-ixxiNdG1tUT-xslOSg&s')
-    no-repeat center center/cover;
+  background: #F1F5F9;
+  font-family: 'Roboto', sans-serif;
 }
 
 /* ================= FORMULARIO ================= */
@@ -105,51 +99,6 @@ mat-form-field {
 .filtro-campo {
   width: 90%;
 }
-
-::ng-deep .filtro-campo input{
-  color: white !important;
-}
-
-::ng-deep .filtro-campo input::placeholder{
-  color: rgba(255,255,255,0.7);
-}
-
-::ng-deep .filtro-campo .mdc-floating-label{
-  color: white !important;
-}
-
-::ng-deep .filtro-campo .mat-mdc-select-value{
-  color: white !important;
-}
-
-::ng-deep .filtro-campo .mdc-text-field__input{
-  color: white;
-}
-
-::ng-deep .filtro-campo .mdc-floating-label{
-  color: white;
-}
-
-::ng-deep .filtro-campo .mdc-notched-outline__leading,
-::ng-deep .filtro-campo .mdc-notched-outline__notch,
-::ng-deep .filtro-campo .mdc-notched-outline__trailing{
-  border-color: white;
-}
-
-::ng-deep .filtro-campo.mat-focused .mdc-notched-outline__leading,
-::ng-deep .filtro-campo.mat-focused .mdc-notched-outline__notch,
-::ng-deep .filtro-campo.mat-focused .mdc-notched-outline__trailing{
-  border-color: white;
-}
-
-::ng-deep .filtro-campo mat-icon{
-  color: white;
-}
-
-::ng-deep .filtro-campo input::placeholder{
-  color: rgba(255,255,255,0.7);
-}
-
 
 
 /* ================= TABLA ================= */

@@ -1,0 +1,92 @@
+<div class="contenedor">
+
+<h2>ANÁLISIS DE PRECIOS UNITARIOS</h2>
+
+<div class="busqueda">
+
+<input
+type="text"
+placeholder="Ingrese código ej: 1.1.1"
+[(ngModel)]="codigoBusqueda">
+
+<button (click)="buscar()">
+Buscar
+</button>
+
+</div>
+
+
+<div *ngIf="rubroSeleccionado">
+
+<h3>{{rubroSeleccionado.codigo}} - {{rubroSeleccionado.descripcion}}</h3>
+
+<p><strong>Unidad:</strong> {{rubroSeleccionado.unidad}}</p>
+
+
+<table>
+
+<tr>
+<th>Concepto</th>
+<th>Valor</th>
+</tr>
+
+<tr>
+<td>Equipos (M)</td>
+<td>
+<input type="number"
+[(ngModel)]="equipos"
+(ngModelChange)="calcularPrecio()">
+</td>
+</tr>
+
+<tr>
+<td>Mano de Obra (N)</td>
+<td>
+<input type="number"
+[(ngModel)]="manoObra"
+(ngModelChange)="calcularPrecio()">
+</td>
+</tr>
+
+<tr>
+<td>Materiales (O)</td>
+<td>
+<input type="number"
+[(ngModel)]="materiales"
+(ngModelChange)="calcularPrecio()">
+</td>
+</tr>
+
+<tr>
+<td>Transporte (P)</td>
+<td>
+<input type="number"
+[(ngModel)]="transporte"
+(ngModelChange)="calcularPrecio()">
+</td>
+</tr>
+
+<tr class="precio">
+<td>Precio Unitario (M+N+O+P)</td>
+<td>{{precioUnitario | number:'1.2-2'}}</td>
+</tr>
+
+<tr>
+<td>Cantidad</td>
+<td>
+<input type="number"
+[(ngModel)]="cantidad"
+(ngModelChange)="calcularTotal()">
+</td>
+</tr>
+
+<tr class="total">
+<td>TOTAL</td>
+<td>{{total | number:'1.2-2'}}</td>
+</tr>
+
+</table>
+
+</div>
+
+</div>

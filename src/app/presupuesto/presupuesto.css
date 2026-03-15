@@ -1,0 +1,33 @@
+.contenedor {
+  height: 90vh;
+  display: flex;
+  flex-direction: column; /* Para separar título y cards */
+  justify-content: center; /* Centrado vertical */
+  align-items: center; /* Centrado horizontal */
+  text-align: center;
+  padding: 10px;
+  box-sizing: border-box;
+  background: #F1F5F9;
+  font-family: 'Roboto', sans-serif;
+}
+
+.obra-gris{
+font-family: Arial;
+max-width:900px;
+margin:auto;
+}
+
+.tabla-rubros{
+width:100%;
+border-collapse:collapse;
+}
+
+.tabla-rubros td{
+border:1px solid #ccc;
+padding:6px;
+}
+
+.titulo-seccion{
+background:#e6e6e6;
+font-weight:bold;
+}

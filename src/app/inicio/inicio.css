@@ -1,26 +1,20 @@
 .container {
   height: 90vh;
   display: flex;
-  flex-direction: column; /* Para separar título y cards */
-  justify-content: center; /* Centrado vertical */
-  align-items: center; /* Centrado horizontal */
+  flex-direction: column; 
+  justify-content: center; 
+  align-items: center;
   text-align: center;
   padding: 10px;
   box-sizing: border-box;
-  background: linear-gradient(
-      rgba(0, 0, 0, 0.800),
-      rgba(0, 0, 0, 0.800)
-    ),
-    url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDHp9UkU_HxEtSDtk-ixxiNdG1tUT-xslOSg&s') no-repeat center center/cover;
+  background: #F1F5F9;
   font-family: 'Roboto', sans-serif;
 }
 
 .titulo {
-  font-size: 40px;
-  color: white;
-  margin-bottom: 40px; 
-  font-weight: 500;
-  letter-spacing: 1px;
+  font-size:32px;
+  margin-bottom:30px;
+  color: black;
 }
 
 .cards {
@@ -49,20 +43,25 @@
   box-shadow: 0 15px 30px rgba(0,0,0,0.3);
 }
 
-/* Colores personalizados */
 .inventario {
   background: white;
   color: #1565c0;
+  max-width:750px;
+  margin-bottom:40px;
 }
 
 .calculo {
   background: white;
   color:green;
+  max-width:750px;
+  margin-bottom:40px;
 }
 
 .presupuesto {
   background: white;
   color:chocolate;
+  max-width:750px;
+  margin-bottom:40px;
 }
 
 h2{
