@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar'
 import { MatIconModule } from '@angular/material/icon'
 import { MatButtonModule } from '@angular/material/button'
+import { Login } from '../login/login';
 
 @Component({
   selector: 'app-header',
@@ -20,5 +21,9 @@ export class HeaderComponent {
 
   irInicio() {
     this.router.navigate(['/inicio']);
+  }
+
+  irLogin(){
+    this.router.navigate(['/login']);
   }
 }

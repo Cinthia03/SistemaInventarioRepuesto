@@ -37,16 +37,22 @@ export class Login {
   ) {}
 
   login() {
-    this.http.post<any>('http://localhost:3000/Login', {
+    this.http.post<any>('http://localhost:3000/login', {
       user: this.user,
       password: this.password
     }).subscribe({
       next: (res) => {
-        localStorage.setItem('tipo', res.tipo)
-        this.router.navigate(['/inicio'])
+        console.log(res)
+
+        // 🔥 mejor validación
+        if (res.tipo) {
+          localStorage.setItem('tipo', res.tipo)
+          this.router.navigate(['/inicio'])
+        }
       },
       error: (err) => {
-        this.error = err.error?.message || 'Error de conexión'
+        console.error(err)
+        this.error = err.error?.message || 'Error'
       }
     })
   }

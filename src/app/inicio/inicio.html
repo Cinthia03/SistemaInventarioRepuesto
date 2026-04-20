@@ -1,27 +1,39 @@
-<div class="container">
+<div class="page">
 
-  <h1 class="titulo">Sistema de Gestión Constructora</h1>
+  <!-- INVENTARIO -->
+  <section class="section inventario">
+    <div class="content">
+      <h2>Gestión de Inventario</h2>
+      <p>
+        Administra materiales, controla stock y optimiza recursos en tiempo real
+        para garantizar eficiencia en cada proyecto.
+      </p>
+      <button (click)="irInventario()">Ver más</button>
+    </div>
+  </section>
 
-  <div class="cards">
-    <!-- INVENTARIO -->
-    <mat-card class="card inventario" (click)="irInventario()">
-      <mat-icon>inventory_2</mat-icon>
-      <h2>INVENTARIO</h2>
-      <p>Gestión completa de materiales</p>
-    </mat-card>
+  <!-- CALCULO -->
+  <section class="section calculo">
+    <div class="content">
+      <h2>Cálculo Estructural</h2>
+      <p>
+        Herramientas avanzadas para análisis estructural, diseño y validación
+        de proyectos de construcción.
+      </p>
+      <button (click)="irCalculo()">Ver más</button>
+    </div>
+  </section>
 
-    <!-- CALCULO -->
-    <mat-card class="card calculo" (click)="irCalculo()">
-      <mat-icon>calculate</mat-icon>
-      <h2>CALCULO</h2>
-      <p>Herramientas de cálculo estructural</p>
-    </mat-card>
+  <!-- PRESUPUESTO -->
+  <section class="section presupuesto">
+    <div class="content">
+      <h2>Presupuestos</h2>
+      <p>
+        Genera, analiza y controla presupuestos de obra con precisión y rapidez
+        para una mejor toma de decisiones.
+      </p>
+      <button (click)="irPresupuesto()">Ver más</button>
+    </div>
+  </section>
 
-    <!-- PRESUPUESTO -->
-    <mat-card class="card presupuesto" (click)="irPresupuesto()">
-      <mat-icon>request_quote</mat-icon>
-      <h2>PRESUPUESTO</h2>
-      <p>Control y generación de presupuestos</p>
-    </mat-card>
-  </div>
 </div>

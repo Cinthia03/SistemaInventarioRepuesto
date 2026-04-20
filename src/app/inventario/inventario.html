@@ -1,42 +1,77 @@
 <div class="container">
 
   <div class="header-section">
-    <h1 class="titulo">Inventario General</h1>
+    <h1 class="titulo">MODULO INVENTARIO</h1>
     <p class="subtitulo">
-      Administra los recursos del proyecto: materiales, mano de obra y equipos.
+      Control integral de recursos de construcción
     </p>
   </div>
 
-  <div class="cards">
+  <!-- LOADING -->
+  <div *ngIf="cargando" class="loading">
+    <p>Cargando datos...</p>
+  </div>
 
-    <mat-card class="card materiales" (click)="abrirCategoriaMateriales()">
-      <mat-icon>inventory_2</mat-icon>
-      <h2>MATERIALES</h2>
-      <p>
-        Cemento, acero, bloques, pinturas, instalaciones eléctricas,
-        sanitarias y más.
-      </p>
-    </mat-card>
+  <!-- CONTENIDO -->
+  <div class="cards" *ngIf="!cargando">
 
-    <mat-card class="card manobra" (click)="abrirCategoriaManObra()">
-      <mat-icon>engineering</mat-icon>
-      <h2>MANO DE OBRA</h2>
-      <p>
-        Albañiles, electricistas, plomeros, carpinteros
-        y personal técnico.
-      </p>
-    </mat-card>
+    <!-- MATERIALES -->
+    <div class="card materiales" (click)="abrirCategoriaMateriales()">
+      <div class="top">
+        <div class="icon-box">
+          <mat-icon>inventory</mat-icon>
+        </div>
+        <div class="contador">
+          {{ totalMateriales }}
+          <span>registros</span>
+        </div>
+      </div>
+      <h2>Materiales</h2>
+      <p>Gestión de insumos de obra.</p>
+      <div class="footer">
+        <span>Ver módulo</span>
+        <mat-icon>arrow_forward</mat-icon>
+      </div>
+    </div>
 
-    <mat-card class="card equipos" (click)="abrirCategoriaEquipos()">
-      <mat-icon>construction</mat-icon>
-      <h2>EQUIPOS DE CONSTRUCCION</h2>
-      <p>
-        Mezcladoras, andamios, herramientas eléctricas,
-        maquinaria pesada.
-      </p>
-    </mat-card>
+    <!-- MANO DE OBRA -->
+    <div class="card manobra" (click)="abrirCategoriaManObra()">
+      <div class="top">
+        <div class="icon-box">
+          <mat-icon>groups</mat-icon>
+        </div>
+        <div class="contador">
+          {{ totalTrabajadores }}
+          <span>personas</span>
+        </div>
+      </div>
+      <h2>Mano de Obra</h2>
+      <p>Gestión de personal.</p>
+      <div class="footer">
+        <span>Ver módulo</span>
+        <mat-icon>arrow_forward</mat-icon>
+      </div>
+    </div>
+
+    <!-- EQUIPOS -->
+    <div class="card equipos" (click)="abrirCategoriaEquipos()">
+      <div class="top">
+        <div class="icon-box">
+          <mat-icon>precision_manufacturing</mat-icon>
+        </div>
+        <div class="contador">
+          {{ totalEquipos }}
+          <span>equipos</span>
+        </div>
+      </div>
+      <h2>Equipos</h2>
+      <p>Control de maquinaria.</p>
+      <div class="footer">
+        <span>Ver módulo</span>
+        <mat-icon>arrow_forward</mat-icon>
+      </div>
+    </div>
 
   </div>
 
 </div>
-

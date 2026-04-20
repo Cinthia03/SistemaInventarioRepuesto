@@ -41,31 +41,78 @@ pool.connect()
 // ================================================
 //           LOGIN - USUARIOS
 // ================================================
-app.post('/Login', async (req, res) => {
-
+app.post('/login', async (req, res) => {
   const { user, password } = req.body
-
   try {
     const result = await pool.query(
       'SELECT * FROM usuarios WHERE usuario = $1',
       [user]
     )
     if (result.rows.length === 0) {
-      return res.status(401).json({ message: 'Usuario no encontrado.' })
+      return res.status(401).json({
+        message: 'Usuario no encontrado'
+      })
     }
     const usuario = result.rows[0]
+
     if (password !== usuario.password) {
-      return res.status(401).json({ message: 'Contraseña incorrecta.' })
+      return res.status(401).json({
+        message: 'Contraseña incorrecta'
+      })
     }
-    res.json({
-      message: 'Inicio de sesión exitoso',
+    return res.status(200).json({
+      message: 'Login exitoso',
       tipo: usuario.rol
     })
   } catch (error) {
     console.error('❌ Error Login:', error)
-    res.status(500).json({ message: 'Error del servidor' })
+    return res.status(500).json({
+      message: 'Error del servidor'
+    })
   }
 })
+
+
+
+
+// ================================================
+//           INVENTARIO
+// ================================================
+// TOTAL MATERIALES
+app.get('/total-materiales', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT COUNT(*) FROM materiales')
+    res.json({ total: parseInt(result.rows[0].count) })
+  } catch (error) {
+    res.status(500).json({ message: 'Error obteniendo materiales' })
+  }
+})
+
+// TOTAL MANO DE OBRA
+app.get('/total-trabajadores', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT COUNT(*) FROM mano_obra')
+    res.json({ total: parseInt(result.rows[0].count) })
+  } catch (error) {
+    res.status(500).json({ message: 'Error obteniendo trabajadores' })
+  }
+})
+
+// TOTAL EQUIPOS
+app.get('/total-equipos', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT COUNT(*) FROM equipos')
+    res.json({ total: parseInt(result.rows[0].count) })
+  } catch (error) {
+    res.status(500).json({ message: 'Error obteniendo equipos' })
+  }
+})
+
+
+
+
+
+
 
 
 
@@ -405,6 +452,44 @@ app.delete('/equipos/:id', async (req, res) => {
   }
 });
 
+
+
+
+
+
+
+
+// ================================================
+//           RUBROS
+// ================================================
+// 🔹 RUBROS (OBRA GRIS)
+app.get('/rubros', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT codigo, descripcion, unidad FROM rubros')
+    res.json(result.rows)
+  } catch (error) {
+    res.status(500).json({ message: 'Error obteniendo rubros' })
+  }
+})
+
+// 🔹 PRODUCTOS (AUTOCOMPLETE)
+app.get('/productos', async (req, res) => {
+  const { tipo, q } = req.query
+
+  try {
+    const result = await pool.query(
+      `SELECT descripcion, tarifa 
+       FROM productos 
+       WHERE tipo = $1 AND descripcion ILIKE $2
+       LIMIT 10`,
+      [tipo, `%${q}%`]
+    )
+
+    res.json(result.rows)
+  } catch (error) {
+    res.status(500).json({ message: 'Error obteniendo productos' })
+  }
+})
 
 
 

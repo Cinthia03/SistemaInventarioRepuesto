@@ -1,72 +1,81 @@
-.container {
-  height: 90vh;
+.page {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.section {
+  height: 50vh;
   display: flex;
-  flex-direction: column; 
-  justify-content: center; 
   align-items: center;
-  text-align: center;
-  padding: 10px;
-  box-sizing: border-box;
-  background: #F1F5F9;
-  font-family: 'Roboto', sans-serif;
+  justify-content: flex-start;
+  padding: 0 80px;
+  position: relative;
+  color: white;
 }
 
-.titulo {
-  font-size:32px;
-  margin-bottom:30px;
-  color: black;
+.section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
 }
 
-.cards {
-  display: flex;
-  gap: 30px;
-  flex-wrap: wrap;
-  justify-content: center;
+.content {
+  position: relative;
+  max-width: 500px;
+  backdrop-filter: blur(2px);
 }
 
-.card {
-  width: 280px;
-  padding: 30px 25px;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-align: center;
-}
-
-.card mat-icon {
-  font-size: 20px;
+h2 {
+  font-size: 38px;
   margin-bottom: 15px;
 }
 
-.card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+p {
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 25px;
+  color: #e2e8f0;
+}
+
+button {
+  padding: 12px 25px;
+  border: none;
+  background: #f97316;
+  color: white;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  background: #ea580c;
 }
 
 .inventario {
-  background: white;
-  color: #1565c0;
-  max-width:750px;
-  margin-bottom:40px;
+  background: url("https://jkasg.com/wp-content/uploads/2025/06/Obra-civil-JKASG-1-e1748888469728.jpeg")
+    no-repeat center/cover;
+}
+
+.inventario::before{
+  background: rgba(30, 64, 175, 0.349);
 }
 
 .calculo {
-  background: white;
-  color:green;
-  max-width:750px;
-  margin-bottom:40px;
+  background: url("https://images.unsplash.com/photo-1503387762-592deb58ef4e")
+    no-repeat center/cover;
+}
+
+.calculo::before{
+  background: rgba(165, 175, 30, 0.329);
 }
 
 .presupuesto {
-  background: white;
-  color:chocolate;
-  max-width:750px;
-  margin-bottom:40px;
+  background: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFeDTx3p7XQDmScmVc7FviKSurF_AjLStDEg&s")
+    no-repeat center/cover;
 }
 
-h2{
-  color: black;
-  font-size: 18px;
+.presupuesto::before{
+  background: rgba(30, 64, 175, 0.349);
 }
 
 

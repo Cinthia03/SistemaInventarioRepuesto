@@ -1,11 +1,12 @@
-<mat-toolbar class="header">
+<header class="header">
+  <div class="logo">
+    <span class="icon" (click)="irInicio()">🏗️</span>
+    <div>
+      <h1>J KASG S.A</h1>
+      <p>Sistema de Gestión Empresarial</p>
+    </div>
+  </div>
 
-  <button mat-icon-button (click)="irInicio()"> 
-    <mat-icon>home</mat-icon> 
-  </button>
-
-  <span class="titulo">
-    Sistema Inventario y Presupuesto
-  </span>
-</mat-toolbar>
+  <button class="logout-btn" (click)="irLogin()">Cerrar sesión</button>
+</header>
 
