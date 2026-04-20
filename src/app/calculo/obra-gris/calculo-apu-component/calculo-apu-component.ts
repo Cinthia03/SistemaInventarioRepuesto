@@ -1,13 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { RubrosService } from '../../../services/RubrosService';
 
-interface Rubro {
+export interface Rubro {
   codigo: string;
   descripcion: string;
-  unidad: string;
+  categoria: string;
+  unidad?: string; // opcional para evitar errores
 }
-
 
 @Component({
   selector: 'app-calculo-apu-component',
@@ -18,101 +20,123 @@ interface Rubro {
   templateUrl: './calculo-apu-component.html',
   styleUrl: './calculo-apu-component.css',
 })
-export class CalculoApuComponent {
+export class CalculoApuComponent implements OnInit {
 
+  // 🔍 BUSCADOR
   codigoBusqueda: string = '';
+  sugerencias: Rubro[] = [];
 
-  cantidad: number = 1;
-
+  // 🎯 SELECCIÓN
   rubroSeleccionado?: Rubro;
 
-  // SUBTOTALES
-  equipos: number = 0;
-  manoObra: number = 0;
-  materiales: number = 0;
-  transporte: number = 0;
+  // 📦 DATA DEL SERVICE
+  rubros: Rubro[] = [];
 
-  precioUnitario: number = 0;
+  // 🧮 APU LISTAS
+  equiposList: any[] = [];
+  manoObraList: any[] = [];
+  materialesList: any[] = [];
+  transporteList: any[] = [];
 
-  total: number = 0;
+  subtotalEquipos = 0;
+  subtotalManoObra = 0;
+  subtotalMateriales = 0;
+  subtotalTransporte = 0;
+  totalDirecto = 0;
 
-  rubros: Rubro[] = [
+  constructor(private rubrosService: RubrosService) {}
 
-    {
-      codigo: '1.1.1',
-      descripcion: 'Caseta de oficina, bodega y guardiania',
-      unidad: 'm2'
-    },
+  ngOnInit(): void {
+    this.rubros = this.rubrosService.getRubros();
+  }
 
-    {
-      codigo: '1.1.2',
-      descripcion: 'Instalación eléctrica provisional',
-      unidad: 'Global'
-    },
+  // =========================
+  // 🔍 AUTOCOMPLETE
+  // =========================
+  filtrarRubros(): void {
+    const texto = this.codigoBusqueda.toLowerCase();
 
-    {
-      codigo: '1.1.3',
-      descripcion: 'Instalación AAPP provisional',
-      unidad: 'Global'
-    },
-
-    {
-      codigo: '1.1.4',
-      descripcion: 'Servicio higienico para obreros',
-      unidad: 'Global'
+    if (!texto) {
+      this.sugerencias = [];
+      return;
     }
 
-  ];
-
-  buscar() {
-
-    const resultado = this.rubros.find(
-      r => r.codigo === this.codigoBusqueda
+    this.sugerencias = this.rubros.filter(r =>
+      r.codigo.toLowerCase().includes(texto) ||
+      r.descripcion.toLowerCase().includes(texto)
     );
-
-    if (resultado) {
-
-      this.rubroSeleccionado = resultado;
-
-      this.reiniciarCalculo();
-
-    } else {
-
-      alert("Código no encontrado");
-
-      this.rubroSeleccionado = undefined;
-
-    }
-
   }
 
-  reiniciarCalculo(){
+  // =========================
+  // 🎯 SELECCIONAR RUBRO
+  // =========================
+  seleccionarRubro(r: Rubro): void {
+    this.rubroSeleccionado = r;
+    this.codigoBusqueda = `${r.codigo} - ${r.descripcion}`;
+    this.sugerencias = [];
 
-    this.equipos = 0;
-    this.manoObra = 0;
-    this.materiales = 0;
-    this.transporte = 0;
-    this.precioUnitario = 0;
-    this.total = 0;
-
+    this.reiniciarCalculo();
   }
 
-  calcularPrecio(){
+  // =========================
+  // 🧮 CALCULOS
+  // =========================
+  calcularTodo(): void {
 
-    this.precioUnitario =
-      this.equipos +
-      this.manoObra +
-      this.materiales +
-      this.transporte;
+    this.subtotalEquipos = 0;
+    this.equiposList.forEach(e => {
+      e.costoHora = (e.cantidad || 0) * (e.tarifa || 0);
+      e.costo = e.costoHora * (e.rendimiento || 0);
+      this.subtotalEquipos += e.costo;
+    });
 
-    this.calcularTotal();
+    this.subtotalManoObra = 0;
+    this.manoObraList.forEach(m => {
+      m.costoHora = (m.cantidad || 0) * (m.tarifa || 0);
+      m.costo = m.costoHora * (m.rendimiento || 0);
+      this.subtotalManoObra += m.costo;
+    });
 
+    this.subtotalMateriales = 0;
+    this.materialesList.forEach(mat => {
+      mat.costo = (mat.cantidad || 0) * (mat.tarifa || 0);
+      this.subtotalMateriales += mat.costo;
+    });
+
+    this.subtotalTransporte = 0;
+    this.transporteList.forEach(t => {
+      t.costo = (t.cantidad || 0) * (t.tarifa || 0);
+      this.subtotalTransporte += t.costo;
+    });
+
+    this.totalDirecto =
+      this.subtotalEquipos +
+      this.subtotalManoObra +
+      this.subtotalMateriales +
+      this.subtotalTransporte;
   }
 
-  calcularTotal(){
+  // =========================
+  // 🔄 RESET
+  // =========================
+  reiniciarCalculo(): void {
+    this.equiposList = [];
+    this.manoObraList = [];
+    this.materialesList = [];
+    this.transporteList = [];
 
-    this.total = this.cantidad * this.precioUnitario;
-
+    this.subtotalEquipos = 0;
+    this.subtotalManoObra = 0;
+    this.subtotalMateriales = 0;
+    this.subtotalTransporte = 0;
+    this.totalDirecto = 0;
   }
 
+  // =========================
+  // ➕ AGREGAR FILAS
+  // =========================
+  agregarEquipo() { this.equiposList.push({ descripcion:'', cantidad:0, tarifa:0, rendimiento:1 }); }
+  agregarManoObra() { this.manoObraList.push({ descripcion:'', cantidad:0, tarifa:0, rendimiento:1 }); }
+  agregarMaterial() { this.materialesList.push({ descripcion:'', unidad:'', cantidad:0, tarifa:0 }); }
+  agregarTransporte() { this.transporteList.push({ descripcion:'', cantidad:0, tarifa:0 }); }
 }

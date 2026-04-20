@@ -1,81 +1,153 @@
-.contenedor {
-  height: 90vh;
-  display: flex;
-  flex-direction: column; /* Para separar título y cards */
-  justify-content: center; /* Centrado vertical */
-  align-items: center; /* Centrado horizontal */
+.container {
+  min-height: 100vh;
+  padding: 60px 25px;
+  background: linear-gradient(to bottom, #f1f5f9, #e2e8f0);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.header-section {
   text-align: center;
+  margin-bottom: 50px;
+}
+
+.titulo {
+  font-size: 34px;
+  color: black;
+}
+
+.subtitulo {
+  color: black;
+  margin-top: 20px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  max-width: 1100px;
+  margin: auto;
+}
+
+.card {
+  background: white;
+  border-radius: 18px;
+  padding: 25px;
+  position: relative;
+  overflow: hidden;
+  transition: 0.3s ease;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 5px;
+  height: 100%;
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  height: 3px;
+  transition: 0.4s;
+}
+
+.card:hover::after {
+  width: 100%;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 45px rgba(0,0,0,0.15);
+}
+
+.badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(0,0,0,0.05);
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 30px;
+}
+
+.icono {
+  width: 45px;
+  height: 45px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icono mat-icon {
+  color: white;
+}
+
+.codigo {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.acciones {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  flex: 1;
   padding: 10px;
-  box-sizing: border-box;
-  background: #F1F5F9;
-  font-family: 'Roboto', sans-serif;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-.titulo{
-font-size:32px;
-margin-bottom:10px;
-color: black;
+.gris::before { background: #475569; }
+.gris::after { background: #475569; }
+.gris .icono { background: #475569; }
+
+.acabados::before { background: #ea580c; }
+.acabados::after { background: #ea580c; }
+.acabados .icono { background: #ea580c; }
+
+.hidraulico::before { background: #0284c7; }
+.hidraulico::after { background: #0284c7; }
+.hidraulico .icono { background: #0284c7; }
+
+.electrico::before { background: #eab308; }
+.electrico::after { background: #eab308; }
+.electrico .icono { background: #eab308; }
+
+.ver {
+  background: #1d4fd89a;
+  color: white;
 }
 
-.descripcion{
-max-width:750px;
-margin-bottom:40px;
-color:black;
+.ver:hover{
+  background-color: #1d4ed8;
 }
 
-.cards{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-gap:25px;
+.calcular {
+  background: #16a34a88;
+  color: white;
 }
 
-.card{
-background:white;
-padding:25px;
-border-radius:10px;
-box-shadow:0 5px 15px rgba(0,0,0,0.1);
-cursor:pointer;
-transition:0.3s;
-}
-
-.card:hover{
-transform:translateY(-5px);
-}
-
-.codigo{
-font-size:26px;
-font-weight:bold;
-color:#330302;
-}
-
-.card h2{
-margin-top:10px;
-font-size:20px;
-}
-
-.card p{
-margin-top:10px;
-color:black;
-}
-
-.ver{
-margin-top:15px;
-margin-right: 10px;
-padding:10px 15px;
-border:none;
-background:#04879e;
-color:white;
-border-radius:5px;
-cursor:pointer;
-}
-
-.calcular{
-margin-top:15px;
-margin-right: 10px;
-padding:10px 15px;
-border:none;
-background:#049e1e;
-color:white;
-border-radius:5px;
-cursor:pointer;
+.calcular:hover{
+  background: #16a34a ;
 }

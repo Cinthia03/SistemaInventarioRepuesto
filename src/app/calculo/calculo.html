@@ -1,57 +1,84 @@
-<div class="contenedor">
-  <h1 class="titulo">
-    Módulo de Cálculo de Presupuesto de Construcción
-  </h1>
-  <p class="descripcion">
-    En esta sección se encuentran los rubros del presupuesto de construcción
-    organizados por sistemas. Seleccione una categoría para acceder al cálculo
-    detallado de cada actividad constructiva.
-  </p>
+<div class="container">
 
-<div class="cards">
-    <div class="card">
+  <div class="header-section">
+    <h1 class="titulo">MODULO PRESUPUESTO</h1>
+    <p class="subtitulo">
+      Gestión y cálculo de rubros de construcción organizados por sistemas.
+    </p>
+  </div>
+
+  <div class="cards">
+    <!-- OBRA GRIS -->
+    <div class="card gris">
+        <div class="badge">Estructural</div>
+        <div class="top">
         <div class="codigo">1.0</div>
-        <h2>OBRA GRIS</h2>
-        <p>
-            Incluye los trabajos estructurales de la obra como preparación del
-            terreno, excavaciones, hormigón simple, hormigón armado, mampostería,
-            contrapisos y cubiertas.
-        </p>
-        <button class="ver" (click)="AbrirObraGris()">Ver rubros</button>
-        <button type="button" class="calcular" (click)="Calcular()">Calcular</button>
+        <div class="icono">
+            <mat-icon>foundation</mat-icon>
         </div>
+        </div>
+        <h2>Obra Gris</h2>
+        <p>
+        Trabajos estructurales: excavación, hormigón, mampostería y cubiertas.
+        </p>
 
-        <div class="card">
+        <div class="acciones">
+        <button class="btn ver" (click)="AbrirObraGris()">Ver rubros</button>
+        <button class="btn calcular" (click)="Calcular()">Calcular</button>
+        </div>
+    </div>
+
+    <!-- ACABADOS -->
+    <div class="card acabados">
+        <div class="badge">Finalización</div>
+        <div class="top">
         <div class="codigo">2.0</div>
-        <h2>OBRAS DE ACABADOS</h2>
-        <p>
-            Incluye revestimientos, cerámicas, porcelanato, pintura interior y
-            exterior, cielos rasos, carpintería de aluminio, vidrio y madera,
-            además de obras adicionales.
-        </p>
-        <button class="ver" (click)="AbrirObrasAcabados()">Ver rubros</button>
+        <div class="icono">
+            <mat-icon>format_paint</mat-icon>
         </div>
+        </div>
+        <h2>Acabados</h2>
+        <p>
+        Revestimientos, pintura, carpintería y detalles finales.
+        </p>
+        <div class="acciones">
+        <button class="btn ver" (click)="AbrirObrasAcabados()">Ver rubros</button>
+        </div>
+    </div>
 
-        <div class="card">
+    <!-- HIDRÁULICO -->
+    <div class="card hidraulico">
+        <div class="badge">Instalación</div>
+        <div class="top">
         <div class="codigo">3.0</div>
-        <h2>SISTEMA HIDRÁULICO SANITARIO</h2>
-        <p>
-            Incluye redes de agua potable, redes de aguas servidas, aguas lluvias,
-            instalación de tuberías, puntos hidráulicos y colocación de piezas
-            sanitarias.
-        </p>
-        <button class="ver" (click)="AbrirSistemaHidraulicoSanitario()">Ver rubros</button>
+        <div class="icono">
+            <mat-icon>water_drop</mat-icon>
         </div>
+        </div>
+        <h2>Sistema Hidráulico</h2>
+        <p>
+        Redes de agua potable, aguas servidas y sistemas sanitarios.
+        </p>
+        <div class="acciones">
+        <button class="btn ver" (click)="AbrirSistemaHidraulicoSanitario()">Ver rubros</button>
+        </div>
+    </div>
 
-        <div class="card">
-        <div class="codigo">4.0</div>
-        <h2>SISTEMA DE INSTALACIONES ELÉCTRICAS</h2>
-        <p>
-            Incluye acometidas eléctricas, paneles de breakers, tableros de
-            protección, iluminación, tomacorrientes, puntos de TV, teléfono y
-            luminarias.
-        </p>
-        <button class="ver" (click)="AbrirSistemaInstalacionesElectricas()">Ver rubros</button>
+    <!-- ELÉCTRICO -->
+    <div class="card electrico">
+        <div class="badge">Energía</div>
+            <div class="top">
+                <div class="codigo">4.0</div>
+                    <div class="icono">
+                        <mat-icon>bolt</mat-icon>
+                    </div>
+                    </div>
+                        <h2>Instalaciones Eléctricas</h2>
+                        <p> Cableado, iluminación, tableros y puntos eléctricos. </p>
+                    <div class="acciones">
+        <button class="btn ver" (click)="AbrirSistemaInstalacionesElectricas()">Ver rubros</button>
         </div>
+    </div>
+
     </div>
 </div>

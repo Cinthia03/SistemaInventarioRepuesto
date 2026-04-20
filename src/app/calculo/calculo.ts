@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { MatIconModule } from "@angular/material/icon";
 
 @Component({
   selector: 'app-calculo',
-  imports: [],
+  imports: [MatIconModule],
   templateUrl: './calculo.html',
   styleUrl: './calculo.css',
 })

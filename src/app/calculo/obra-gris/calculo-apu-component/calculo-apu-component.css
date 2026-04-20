@@ -1,64 +1,79 @@
-.contenedor{
-padding:40px;
-background:#F1F5F9;
-font-family:Roboto;
-min-height:90vh;
+.contenedor {
+  padding: 40px;
+  background: linear-gradient(to bottom, #f8fafc, #e2e8f0);
+  min-height: 100vh;
+  font-family: 'Segoe UI';
 }
 
-h2{
-color:#1E3A8A;
-margin-bottom:20px;
+.busqueda input {
+  padding: 10px;
+  width: 300px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
 }
 
-.busqueda{
-margin-bottom:20px;
+/* AUTOCOMPLETE */
+.autocomplete {
+  background: white;
+  border: 1px solid #ccc;
+  width: 300px;
+  list-style: none;
+  padding: 0;
+  margin-top: 5px;
 }
 
-input{
-padding:8px;
-border:1px solid #ccc;
-border-radius:4px;
+.autocomplete li {
+  padding: 8px;
+  cursor: pointer;
 }
 
-button{
-margin-left:10px;
-padding:8px 15px;
-background:#D97706;
-color:white;
-border:none;
-border-radius:4px;
-cursor:pointer;
+.autocomplete li:hover {
+  background: #e2e8f0;
 }
 
-button:hover{
-background:#b45309;
+.tabla {
+  margin-top: 30px;
 }
 
-table{
-width:500px;
-border-collapse:collapse;
-background:white;
-margin-top:20px;
-box-shadow:0 4px 10px rgba(0,0,0,0.1);
+table {
+  width: 100%;
+  margin-top: 10px;
+  border-collapse: collapse;
+  background: white;
 }
 
-th,td{
-padding:10px;
-border-bottom:1px solid #ddd;
+th {
+  background: #1e3a8a;
+  color: white;
+  padding: 10px;
 }
 
-th{
-background:#1E3A8A;
-color:white;
+td {
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
 }
 
-.precio{
-background:#f1f5f9;
-font-weight:bold;
+input {
+  width: 100%;
 }
 
-.total{
-background:#e0f2fe;
-font-size:18px;
-font-weight:bold;
+button {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: #f97316;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+.subtotal {
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.total {
+  margin-top: 20px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #1e3a8a;
 }
