@@ -10,7 +10,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { EquiposService, equipos } from './equipos.service';
+import { EquiposService, equipos } from '../../services/equipos.service';
 
 @Component({
   selector: 'app-equipos',
@@ -34,7 +34,7 @@ import { EquiposService, equipos } from './equipos.service';
 export class Equipos implements AfterViewInit {
 
   form!: FormGroup;
-  displayedColumns = ['codigo','descripcion','unidad','precio','acciones'];
+  displayedColumns = ['codigo','descripcion','stock', 'unidad','precio','acciones'];
   dataSource = new MatTableDataSource<equipos>();
   Equipos: equipos[] = [];
   filtroTexto = "";
@@ -53,8 +53,9 @@ export class Equipos implements AfterViewInit {
     this.form = this.fb.group({
       codigo:['',Validators.required],
       descripcion:['',Validators.required],
+      stock:[0, [Validators.required, Validators.min(0)]],
       unidad:['',Validators.required],
-      precio:[0,Validators.required]
+      precio:[0, [Validators.required, Validators.min(0)]]
     });
   }
 
@@ -68,6 +69,9 @@ export class Equipos implements AfterViewInit {
   cargarDatos(){
     this.service.obtenerTodos().subscribe({
       next:(data)=>{
+        console.log("TOTAL:", data.length);
+        console.table(data);
+
         this.Equipos = data;
         this.dataSource.data = data;
         this.dataSource.paginator = this.paginator;

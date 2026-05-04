@@ -63,9 +63,15 @@ mat-form-field {
 }
 
 .botones-form{
-  display:flex;
+  grid-column: 1 / -1;
+  display: flex;
   gap:10px;
-  margin-top:10px;
+  align-items: center;
+}
+
+.botones-form button{
+  flex: 1;
+  height: 48px;
 }
 
 .btn-guardar{
@@ -100,16 +106,19 @@ mat-form-field {
   transform: translateY(-2px);
 }
 
+
+
 /* ================= FILTROS ================= */
 .filtro-campo {
   width: 90%;
 }
 
 
+
 /* ================= TABLA ================= */
 
 .tabla-section{
-  width: 90%;
+  width: 95%;
   padding: 5px;
   background: rgba(255,255,255,0.97);
   border-radius: 25px;

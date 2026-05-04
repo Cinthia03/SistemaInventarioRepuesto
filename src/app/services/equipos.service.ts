@@ -6,8 +6,23 @@ export interface equipos {
   id?: number;
   codigo: string;
   descripcion: string;
+  stock: number;
   unidad: string;
   precio: number;
+}
+
+export interface Equipo_calculo {
+  id?: number;
+  codigo?: string;
+  descripcion: string;
+  unidad?: string;
+  precio?: number;
+  stock: number;
+  cantidad?: number;
+  tarifa?: number;
+  rendimiento?: number;
+  costoHora?: number;
+  costo?: number;
 }
 
 @Injectable({
