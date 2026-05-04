@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Rubro, RubrosService } from '../../services/RubrosService';
+import { Rubro, RubrosService } from '../../services/Rubros.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 

@@ -2,38 +2,27 @@
 
   <h2>ANÁLISIS DE PRECIOS UNITARIOS</h2>
 
-  <<!-- 🔍 BUSCADOR -->
   <div class="busqueda">
-    <input
-      type="text"
-      placeholder="Buscar rubro..."
-      [(ngModel)]="codigoBusqueda"
-      (input)="filtrarRubros()"
-    />
-
-    <!-- 🔽 SUGERENCIAS -->
-    <div class="autocomplete" *ngIf="sugerencias.length > 0">
-
-      <div
-        class="item"
-        *ngFor="let r of sugerencias"
-        (click)="seleccionarRubro(r)"
-      >
+    <label class="label-rubro">Seleccionar Rubro</label>
+    <select class="combo-rubros" [(ngModel)]="codigoSeleccionado" (ngModelChange)="onSeleccionarRubro($event)">
+      <option value="">-- Seleccione un rubro --</option>
+      <option *ngFor="let r of rubros" [value]="r.codigo" >
         {{ r.codigo }} - {{ r.descripcion }}
-      </div>
-
-    </div>
+      </option>
+    </select>
   </div>
+  
 
-  <!-- RESULTADO -->
+
+  <!-- ===================== -->
+  <!-- TITULO -->
+  <!-- ===================== -->
   <div *ngIf="rubroSeleccionado">
-
     <h3>
       {{ rubroSeleccionado.codigo }} -
       {{ rubroSeleccionado.descripcion }}
     </h3>
 
-    <p><strong>Unidad:</strong> {{ rubroSeleccionado.unidad }}</p>
 
     <!-- ===================== -->
     <!-- EQUIPOS -->
@@ -42,8 +31,10 @@
 
     <table>
       <tr>
+        <th>Codigo</th>
         <th>Descripción</th>
         <th>Cant (A)</th>
+        <th>Stock</th>
         <th>Tarifa (B)</th>
         <th>Costo Hora (C)</th>
         <th>Rendimiento</th>
@@ -51,25 +42,51 @@
       </tr>
 
       <tr *ngFor="let e of equiposList">
+        <!-- SELECT EQUIPOS -->
         <td>
-          <input [(ngModel)]="e.descripcion">
+          {{ e.codigo }}
         </td>
 
         <td>
-          <input type="number" [(ngModel)]="e.cantidad" (input)="calcularTodo()">
+          <select class="combo-equipo" [(ngModel)]="e.id" (change)="seleccionarEquipo(e,$event)">
+            <option value="">
+              Seleccione equipo
+            </option>
+            <option *ngFor="let eq of catalogoEquipos"[value]="eq.id">
+              {{ 
+                eq.descripcion }}
+            </option>
+          </select>
+        </td>
+
+        <!-- CANTIDAD -->
+        <td>
+          <input type="number" [(ngModel)]="e.cantidad" [max]="e.stock" (input)="validarStock(e)">
         </td>
 
         <td>
-          <input type="number" [(ngModel)]="e.tarifa" (input)="calcularTodo()">
+          {{ e.stock }}
         </td>
 
-        <td>{{ e.costoHora | number:'1.2-2' }}</td>
+        <!-- TARIFA -->
+        <td>
+          {{ e.tarifa }}
+        </td>
 
+        <!-- COSTO HORA -->
+        <td>          
+          {{ e.costoHora }}
+        </td>
+
+        <!-- RENDIMIENTO -->
         <td>
           <input type="number" [(ngModel)]="e.rendimiento" (input)="calcularTodo()">
         </td>
 
-        <td>{{ e.costo | number:'1.2-2' }}</td>
+        <!-- COSTO -->
+        <td>
+          {{ e.costo }}
+        </td>
       </tr>
     </table>
 
@@ -78,6 +95,27 @@
     <div class="subtotal">
       SUBTOTAL M: {{ subtotalEquipos | number:'1.2-2' }}
     </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     <!-- ===================== -->
     <!-- MANO DE OBRA -->

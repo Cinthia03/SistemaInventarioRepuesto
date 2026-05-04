@@ -2,14 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { RubrosService } from '../../../services/RubrosService';
-
-export interface Rubro {
-  codigo: string;
-  descripcion: string;
-  categoria: string;
-  unidad?: string; // opcional para evitar errores
-}
+import { RubrosService, Rubro } from '../../../services/Rubros.service';
+import { EquiposService, equipos, Equipo_calculo } from '../../../services/equipos.service';
 
 @Component({
   selector: 'app-calculo-apu-component',
@@ -20,74 +14,137 @@ export interface Rubro {
   templateUrl: './calculo-apu-component.html',
   styleUrl: './calculo-apu-component.css',
 })
+
 export class CalculoApuComponent implements OnInit {
 
-  // 🔍 BUSCADOR
-  codigoBusqueda: string = '';
-  sugerencias: Rubro[] = [];
-
-  // 🎯 SELECCIÓN
+  // RUBROS
+  codigoSeleccionado: string = '';
   rubroSeleccionado?: Rubro;
-
-  // 📦 DATA DEL SERVICE
   rubros: Rubro[] = [];
 
-  // 🧮 APU LISTAS
-  equiposList: any[] = [];
+  // EQUIPOS
+  catalogoEquipos: equipos[] = [];
+  equiposList: Equipo_calculo[] = [];
+  equipos: any[] = [];
   manoObraList: any[] = [];
   materialesList: any[] = [];
   transporteList: any[] = [];
 
+  // TOTALES
   subtotalEquipos = 0;
   subtotalManoObra = 0;
   subtotalMateriales = 0;
   subtotalTransporte = 0;
   totalDirecto = 0;
 
-  constructor(private rubrosService: RubrosService) {}
+  constructor(
+    private rubrosService: RubrosService,
+    private equiposService: EquiposService
+  ) {}
 
   ngOnInit(): void {
     this.rubros = this.rubrosService.getRubros();
+    this.cargarCatalogoEquipos();
   }
 
   // =========================
-  // 🔍 AUTOCOMPLETE
+  // SELECCIONAR RUBRO
   // =========================
-  filtrarRubros(): void {
-    const texto = this.codigoBusqueda.toLowerCase();
+  onSeleccionarRubro(codigo: string): void {
+    //const codigo = (event.target as HTMLSelectElement).value;
+    const rubro = this.rubros.find(r => r.codigo === codigo);
 
-    if (!texto) {
-      this.sugerencias = [];
-      return;
+    if (!rubro) return; 
+      this.rubroSeleccionado = rubro;
+      this.codigoSeleccionado = rubro.codigo;
+      this.equiposList = [];
+      this.subtotalEquipos = 0;
+      this.totalDirecto = 0;
+  }
+
+   // =========================
+  // CARGAR EQUIPOS
+  // =========================
+  cargarCatalogoEquipos(): void {
+    this.equiposService
+      .obtenerTodos()
+      .subscribe({
+        next: (data) => {
+          this.catalogoEquipos = data;
+        },
+        error: (err) => {
+          console.error(err);
+        }
+      });
+  }
+
+  // =========================
+  // AGREGAR EQUIPO
+  // =========================
+  agregarEquipo(): void {
+    this.equiposList.push({
+      descripcion: '',
+      cantidad: 1,
+      stock: 0,
+      tarifa: 0,
+      rendimiento: 1,
+      costoHora: 0,
+      costo: 0
+    });
+  }
+
+  // =========================
+  // SELECCIONAR EQUIPO
+  // =========================
+  seleccionarEquipo(item: Equipo_calculo, event: Event): void {
+    const id = Number((event.target as HTMLSelectElement).value);
+    const equipo = this.catalogoEquipos.find(e => e.id === id);
+    if (!equipo) return;
+      item.id = equipo.id;
+      item.codigo = equipo.codigo;
+      item.descripcion = equipo.descripcion;
+      item.unidad = equipo.unidad;
+      item.tarifa = equipo.precio;
+      item.stock = equipo.stock;
+    this.calcularTodo();
+  }
+
+  validarStock(e: Equipo_calculo): void {
+    if ((e.cantidad || 0) > (e.stock || 0)) {
+      alert(
+        'Cantidad supera el stock disponible'
+      );
+
+      e.cantidad =
+        e.stock || 0;
     }
-
-    this.sugerencias = this.rubros.filter(r =>
-      r.codigo.toLowerCase().includes(texto) ||
-      r.descripcion.toLowerCase().includes(texto)
-    );
+    this.calcularTodo();
   }
 
-  // =========================
-  // 🎯 SELECCIONAR RUBRO
-  // =========================
-  seleccionarRubro(r: Rubro): void {
-    this.rubroSeleccionado = r;
-    this.codigoBusqueda = `${r.codigo} - ${r.descripcion}`;
-    this.sugerencias = [];
 
-    this.reiniciarCalculo();
-  }
+
+
+
+
+
+
+
+
+
+
+
+  
 
   // =========================
-  // 🧮 CALCULOS
+  //  CALCULOS
   // =========================
   calcularTodo(): void {
 
     this.subtotalEquipos = 0;
     this.equiposList.forEach(e => {
       e.costoHora = (e.cantidad || 0) * (e.tarifa || 0);
-      e.costo = e.costoHora * (e.rendimiento || 0);
-      this.subtotalEquipos += e.costo;
+      e.costo = (e.costoHora || 0) * (e.rendimiento || 0);
+      this.subtotalEquipos += e.costo || 0;
     });
 
     this.subtotalManoObra = 0;
@@ -117,7 +174,7 @@ export class CalculoApuComponent implements OnInit {
   }
 
   // =========================
-  // 🔄 RESET
+  //  RESET
   // =========================
   reiniciarCalculo(): void {
     this.equiposList = [];
@@ -133,9 +190,9 @@ export class CalculoApuComponent implements OnInit {
   }
 
   // =========================
-  // ➕ AGREGAR FILAS
+  //  AGREGAR FILAS
   // =========================
-  agregarEquipo() { this.equiposList.push({ descripcion:'', cantidad:0, tarifa:0, rendimiento:1 }); }
+  //agregarEquipo() { this.equipos.push({ descripcion:'', cantidad:0, tarifa:0, rendimiento:1 }); }
   agregarManoObra() { this.manoObraList.push({ descripcion:'', cantidad:0, tarifa:0, rendimiento:1 }); }
   agregarMaterial() { this.materialesList.push({ descripcion:'', unidad:'', cantidad:0, tarifa:0 }); }
   agregarTransporte() { this.transporteList.push({ descripcion:'', cantidad:0, tarifa:0 }); }

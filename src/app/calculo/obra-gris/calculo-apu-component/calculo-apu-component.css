@@ -5,30 +5,34 @@
   font-family: 'Segoe UI';
 }
 
-.busqueda input {
-  padding: 10px;
-  width: 300px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+.busqueda {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
 }
 
-/* AUTOCOMPLETE */
-.autocomplete {
-  background: white;
-  border: 1px solid #ccc;
-  width: 300px;
-  list-style: none;
-  padding: 0;
-  margin-top: 5px;
+.label-rubro {
+  font-size: 14px;
+  font-weight: 600;
+  color: black;
 }
 
-.autocomplete li {
-  padding: 8px;
+.combo-rubros {
+  width: 100%;
+  max-width: 500px;
+  padding: 12px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background: #fff;
+  font-size: 14px;
+  color: black;
+  outline: none;
   cursor: pointer;
 }
 
-.autocomplete li:hover {
-  background: #e2e8f0;
+.combo-rubros:hover {
+  border-color: black;
 }
 
 .tabla {

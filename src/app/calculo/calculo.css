@@ -119,19 +119,15 @@
 }
 
 .gris::before { background: #475569; }
-.gris::after { background: #475569; }
 .gris .icono { background: #475569; }
 
 .acabados::before { background: #ea580c; }
-.acabados::after { background: #ea580c; }
 .acabados .icono { background: #ea580c; }
 
 .hidraulico::before { background: #0284c7; }
-.hidraulico::after { background: #0284c7; }
 .hidraulico .icono { background: #0284c7; }
 
 .electrico::before { background: #eab308; }
-.electrico::after { background: #eab308; }
 .electrico .icono { background: #eab308; }
 
 .ver {
