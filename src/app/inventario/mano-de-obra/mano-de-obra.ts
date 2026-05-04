@@ -10,7 +10,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { ManoDeObraService, ManoObra } from './mano-de-obra.service';
+import { ManoDeObraService, ManoObra } from '../../services/mano-de-obra.service';
 
 @Component({
   selector: 'app-mano-de-obra',

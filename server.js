@@ -113,10 +113,6 @@ app.get('/total-equipos', async (req, res) => {
 
 
 
-
-
-
-
 // ================================================
 //           MATERIALES
 // ================================================
@@ -352,8 +348,6 @@ app.delete('/mano-obra/:id', async (req, res) => {
 
 
 
-
-
 // ================================================
 //           EQUIPOS CONSTRUCCIÓN
 // ================================================
@@ -399,7 +393,7 @@ app.get('/equipos/:codigo', async (req, res) => {
 
 app.post('/equipos', async (req, res) => {
   try {
-    const { descripcion, unidad, precio } = req.body;
+    const { descripcion, stock, unidad, precio } = req.body;
     const prefijo = 19;
     const result = await pool.query(
       `SELECT COALESCE(MAX(codigo),'19.000') AS ultimo
@@ -410,9 +404,9 @@ app.post('/equipos', async (req, res) => {
     const codigo = `${prefijo}.${numero.toString().padStart(3,'0')}`;
     await pool.query(
       `INSERT INTO equipos
-      (codigo, descripcion, unidad, precio)
-      VALUES ($1,$2,$3,$4)`,
-      [codigo, descripcion, unidad, precio]
+      (codigo, descripcion, stock, unidad, precio)
+      VALUES ($1,$2,$3,$4, $5)`,
+      [codigo, descripcion, stock, unidad, precio]
     );
     res.json({
       message: "Equipo de construccion creado",
@@ -425,14 +419,15 @@ app.post('/equipos', async (req, res) => {
 
 app.put('/equipos/:codigo', async (req, res) => {
   try {
-    const { descripcion, unidad, precio } = req.body;
+    const { descripcion, stock, unidad, precio } = req.body;
     await pool.query(
       `UPDATE equipos
        SET descripcion=$1,
-           unidad=$2,
-           precio=$3
-       WHERE codigo=$4`,
-      [descripcion, unidad, precio, req.params.codigo]
+           stock=$2,
+           unidad=$3,
+           precio=$4
+       WHERE codigo=$5`,
+      [descripcion, stock, unidad, precio, req.params.codigo]
     );
     res.json({ message: "Equipos de construccion actualizada" });
   } catch (err) {
@@ -451,9 +446,6 @@ app.delete('/equipos/:id', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
-
-
 
 
 
@@ -490,10 +482,6 @@ app.get('/productos', async (req, res) => {
     res.status(500).json({ message: 'Error obteniendo productos' })
   }
 })
-
-
-
-
 
 
 
