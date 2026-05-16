@@ -1,81 +1,281 @@
+:host {
+  --navy:    #0d1b2a;
+  --amber-l: #f97316;
+  --bone:    #f8f8f8;
+  --muted:   rgba(245,240,232,0.70);
+  --line:    rgba(245,240,232,0.18);
+  --M1:      #60a5fa;
+  --M2:      #c8690a;
+  --M3:      #34d399;
+  --boton:   #568846;
+}
+
+
+
+
+
+/* FONDO PAGINA */
 .page {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.section {
-  height: 50vh;
+  font-family: 'DM Sans', 'Segoe UI', sans-serif;
   display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 0 80px;
-  position: relative;
-  color: white;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--line);
 }
 
-.section::before {
-  content: "";
+
+
+
+
+/* SECCIONES */
+.section {
+  position: relative;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+}
+
+/* LINEA VERTICAL CENTRAL*/
+.section::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 12%;
+  bottom: 12%;
+  width: 1px;
+  background: var(--line);
+  z-index: 2;
+  transform: translateX(-50%);
+}
+
+
+
+
+
+/* FONDO */
+.section__bg {
   position: absolute;
   inset: 0;
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.06);
+  transition: transform 7s ease;
+  filter: brightness(0.45) saturate(0.8);
 }
 
+.section:hover .section__bg {
+  transform: scale(1.0);
+}
+
+.section__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+
+
+
+
+/* CONTENIDO */
 .content {
   position: relative;
-  max-width: 500px;
-  backdrop-filter: blur(2px);
+  z-index: 3;
+  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px 72px;
+  max-width: 640px;
 }
 
-h2 {
-  font-size: 38px;
-  margin-bottom: 15px;
+/* NÚMERO DE SECCIÓN */
+.section-num {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  opacity: 1;
+  transform: none;
+  animation: none;
 }
 
-p {
-  font-size: 16px;
-  line-height: 1.6;
-  margin-bottom: 25px;
-  color: #e2e8f0;
+.section-num::before {
+  content: '';
+  width: 36px;
+  height: 2px;
+  background: var(--amber);
+  flex-shrink: 0;
+  display: block;
 }
 
-button {
-  padding: 12px 25px;
-  border: none;
-  background: #f97316;
-  color: white;
-  border-radius: 6px;
-  font-size: 15px;
+/* TÍTULO */
+.content h2 {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: clamp(36px, 4vw, 58px);
+  font-weight: 900;
+  color: var(--bone);
+  line-height: 1.08;
+  letter-spacing: -0.5px;
+  margin-bottom: 22px;
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+
+/* PARRAFO */
+.content p {
+  font-size: 15.5px;
+  line-height: 1.75;
+  color: var(--muted);
+  font-weight: 300;
+  max-width: 400px;
+  margin-bottom: 40px;
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+
+/* BOTON */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 32px;
+  background: transparent;
+  border: 1.5px solid var(--bone);
+  color: var(--bone);
+  font-family: 'DM Sans', 'Segoe UI', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: 0.3s;
+  align-self: flex-start;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, gap 0.3s ease;
+  opacity: 1;
+  transform: none;
+  animation: none;
 }
 
-button:hover {
-  background: #ea580c;
+.btn::after {
+  content: '→';
+  font-size: 16px;
+  transition: transform 0.3s ease;
 }
 
-.inventario {
-  background: url("https://jkasg.com/wp-content/uploads/2025/06/Obra-civil-JKASG-1-e1748888469728.jpeg")
-    no-repeat center/cover;
+.btn:hover {
+  background: var(--boton);
+  border-color: var(--boton);
+  color: #fff;
+  gap: 18px;
 }
 
-.inventario::before{
-  background: rgba(30, 64, 175, 0.349);
-}
-
-.calculo {
-  background: url("https://images.unsplash.com/photo-1503387762-592deb58ef4e")
-    no-repeat center/cover;
-}
-
-.calculo::before{
-  background: rgba(165, 175, 30, 0.329);
-}
-
-.presupuesto {
-  background: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFeDTx3p7XQDmScmVc7FviKSurF_AjLStDEg&s")
-    no-repeat center/cover;
-}
-
-.presupuesto::before{
-  background: rgba(30, 64, 175, 0.349);
+.btn:hover::after {
+  transform: translateX(4px);
 }
 
 
+
+
+
+/* PANEL DERECHO */
+.section-meta {
+  position: relative;
+  z-index: 3;
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-end;
+  padding: 48px 64px;
+  gap: 8px;
+}
+
+.meta-tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(245,240,232,0.30);
+}
+
+.meta-icon {
+  font-size: 64px;
+  line-height: 1;
+  filter: grayscale(1) opacity(0.12);
+  user-select: none;
+}
+
+.divider {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--line);
+  z-index: 5;
+}
+
+
+
+
+
+/* BACKGROUNDS POR SECCIÓN  */
+.inventario .section__bg {
+  background-image: url('https://jkasg.com/wp-content/uploads/2025/06/Obra-civil-JKASG-1-e1748888469728.jpeg');
+}
+.inventario .section__overlay {
+  background: linear-gradient(105deg, rgba(13,27,42,0.94) 0%, rgba(13,27,42,0.70) 50%, rgba(13,27,42,0.05) 100%);
+}
+.inventario .section-num         { color: var(--M1); }
+.inventario .section-num::before { background: var(--M1); }
+
+.calculo .section__bg {
+  background-image: url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1600&q=80');
+}
+.calculo .section__overlay {
+  background: linear-gradient(105deg, rgba(13,27,42,0.94) 0%, rgba(13,27,42,0.68) 50%, rgba(13,27,42,0.05) 100%);
+}
+.calculo .section-num         { color: var(--M2); }
+.calculo .section-num::before { background: var(--M2); }
+
+.presupuesto .section__bg {
+  background-image: url('https://f.hubspotusercontent20.net/hubfs/2283874/gesti%C3%B3n%20de%20presupuestos%20y%20cuadro%20de%20mandos.jpg');
+}
+.presupuesto .section__overlay {
+  background: linear-gradient(105deg, rgba(13,27,42,0.94) 0%, rgba(13,27,42,0.68) 50%, rgba(13,27,42,0.05) 100%);
+}
+.presupuesto .section-num         { color: var(--M3); }
+.presupuesto .section-num::before { background: var(--M3); }
+
+
+
+
+
+/* RESPONSIVE                            */
+
+@media (max-width: 900px) {
+  .section {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .section::after { display: none; }
+
+  .content {
+    grid-column: 1;
+    padding: 80px 32px 60px;
+    max-width: 100%;
+  }
+
+  .section-meta { display: none; }
+}

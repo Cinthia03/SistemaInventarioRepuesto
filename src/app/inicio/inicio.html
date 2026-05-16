@@ -1,39 +1,71 @@
 <div class="page">
 
-  <!-- INVENTARIO -->
+  <!-- ══ INVENTARIO ══ -->
   <section class="section inventario">
+    <div class="section__bg"></div>
+    <div class="section__overlay"></div>
+
     <div class="content">
-      <h2>Gestión de Inventario</h2>
+      <span class="section-num">01 · Módulo</span>
+      <h2>Gestión de<br>Inventario</h2>
       <p>
         Administra materiales, controla stock y optimiza recursos en tiempo real
-        para garantizar eficiencia en cada proyecto.
+        para garantizar eficiencia en cada proyecto de obra.
       </p>
-      <button (click)="irInventario()">Ver más</button>
+      <button class="btn" (click)="irInventario()">Ver módulo</button>
     </div>
+
+    <div class="section-meta">
+      <span class="meta-icon">📦</span>
+      <span class="meta-tag">Inventario · Stock · Recursos</span>
+    </div>
+
+    <div class="divider"></div>
   </section>
 
-  <!-- CALCULO -->
+  <!-- ══ CÁLCULO ══ -->
   <section class="section calculo">
+    <div class="section__bg"></div>
+    <div class="section__overlay"></div>
+
     <div class="content">
-      <h2>Cálculo Estructural</h2>
+      <span class="section-num">02 · Módulo</span>
+      <h2>Análisis de<br>Precios Unitarios</h2>
       <p>
-        Herramientas avanzadas para análisis estructural, diseño y validación
-        de proyectos de construcción.
+        Herramientas avanzadas para el cálculo APU, análisis estructural
+        y validación técnica de cada rubro de construcción.
       </p>
-      <button (click)="irCalculo()">Ver más</button>
+      <button class="btn" (click)="irCalculo()">Ver módulo</button>
     </div>
+
+    <div class="section-meta">
+      <span class="meta-icon">📐</span>
+      <span class="meta-tag">APU · Cálculo · Análisis</span>
+    </div>
+
+    <div class="divider"></div>
   </section>
 
-  <!-- PRESUPUESTO -->
+  <!-- ══ PRESUPUESTO ══ -->
   <section class="section presupuesto">
+    <div class="section__bg"></div>
+    <div class="section__overlay"></div>
+
     <div class="content">
-      <h2>Presupuestos</h2>
+      <span class="section-num">03 · Módulo</span>
+      <h2>Control de<br>Presupuestos</h2>
       <p>
-        Genera, analiza y controla presupuestos de obra con precisión y rapidez
-        para una mejor toma de decisiones.
+        Genera, analiza y controla presupuestos de obra con precisión
+        para una toma de decisiones rápida y fundamentada.
       </p>
-      <button (click)="irPresupuesto()">Ver más</button>
+      <button class="btn" (click)="irPresupuesto()">Ver módulo</button>
     </div>
+
+    <div class="section-meta">
+      <span class="meta-icon">📊</span>
+      <span class="meta-tag">Presupuesto · Control · Costos</span>
+    </div>
+
   </section>
 
 </div>
