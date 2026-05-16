@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-export interface Material {
+export interface materiales {
   id?: number;
   codigo: string;
   descripcion: string;
@@ -21,19 +21,19 @@ export class MaterialeService {
 
   constructor(private http: HttpClient) {}
 
-  obtenerTodos(): Observable<Material[]> {
-    return this.http.get<Material[]>(this.apiUrl);
+  obtenerTodos(): Observable<materiales[]> {
+    return this.http.get<materiales[]>(this.apiUrl);
   }
 
-  obtenerPorId(id: number): Observable<Material> {
-    return this.http.get<Material>(`${this.apiUrl}/${id}`);
+  obtenerPorId(id: number): Observable<materiales> {
+    return this.http.get<materiales>(`${this.apiUrl}/${id}`);
   }
 
-  crear(data: Material) {
+  crear(data: materiales) {
     return this.http.post(this.apiUrl, data);
   }
 
-  actualizar(codigo: string, data: Material) {
+  actualizar(codigo: string, data: materiales) {
     return this.http.put(`${this.apiUrl}/${codigo}`, data);
   }
 

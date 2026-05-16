@@ -11,20 +11,6 @@ export interface equipos {
   precio: number;
 }
 
-export interface Equipo_calculo {
-  id?: number;
-  codigo?: string;
-  descripcion: string;
-  unidad?: string;
-  precio?: number;
-  stock: number;
-  cantidad?: number;
-  tarifa?: number;
-  rendimiento?: number;
-  costoHora?: number;
-  costo?: number;
-}
-
 @Injectable({
   providedIn: 'root'
 })

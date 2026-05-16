@@ -3,7 +3,47 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { RubrosService, Rubro } from '../../../services/Rubros.service';
-import { EquiposService, equipos, Equipo_calculo } from '../../../services/equipos.service';
+import { EquiposService, equipos } from '../../../services/equipos.service';
+import { ManoDeObraService, ManoObra } from '../../../services/mano-de-obra.service';
+import { MaterialeService, materiales } from '../../../services/materiales.service';
+import { ApuService, ApuGuardado } from '../../../services/apu.service';
+
+export interface EquipoCalculo {
+  id?: number;
+  codigo?: string;
+  descripcion: string;
+  unidad?: string;
+  stock: number;
+  cantidad: number;
+  tarifa: number;
+  rendimiento: number;
+  costoHora: number;
+  costo: number;
+}
+
+export interface ManoObraCalculo {
+  id?: number;
+  codigo?: string;
+  descripcion: string;
+  unidad?: string;
+  cantidad: number;
+  tarifa: number;
+  rendimiento: number;
+  costoHora: number;
+  costo: number;
+}
+
+export interface MaterialesCalculo {
+  id?: number;
+  codigo?: string;
+  descripcion: string;
+  unidad?: string;
+  stock: number;
+  cantidad: number;
+  unitario: number;
+  costo: number;
+}
+
 
 @Component({
   selector: 'app-calculo-apu-component',
@@ -12,80 +52,148 @@ import { EquiposService, equipos, Equipo_calculo } from '../../../services/equip
     FormsModule
   ],
   templateUrl: './calculo-apu-component.html',
-  styleUrl: './calculo-apu-component.css',
+  styleUrl: '../../calculo-apu-component.css',
 })
 
 export class CalculoApuComponent implements OnInit {
+
+  get catalogoTransportes() {
+    return this.catalogoEquipos.filter(m =>
+      m.descripcion?.toLowerCase().startsWith('transporte')
+    );
+  }
 
   // RUBROS
   codigoSeleccionado: string = '';
   rubroSeleccionado?: Rubro;
   rubros: Rubro[] = [];
 
-  // EQUIPOS
-  catalogoEquipos: equipos[] = [];
-  equiposList: Equipo_calculo[] = [];
-  equipos: any[] = [];
-  manoObraList: any[] = [];
-  materialesList: any[] = [];
-  transporteList: any[] = [];
 
-  // TOTALES
+
+  // CATALOGOS INVENTARIO
+  catalogoEquipos: equipos[] = [];
+  catalogManoObra: ManoObra[] = [];
+  catalogoMateriales: materiales[] = [];
+
+
+
+  // LISTA CALCULOS
+  equiposList: EquipoCalculo[] = [];
+  manoObraList: ManoObraCalculo[] = [];
+  materialesList: MaterialesCalculo[] = [];
+  transporteList: MaterialesCalculo[] = [];
+
+
+
+  // SUBTOTALES Y TOTALES
   subtotalEquipos = 0;
   subtotalManoObra = 0;
   subtotalMateriales = 0;
   subtotalTransporte = 0;
   totalDirecto = 0;
 
+
+
+  // UI
+  mensajeError: string = '';
+  cargandoEquipos = false;
+  cargandoManoObra = false;
+  cargandoMateriales = false;
+  cargandoTransporte = false;
+
   constructor(
     private rubrosService: RubrosService,
-    private equiposService: EquiposService
-  ) {}
+    private equiposService: EquiposService,
+    private manoObraService: ManoDeObraService,
+    private materialesService: MaterialeService,
+    private apuService: ApuService
+  ) { }
+
+  apusGuardados: ApuGuardado[] = [];
+  apuSeleccionado?: ApuGuardado;
+  mostrarModal = false;
+  mensajeExito = '';
 
   ngOnInit(): void {
     this.rubros = this.rubrosService.getRubros();
     this.cargarCatalogoEquipos();
+    this.cargarCatalogoManoObra();
+    this.cargarCatalogoMateriales();
+    this.cargarApusGuardados();
   }
 
-  // =========================
-  // SELECCIONAR RUBRO
-  // =========================
+
+  // SELECCION RUBRO
   onSeleccionarRubro(codigo: string): void {
-    //const codigo = (event.target as HTMLSelectElement).value;
     const rubro = this.rubros.find(r => r.codigo === codigo);
+    if (!rubro) return;
 
-    if (!rubro) return; 
-      this.rubroSeleccionado = rubro;
-      this.codigoSeleccionado = rubro.codigo;
-      this.equiposList = [];
-      this.subtotalEquipos = 0;
-      this.totalDirecto = 0;
+    this.rubroSeleccionado = rubro;
+    this.codigoSeleccionado = rubro.codigo;
+    this.reiniciarCalculo();
   }
 
-   // =========================
-  // CARGAR EQUIPOS
-  // =========================
+
+  // CARGAR CATALOGOS
   cargarCatalogoEquipos(): void {
-    this.equiposService
-      .obtenerTodos()
-      .subscribe({
-        next: (data) => {
-          this.catalogoEquipos = data;
-        },
-        error: (err) => {
-          console.error(err);
-        }
-      });
+    this.cargandoEquipos = true;
+    this.equiposService.obtenerTodos().subscribe({
+      next: (data) => {
+        this.catalogoEquipos = data;
+        this.cargandoEquipos = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar equipos:', err);
+        this.cargandoEquipos = false;
+      }
+    });
   }
 
-  // =========================
-  // AGREGAR EQUIPO
-  // =========================
+  cargarCatalogoManoObra(): void {
+    this.cargandoManoObra = true;
+    this.manoObraService.obtenerTodos().subscribe({
+      next: (data) => {
+        this.catalogManoObra = data;
+        this.cargandoManoObra = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar mano de obra:', err);
+        this.cargandoManoObra = false;
+      }
+    });
+  }
+
+  cargarCatalogoMateriales(): void {
+    this.cargandoMateriales = true;
+    this.materialesService.obtenerTodos().subscribe({
+      next: (data) => {
+        this.catalogoMateriales = data;
+        this.cargandoMateriales = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar materiales:', err);
+        this.cargandoMateriales = false;
+      }
+    });
+  }
+
+  cargarApusGuardados(): void {
+  this.apuService.obtenerTodos().subscribe({
+    next: (data) => {
+      console.log('APUs cargados:', data); 
+      this.apusGuardados = data;
+    },
+    error: (err) => console.error('Error al cargar APUs:', err)
+  });
+  }
+
+
+  // AGREGAR DATOS EN TABLA
   agregarEquipo(): void {
     this.equiposList.push({
       descripcion: '',
-      cantidad: 1,
       stock: 0,
+      cantidad: 1,
       tarifa: 0,
       rendimiento: 1,
       costoHora: 0,
@@ -93,78 +201,155 @@ export class CalculoApuComponent implements OnInit {
     });
   }
 
-  // =========================
-  // SELECCIONAR EQUIPO
-  // =========================
-  seleccionarEquipo(item: Equipo_calculo, event: Event): void {
-    const id = Number((event.target as HTMLSelectElement).value);
-    const equipo = this.catalogoEquipos.find(e => e.id === id);
-    if (!equipo) return;
-      item.id = equipo.id;
-      item.codigo = equipo.codigo;
-      item.descripcion = equipo.descripcion;
-      item.unidad = equipo.unidad;
-      item.tarifa = equipo.precio;
-      item.stock = equipo.stock;
+  agregarManoObra(): void {
+    this.manoObraList.push({
+      descripcion: '',
+      cantidad: 1,
+      tarifa: 0,
+      rendimiento: 1,
+      costoHora: 0,
+      costo: 0
+    });
+  }
+
+  agregarMaterial(): void {
+    this.materialesList.push({
+      descripcion: '',
+      unidad: '',
+      cantidad: 1,
+      stock: 0,
+      unitario: 0,
+      costo: 0
+    });
+  }
+
+  agregarTransporte(): void {
+    this.transporteList.push({
+      descripcion: '',
+      unidad: '',
+      cantidad: 1,
+      stock: 0,
+      unitario: 0,
+      costo: 0
+    });
+  }
+
+
+
+  // ELIMINAR FILAS
+  eliminarEquipo(index: number): void {
+    this.equiposList.splice(index, 1);
     this.calcularTodo();
   }
 
-  validarStock(e: Equipo_calculo): void {
-    if ((e.cantidad || 0) > (e.stock || 0)) {
-      alert(
-        'Cantidad supera el stock disponible'
-      );
+  eliminarManoObra(index: number): void {
+    this.manoObraList.splice(index, 1);
+    this.calcularTodo();
+  }
 
-      e.cantidad =
-        e.stock || 0;
+  eliminarMaterial(index: number): void {
+    this.materialesList.splice(index, 1);
+    this.calcularTodo();
+  }
+
+  eliminarTransporte(index: number): void {
+    this.transporteList.splice(index, 1);
+    this.calcularTodo();
+  }
+
+  eliminarApu(id: number): void {
+    this.apuService.eliminar(id).subscribe({
+      next: () => this.cargarApusGuardados(),
+      error: (err) => console.error('Error al eliminar:', err)
+    });
+  }
+
+
+  // SELECCIONAR TRANSPORTE
+  seleccionarEquipo(item: EquipoCalculo, event: Event): void {
+    const id = Number((event.target as HTMLSelectElement).value);
+    const equipo = this.catalogoEquipos.find(e => e.id === id);
+    if (!equipo) return;
+
+    item.id = equipo.id;
+    item.codigo = equipo.codigo;
+    item.descripcion = equipo.descripcion;
+    item.unidad = equipo.unidad;
+    item.tarifa = equipo.precio;
+    item.stock = equipo.stock;
+    this.calcularTodo();
+  }
+
+  seleccionarManoObra(item: ManoObraCalculo, event: Event): void {
+    const id = Number((event.target as HTMLSelectElement).value);
+    const manoObra = this.catalogManoObra.find(e => e.id === id);
+    if (!manoObra) return;
+
+    item.id = manoObra.id;
+    item.codigo = manoObra.codigo;
+    item.descripcion = manoObra.descripcion;
+    item.unidad = manoObra.unidad;
+    item.tarifa = manoObra.precio;
+    this.calcularTodo();
+  }
+
+  seleccionarMateriales(item: MaterialesCalculo, event: Event): void {
+    const id = Number((event.target as HTMLSelectElement).value);
+    const materiales = this.catalogoMateriales.find(e => e.id === id);
+    if (!materiales) return;
+
+    item.id = materiales.id;
+    item.codigo = materiales.codigo;
+    item.descripcion = materiales.descripcion;
+    item.unidad = materiales.unidad;
+    item.unitario = materiales.precio;
+    item.stock = materiales.stock;
+    this.calcularTodo();
+  }
+
+  seleccionarTransporte(item: MaterialesCalculo, event: Event): void {
+    const id = Number((event.target as HTMLSelectElement).value);
+    const equipo = this.catalogoEquipos.find(e => e.id === id);  // ← catalogoEquipos
+    if (!equipo) return;
+
+    item.id = equipo.id;
+    item.codigo = equipo.codigo;
+    item.descripcion = equipo.descripcion;
+    item.unidad = equipo.unidad;
+    item.unitario = equipo.precio;
+    item.stock = equipo.stock;
+    this.calcularTodo();
+  }
+
+
+
+  // VALIDACION STOCK
+  validarStock(equipo: EquipoCalculo): void {
+    if ((equipo.cantidad || 0) > (equipo.stock || 0)) {
+      this.mensajeError = `Stock insuficiente: máximo disponible es ${equipo.stock} unidades.`;
+      equipo.cantidad = equipo.stock || 0;
+      setTimeout(() => (this.mensajeError = ''), 3500);
+    }
+    this.calcularTodo();
+  }
+
+  validarStockMat(materiales: MaterialesCalculo): void {
+    if ((materiales.cantidad || 0) > (materiales.stock || 0)) {
+      this.mensajeError = `Stock insuficiente: máximo disponible es ${materiales.stock} unidades.`;
+      materiales.cantidad = materiales.stock || 0;
+      setTimeout(() => (this.mensajeError = ''), 3500);
     }
     this.calcularTodo();
   }
 
 
 
-
-
-
-
-
-
-
-
-
-
-  
-
-  // =========================
-  //  CALCULOS
-  // =========================
+  // CALCULOS
   calcularTodo(): void {
-
-    this.subtotalEquipos = 0;
-    this.equiposList.forEach(e => {
-      e.costoHora = (e.cantidad || 0) * (e.tarifa || 0);
-      e.costo = (e.costoHora || 0) * (e.rendimiento || 0);
-      this.subtotalEquipos += e.costo || 0;
-    });
-
-    this.subtotalManoObra = 0;
-    this.manoObraList.forEach(m => {
-      m.costoHora = (m.cantidad || 0) * (m.tarifa || 0);
-      m.costo = m.costoHora * (m.rendimiento || 0);
-      this.subtotalManoObra += m.costo;
-    });
-
-    this.subtotalMateriales = 0;
-    this.materialesList.forEach(mat => {
-      mat.costo = (mat.cantidad || 0) * (mat.tarifa || 0);
-      this.subtotalMateriales += mat.costo;
-    });
-
-    this.subtotalTransporte = 0;
-    this.transporteList.forEach(t => {
-      t.costo = (t.cantidad || 0) * (t.tarifa || 0);
-      this.subtotalTransporte += t.costo;
-    });
+    this.subtotalEquipos = this.calcularConRendimiento(this.equiposList);
+    this.subtotalManoObra = this.calcularConRendimiento(this.manoObraList);
+    this.subtotalMateriales = this.calcularSinRendimiento(this.materialesList);
+    this.subtotalTransporte = this.calcularSinRendimiento(this.transporteList);
 
     this.totalDirecto =
       this.subtotalEquipos +
@@ -173,27 +358,94 @@ export class CalculoApuComponent implements OnInit {
       this.subtotalTransporte;
   }
 
-  // =========================
-  //  RESET
-  // =========================
+  private calcularConRendimiento(
+    lista: Array<{ cantidad?: number; tarifa?: number; rendimiento?: number; costoHora?: number; costo?: number }>
+  ): number {
+    return lista.reduce((sum, item) => {
+      item.costoHora = (item.cantidad || 0) * (item.tarifa || 0);
+      item.costo = (item.costoHora || 0) * (item.rendimiento || 1);
+      return sum + item.costo;
+    }, 0);
+  }
+
+  private calcularSinRendimiento(
+    lista: Array<{ cantidad?: number; tarifa?: number; unitario?: number; costo?: number }>
+  ): number {
+    return lista.reduce((sum, item) => {
+      const precio = item.tarifa ?? item.unitario ?? 0;
+      item.costo = (item.cantidad || 0) * precio;
+      return sum + item.costo;
+    }, 0);
+  }
+
+  // REINICIAR/LIMPIAR
   reiniciarCalculo(): void {
     this.equiposList = [];
     this.manoObraList = [];
     this.materialesList = [];
     this.transporteList = [];
-
     this.subtotalEquipos = 0;
     this.subtotalManoObra = 0;
     this.subtotalMateriales = 0;
     this.subtotalTransporte = 0;
     this.totalDirecto = 0;
+    this.mensajeError = '';
   }
 
-  // =========================
-  //  AGREGAR FILAS
-  // =========================
-  //agregarEquipo() { this.equipos.push({ descripcion:'', cantidad:0, tarifa:0, rendimiento:1 }); }
-  agregarManoObra() { this.manoObraList.push({ descripcion:'', cantidad:0, tarifa:0, rendimiento:1 }); }
-  agregarMaterial() { this.materialesList.push({ descripcion:'', unidad:'', cantidad:0, tarifa:0 }); }
-  agregarTransporte() { this.transporteList.push({ descripcion:'', cantidad:0, tarifa:0 }); }
+
+  guardarCalculo(): void {
+    if (!this.rubroSeleccionado) {
+      this.mensajeError = 'Seleccione un rubro antes de guardar.';
+      setTimeout(() => this.mensajeError = '', 3000);
+      return;
+    }
+
+    const apu: ApuGuardado = {
+      rubro_codigo: this.rubroSeleccionado.codigo,
+      rubro_descripcion: this.rubroSeleccionado.descripcion,
+      fecha: new Date().toISOString(),
+      subtotal_equipos: this.subtotalEquipos,
+      subtotal_mano_obra: this.subtotalManoObra,
+      subtotal_materiales: this.subtotalMateriales,
+      subtotal_transporte: this.subtotalTransporte,
+      total_directo: this.totalDirecto,
+      detalle_equipos: JSON.stringify(this.equiposList),
+      detalle_mano_obra: JSON.stringify(this.manoObraList),
+      detalle_materiales: JSON.stringify(this.materialesList),
+      detalle_transporte: JSON.stringify(this.transporteList)
+    };
+
+    this.apuService.guardar(apu).subscribe({
+      next: () => {
+        this.mensajeExito = '✅ Cálculo guardado correctamente.';
+        setTimeout(() => this.mensajeExito = '', 3000);
+        this.cargarApusGuardados();
+      },
+      error: (err) => {
+        this.mensajeError = 'Error al guardar el cálculo.';
+        console.error(err);
+      }
+    });
+  }
+
+  abrirModal(apu: ApuGuardado): void {
+    this.apuSeleccionado = {
+      ...apu,
+      detalle_equipos: typeof apu.detalle_equipos === 'string'
+        ? JSON.parse(apu.detalle_equipos) : apu.detalle_equipos,
+      detalle_mano_obra: typeof apu.detalle_mano_obra === 'string'
+        ? JSON.parse(apu.detalle_mano_obra) : apu.detalle_mano_obra,
+      detalle_materiales: typeof apu.detalle_materiales === 'string'
+        ? JSON.parse(apu.detalle_materiales) : apu.detalle_materiales,
+      detalle_transporte: typeof apu.detalle_transporte === 'string'
+        ? JSON.parse(apu.detalle_transporte) : apu.detalle_transporte,
+    };
+    this.mostrarModal = true;
+  }
+
+  cerrarModal(): void {
+    this.mostrarModal = false;
+    this.apuSeleccionado = undefined;
+  }
+
 }

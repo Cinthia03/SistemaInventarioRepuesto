@@ -10,7 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MaterialeService, Material } from '../../services/materiales.service';
+import { MaterialeService, materiales } from '../../services/materiales.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
@@ -37,9 +37,9 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 export class Materiales implements AfterViewInit {
   materialForm!: FormGroup;
   displayedColumns = ['codigo','descripcion','unidad','precio','stock','acciones'];
-  dataSource = new MatTableDataSource<Material>();
-  materiales: Material[] = [];
-  materialesFiltrados: Material[] = [];
+  dataSource = new MatTableDataSource<materiales>();
+  materiales: materiales[] = [];
+  materialesFiltrados: materiales[] = [];
   categoriaActual = "TODOS";
   filtroTexto = "";
   modoEdicion = false;
@@ -188,7 +188,7 @@ export class Materiales implements AfterViewInit {
     this.cargarMateriales();
   }
 
-  editar(material: Material){
+  editar(material: materiales){
     this.codigoScroll = material.codigo;
     this.modoEdicion = true;
     this.codigoEditar = material.codigo;

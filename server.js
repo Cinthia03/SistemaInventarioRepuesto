@@ -485,6 +485,66 @@ app.get('/productos', async (req, res) => {
 
 
 
+// ================================================
+//           APU
+// ================================================
+app.get('/apus', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM apus ORDER BY fecha DESC'
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/apus', async (req, res) => {
+  try {
+    const {
+      rubro_codigo, rubro_descripcion, fecha,
+      subtotal_equipos, subtotal_mano_obra,
+      subtotal_materiales, subtotal_transporte,
+      total_directo, detalle_equipos,
+      detalle_mano_obra, detalle_materiales, detalle_transporte
+    } = req.body;
+
+    const result = await pool.query(
+      `INSERT INTO apus 
+        (rubro_codigo, rubro_descripcion, fecha,
+         subtotal_equipos, subtotal_mano_obra,
+         subtotal_materiales, subtotal_transporte,
+         total_directo, detalle_equipos,
+         detalle_mano_obra, detalle_materiales, detalle_transporte)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+       RETURNING *`,
+      [
+        rubro_codigo, rubro_descripcion, fecha,
+        subtotal_equipos, subtotal_mano_obra,
+        subtotal_materiales, subtotal_transporte,
+        total_directo, detalle_equipos,
+        detalle_mano_obra, detalle_materiales, detalle_transporte
+      ]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/apus/:id', async (req, res) => {
+  try {
+    await pool.query('DELETE FROM apus WHERE id=$1', [req.params.id]);
+    res.json({ mensaje: 'Eliminado correctamente' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+
+
+
 
 // ================================================
 //           MANEJO DE ERRORES GLOBAL
