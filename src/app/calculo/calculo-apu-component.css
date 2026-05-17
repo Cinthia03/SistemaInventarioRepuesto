@@ -1,14 +1,14 @@
 /*VARIABLES DE DISEÑO*/
 :host {
-  --color-primario:       #1a2f6e;
+  --color-primario:       #1a486e;
   --color-primario-light: #2a47a8;
-  --color-acento:         #e8600a;
-  --color-acento-light:   #f97316;
+  --color-acento:         green;
+  --color-acento-light:   #f5fff5;
 
-  --color-equipos:        #1a2f6e;
-  --color-mano:           #16543e;
-  --color-materiales:     #7c2d12;
-  --color-transporte:     #4c1d95;
+  --color-equipos:        #126d59;
+  --color-mano:           #572a55;
+  --color-materiales:     #6d4d12;
+  --color-transporte:     #5f1a1a;
 
   --color-bg:             #f1f5f9;
   --color-card:           #ffffff;
@@ -34,7 +34,6 @@
   color: var(--color-texto);
   background: var(--color-card);
   padding: 32px 40px 60px;
-  /*max-width: 1280px;*/
   margin: 0 auto;
 }
 
@@ -42,44 +41,93 @@
 
 
 
-/* SECCION TITULO ANALISIS PRECIO UNITARIO */
-.apu-header {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 28px;
+/* HEADER TIPO BANNER */
+.header-banner {
+  width: 100%;
+  background: var(--color-primario);
+  border-radius: var(--radio);
+  padding: 32px 0px;
+  margin-bottom: 32px;
+  box-shadow: 0 10px 25px rgba(26, 47, 110, 0.15);
+  position: relative;
+  overflow: hidden;
 }
 
-.apu-header__badge {
-  flex-shrink: 0;
+.banner-contenido {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+
+.header-izq {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.header-badge {
   width: 64px;
   height: 64px;
-  border-radius: var(--radio);
-  background: var(--color-primario);
+  border-radius: calc(var(--radio) * 0.8);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: #fff;
-  font-family: var(--font-titulo);
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: 1px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 14px white;
+  flex-shrink: 0;
+  margin-left: 20px;
 }
 
-.apu-header__title {
+.header-badge mat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+}
+
+.titulo {
   font-family: var(--font-titulo);
-  font-size: 26px;
-  font-weight: 700;
-  color: var(--color-primario);
-  margin: 0 0 4px;
-  letter-spacing: 0.3px;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--color-card);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 10px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
-.apu-header__subtitle {
-  font-size: 13px;
-  color: var(--color-texto-suave);
+.subtitulo {
+  font-size: 14px;
+  color: var(--color-card);
   margin: 0;
+}
+
+.header-fecha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--color-card);
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 99px;
+  padding: 8px 16px;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+  margin-right: 20px;
+}
+
+.header-fecha mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 
@@ -277,7 +325,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--color-texto);
+  color: var(--color-texto-suave);
   white-space: nowrap;
   text-align:center;
 }
@@ -305,7 +353,7 @@
 .fila-vacia td {
   padding: 20px;
   text-align: center;
-  color: var(--color-texto);
+  color: var(--color-texto-suave);
   font-style: italic;
   font-size: 13px;
   border-bottom: none !important;
@@ -412,22 +460,22 @@
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  border: none;
+  border: 1.5px solid #e2e8f0;
   border-radius: var(--radio-sm);
-  background: var(--color-acento);
-  color: #fff;
+  background: var(--color-card);
+  color: var(--color-texto-suave);
   font-size: 13.5px;
   font-weight: 600;
   font-family: var(--font-cuerpo);
   cursor: pointer;
   transition: background var(--transicion), transform var(--transicion), box-shadow var(--transicion);
-  box-shadow: 0 2px 6px rgba(233, 96, 10, 0.30);
 }
 
 .btn-agregar:hover {
-  background: var(--color-acento-light);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(233, 96, 10, 0.35);
+  border-color: rgba(81, 185, 81, 0.534);
+  color: var(--color-acento)  ;
+  background: var(--color-acento-light);
 }
 
 .btn-agregar:active {
@@ -569,7 +617,7 @@
 }
 
 .resumen-fila__valor--total {
-  color: #ffffff !important;
+  color: var(--color-card) !important;
   font-size: 20px;
   font-weight: 800;
   font-family: var(--font-cuerpo);
@@ -584,7 +632,7 @@
   padding: 10px 20px;
   border: 1.5px solid #e2e8f0;
   border-radius: var(--radio-sm);
-  background: #fff;
+  background: var(--color-card);
   color: var(--color-texto-suave);
   font-size: 13.5px;
   font-weight: 600;
@@ -608,7 +656,7 @@
   padding: 10px 20px;
   border: 1.5px solid #e2e8f0;
   border-radius: var(--radio-sm);
-  background: #fff;
+  background: var(--color-card);
   color: var(--color-texto-suave);
   font-size: 13.5px;
   font-weight: 600;
@@ -620,8 +668,8 @@
 
 .btn-guardar:hover {
   border-color: rgba(81, 185, 81, 0.534);
-  color: green  ;
-  background: #f5fff5;
+  color: var(--color-acento)  ;
+  background: var(--color-acento-light);
 }
 
 .alerta-exito {
@@ -779,7 +827,7 @@
   font-size: 13px;
   font-weight: 600;
   font-family: var(--font-cuerpo);
-  color: var(--color-mano);
+  color: var(--color-texto-suave);
   cursor: pointer;
   border-right: 1px solid var(--color-borde);
   transition: background 0.18s ease, color 0.18s ease;
@@ -790,8 +838,9 @@
 }
 
 .btn-ver:hover {
-  background: var(--color-mano);
-  color: #fff;
+  border-color: rgba(81, 185, 81, 0.534);
+  color: var(--color-acento)  ;
+  background: var(--color-acento-light);
 }
 
 .apu-card__acciones .btn-eliminar {

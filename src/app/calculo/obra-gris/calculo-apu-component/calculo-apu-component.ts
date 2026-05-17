@@ -7,6 +7,7 @@ import { EquiposService, equipos } from '../../../services/equipos.service';
 import { ManoDeObraService, ManoObra } from '../../../services/mano-de-obra.service';
 import { MaterialeService, materiales } from '../../../services/materiales.service';
 import { ApuService, ApuGuardado } from '../../../services/apu.service';
+import { MatIcon } from "@angular/material/icon";
 
 export interface EquipoCalculo {
   id?: number;
@@ -49,8 +50,9 @@ export interface MaterialesCalculo {
   selector: 'app-calculo-apu-component',
   imports: [
     CommonModule,
-    FormsModule
-  ],
+    FormsModule,
+    MatIcon
+],
   templateUrl: './calculo-apu-component.html',
   styleUrl: '../../calculo-apu-component.css',
 })
@@ -113,6 +115,7 @@ export class CalculoApuComponent implements OnInit {
   apuSeleccionado?: ApuGuardado;
   mostrarModal = false;
   mensajeExito = '';
+  fechaActual = new Date()
 
   ngOnInit(): void {
     this.rubros = this.rubrosService.getRubros();

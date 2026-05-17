@@ -1,18 +1,25 @@
 <div class="apu-wrapper">
-  <!-- ══════════════════════════════════════════ -->
-  <!-- ENCABEZADO                                 -->
-  <!-- ══════════════════════════════════════════ -->
-  <div class="apu-header">
-    <div class="apu-header__badge">APU</div>
-    <div class="apu-header__text">
-      <h1 class="apu-header__title">ANALISIS DE PRECIOS UNITARIOS</h1>
-      <p class="apu-header__subtitle">Sistema de cálculo de costos directos por rubro</p>
+
+  <div class="header-banner">
+    <div class="banner-contenido">
+      <div class="header-izq">
+        <div class="header-badge">
+          <mat-icon>calculate</mat-icon>
+        </div>
+        <div class="banner-textos">
+          <h1 class="titulo">ANALISIS DE PRECIOS UNITARIO</h1>
+          <p class="subtitulo">Sistema de cálculo de costos directos por rubro</p>
+        </div>
+      </div>
+      
+      <div class="header-fecha">
+        <mat-icon>calendar_today</mat-icon>
+        <span>Actualizado: {{ fechaActual | date:'dd MMMM yyyy · HH:mm' }}</span>
+      </div>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════ -->
-  <!-- SELECCIÓN DE RUBRO                         -->
-  <!-- ══════════════════════════════════════════ -->
+  <!-- SELECCIÓN DE RUBRO -->
   <div class="card selector-card">
     <label class="field-label">
       <span class="field-label__icon">📋</span>
@@ -30,33 +37,27 @@
     </select>
   </div>
 
-  <!-- ══════════════════════════════════════════ -->
-  <!-- ALERTA DE ERROR DE STOCK                   -->
-  <!-- ══════════════════════════════════════════ -->
+  <!-- ALERTA DE ERROR DE STOCK -->
   <div class="alerta-error" *ngIf="mensajeError" role="alert">
     <span class="alerta-error__icono">⚠️</span>
     {{ mensajeError }}
   </div>
 
-  <!-- Alerta éxito -->
   <div class="alerta-exito" *ngIf="mensajeExito" role="alert">
     {{ mensajeExito }}
   </div>
 
-  <!-- ══════════════════════════════════════════ -->
-  <!-- CONTENIDO DEL RUBRO                        -->
-  <!-- ══════════════════════════════════════════ -->
+  <!-- CONTENIDO DEL RUBRO -->
   <div *ngIf="rubroSeleccionado" class="rubro-contenido">
-    <!-- Título del rubro seleccionado -->
     <div class="rubro-titulo">
       <span class="rubro-titulo__codigo">{{ rubroSeleccionado.codigo }}</span>
       <span class="rubro-titulo__nombre">{{ rubroSeleccionado.descripcion }}</span>
     </div>
 
-    <!-- SECCIÓN: EQUIPOS                   -->
+    <!-- SECCIÓN: EQUIPOS  -->
     <div class="card seccion-card">
       <div class="seccion-header seccion-header--equipos">
-        <span class="seccion-header__letra">M</span>
+        <span class="seccion-header__letra">E</span>
         <h2 class="seccion-header__titulo">Equipos</h2>
       </div>
 
@@ -141,10 +142,10 @@
       </div>
     </div>
 
-    <!-- SECCIÓN: MANO DE OBRA              -->
+    <!-- SECCIÓN: MANO DE OBRA -->
     <div class="card seccion-card">
       <div class="seccion-header seccion-header--mano">
-        <span class="seccion-header__letra">N</span>
+        <span class="seccion-header__letra">MO</span>
         <h2 class="seccion-header__titulo">Mano de Obra</h2>
       </div>
 
@@ -222,10 +223,10 @@
       </div>
     </div>
 
-    <!-- SECCIÓN: MATERIALES                -->
+    <!-- SECCIÓN: MATERIALES -->
     <div class="card seccion-card">
       <div class="seccion-header seccion-header--materiales">
-        <span class="seccion-header__letra">O</span>
+        <span class="seccion-header__letra">M</span>
         <h2 class="seccion-header__titulo">Materiales</h2>
       </div>
 
@@ -297,10 +298,10 @@
       </div>
     </div>
 
-    <!-- SECCIÓN: TRANSPORTE                -->
+    <!-- SECCIÓN: TRANSPORTE -->
     <div class="card seccion-card">
       <div class="seccion-header seccion-header--transporte">
-        <span class="seccion-header__letra">P</span>
+        <span class="seccion-header__letra">T</span>
         <h2 class="seccion-header__titulo">Transporte</h2>
       </div>
 
@@ -368,41 +369,41 @@
     </div>
   </div>
 
-    <!-- RESUMEN TOTAL                       -->
+    <!-- RESUMEN TOTAL -->
     <div class="card resumen-card">
       <h3 class="resumen-card__titulo">Resumen de Costos</h3>
       <div class="resumen-grid">
         <div class="resumen-fila">
           <span class="resumen-fila__label">
-            <span class="resumen-fila__letra resumen-fila__letra--m">M</span>
+            <span class="resumen-fila__letra resumen-fila__letra--m">E</span>
             Subtotal Equipos
           </span>
           <span class="resumen-fila__valor">$ {{ subtotalEquipos | number:'1.2-2' }}</span>
         </div>
         <div class="resumen-fila">
           <span class="resumen-fila__label">
-            <span class="resumen-fila__letra resumen-fila__letra--n">N</span>
+            <span class="resumen-fila__letra resumen-fila__letra--n">MO</span>
             Subtotal Mano de Obra
           </span>
           <span class="resumen-fila__valor">$ {{ subtotalManoObra | number:'1.2-2' }}</span>
         </div>
         <div class="resumen-fila">
           <span class="resumen-fila__label">
-            <span class="resumen-fila__letra resumen-fila__letra--o">O</span>
+            <span class="resumen-fila__letra resumen-fila__letra--o">M</span>
             Subtotal Materiales
           </span>
           <span class="resumen-fila__valor">$ {{ subtotalMateriales | number:'1.2-2' }}</span>
         </div>
         <div class="resumen-fila">
           <span class="resumen-fila__label">
-            <span class="resumen-fila__letra resumen-fila__letra--p">P</span>
+            <span class="resumen-fila__letra resumen-fila__letra--p">T</span>
             Subtotal Transporte
           </span>
           <span class="resumen-fila__valor">$ {{ subtotalTransporte | number:'1.2-2' }}</span>
         </div>
         <div class="resumen-divider"></div>
         <div class="resumen-fila resumen-fila--total">
-          <span class="resumen-fila__label">Total Costo Directo (M+N+O+P)</span>
+          <span class="resumen-fila__label">Total Costo Directo (E+MO+M+T)</span>
           <span class="resumen-fila__valor resumen-fila__valor--total">$ {{ totalDirecto | number:'1.2-2' }}</span>
         </div>
       </div>
@@ -417,9 +418,7 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════ -->
-  <!-- CARDS REGISTROS                   -->
-  <!-- ══════════════════════════════════════════ -->
+  <!-- CARDS REGISTROS -->
   <div class="apus-guardados" *ngIf="apusGuardados.length > 0">
     <h2 class="apus-guardados__titulo">📁 CALCULOS GUARDADOS</h2>
     <div class="apus-grid">
