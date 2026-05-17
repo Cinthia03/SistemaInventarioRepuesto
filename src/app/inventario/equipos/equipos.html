@@ -1,145 +1,270 @@
 <div class="container">
 
-  <div class="form-section">
+  <!-- BANNER -->
+  <div class="header-banner banner--equipos">
+    <div class="banner-contenido">
 
-    <h1 class="form-title">
-      <mat-icon class="title-icon">engineering</mat-icon>
-      Registro de Equipos de construccion
-    </h1>
+      <div class="header-izq">
+        <div class="header-badge">
+          <mat-icon>engineering</mat-icon>
+        </div>
 
-    <form [formGroup]="form" (ngSubmit)="guardar()" class="material-form">
-      <!-- CODIGO -->
-      <mat-form-field appearance="outline" class="codigo-field">
-        <mat-label>Código</mat-label>
-        <input matInput formControlName="codigo" readonly>
-        <mat-icon matPrefix>qr_code</mat-icon>
-      </mat-form-field>
-
-      <!-- DESCRIPCION -->
-      <mat-form-field appearance="outline">
-        <mat-label>Descripción</mat-label>
-        <input matInput formControlName="descripcion">
-        <mat-icon matPrefix>description</mat-icon>
-      </mat-form-field>
-
-      <!-- STOCK -->
-      <mat-form-field appearance="outline">
-        <mat-label>Stock</mat-label>
-        <input matInput type="number" min="0" formControlName="stock">
-        <mat-icon matPrefix>inventory</mat-icon>
-      </mat-form-field>
-
-      <!-- UNIDAD -->
-      <mat-form-field appearance="outline">
-        <mat-label>Unidad</mat-label>
-        <input matInput formControlName="unidad">
-        <mat-icon matPrefix>straighten</mat-icon>
-      </mat-form-field>
-
-      <!-- PRECIO -->
-      <mat-form-field appearance="outline">
-        <mat-label>Precio</mat-label>
-        <input matInput type="number" min="0.00" formControlName="precio">
-        <mat-icon matPrefix>attach_money</mat-icon>
-      </mat-form-field>
-
-      <!--BOTONES-->
-      <div class="botones-form">
-        <button mat-raised-button
-              class="btn-guardar"
-              type="submit"
-              [disabled]="form.invalid">
-          <mat-icon>{{ modoEdicion ? 'edit' : 'save' }}</mat-icon>
-          {{ modoEdicion ? 'Actualizar' : 'Guardar' }}
-        </button>
-        <button mat-raised-button
-            class="btn-nuevo"
-            type="button"
-            (click)="nuevoRegistro()">
-          <mat-icon>add</mat-icon>
-          Nuevo registro
-        </button>
+        <div class="banner-textos">
+          <h1 class="titulo">Catálogo de Equipos</h1>
+          <p class="subtitulo">
+            Administración y control de equipos de construcción
+          </p>
+        </div>
       </div>
-      
-    </form>
+
+      <div class="banner-chip">
+        <mat-icon>precision_manufacturing</mat-icon>
+        {{ dataSource.data.length }} registros activos
+      </div>
+    </div>
   </div>
 
-  <!-- ================= FILTRO ================= -->
+  <!-- CONTENIDO -->
+  <div class="inner">
+    <div class="layout-grid">
+      <!-- PANEL FORMULARIO -->
+      <div class="form-panel form-panel--equipos">
+        <div class="form-panel__header">
+          <mat-icon>
+            {{ modoEdicion ? 'edit_note' : 'add_box' }}
+          </mat-icon>
 
-  <mat-form-field appearance="outline" class="filtro-campo">
-    <mat-label>Buscar equipo de construccion</mat-label>
-    <input matInput (keyup)="aplicarFiltro($event)" placeholder="Código o descripción">
-    <mat-icon matSuffix>search</mat-icon>
-  </mat-form-field>
+          <h3 class="form-panel__titulo">
+            {{ modoEdicion ? 'Modificar Equipo' : 'Registrar Nuevo Equipo' }}
+          </h3>
+        </div>
 
-  <!-- ================= TABLA ================= -->
+        <div class="form-panel__body">
+          <form [formGroup]="form"
+                (ngSubmit)="guardar()">
 
-  <mat-card class="tabla-section">
-    <table mat-table
-           [dataSource]="dataSource"
-           matSort
-           matSortActive="codigo"
-           matSortDirection="asc">
+            <!-- CODIGO -->
+            <div class="campo-grupo">
+              <div class="campo-label">
+                <mat-icon>qr_code</mat-icon>
+                Código
+              </div>
 
-      <!-- CODIGO -->
-      <ng-container matColumnDef="codigo">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Código </th>
-        <td mat-cell *matCellDef="let element"> {{element.codigo}} </td>
-      </ng-container>
+              <input class="campo-input"
+                     matInput
+                     formControlName="codigo"
+                     readonly>
+            </div>
 
-      <!-- DESCRIPCION -->
-      <ng-container matColumnDef="descripcion">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Descripción </th>
-        <td mat-cell *matCellDef="let element"> {{element.descripcion}} </td>
-      </ng-container>
+            <!-- DESCRIPCION -->
+            <div class="campo-grupo">
+              <div class="campo-label">
+                <mat-icon>description</mat-icon>
+                Descripción
+              </div>
 
-      <!-- STOCK -->
-      <ng-container matColumnDef="stock">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Stock </th>
-        <td mat-cell *matCellDef="let element"> {{element.stock}} </td>
-      </ng-container>
+              <input class="campo-input"
+                     matInput
+                     formControlName="descripcion"
+                     placeholder="Nombre del equipo...">
+            </div>
 
+            <!-- GRID -->
+            <div class="form-grid-2">
+              <!-- STOCK -->
+              <div class="campo-grupo">
+                <div class="campo-label">
+                  <mat-icon>inventory</mat-icon>
+                  Stock
+                </div>
 
-      <!-- UNIDAD -->
-      <ng-container matColumnDef="unidad">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Unidad </th>
-        <td mat-cell *matCellDef="let element"> {{element.unidad}} </td>
-      </ng-container>
+                <input class="campo-input"
+                       matInput
+                       type="number"
+                       min="0"
+                       formControlName="stock"
+                       placeholder="0">
+              </div>
 
-      <!-- PRECIO -->
-      <ng-container matColumnDef="precio">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Precio </th>
-        <td mat-cell *matCellDef="let element"> ${{element.precio}} </td>
-      </ng-container>
+              <!-- UNIDAD -->
+              <div class="campo-grupo">
+                <div class="campo-label">
+                  <mat-icon>straighten</mat-icon>
+                  Unidad
+                </div>
 
-      <!-- ACCIONES -->
-      <ng-container matColumnDef="acciones">
-        <th mat-header-cell *matHeaderCellDef> Acciones </th>
+                <input class="campo-input"
+                       matInput
+                       formControlName="unidad"
+                       placeholder="Unidad">
+              </div>
+            </div>
 
-        <td mat-cell *matCellDef="let element">
+            <!-- PRECIO -->
+            <div class="campo-grupo">
+              <div class="campo-label">
+                <mat-icon>attach_money</mat-icon>
+                Precio
+              </div>
 
-          <button mat-icon-button class="btn-editar" (click)="editar(element)">
-            <mat-icon>edit</mat-icon>
-          </button>
+              <input class="campo-input"
+                     matInput
+                     type="number"
+                     min="0"
+                     formControlName="precio"
+                     placeholder="0.00">
+            </div>
 
-          <button mat-icon-button class="btn-eliminar" (click)="eliminar(element.id)">
-            <mat-icon>delete</mat-icon>
-          </button>
+            <!-- BOTONES -->
+            <div class="botones-form">
+              <button class="btn-guardar"
+                      type="submit"
+                      [disabled]="form.invalid">
+                <mat-icon>
+                  {{ modoEdicion ? 'edit' : 'save' }}
+                </mat-icon>
+                {{ modoEdicion ? 'Actualizar' : 'Guardar Equipo' }}
+              </button>
 
-        </td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row
-          *matRowDef="let row; columns: displayedColumns;"
-          [attr.data-codigo]="row.codigo"
-          [class.fila-destacada]="row.codigo === filaActualizada">
-      </tr>
-    </table>
+              <button class="btn-nuevo"
+                      type="button"
+                      (click)="nuevoRegistro()">
+                <mat-icon>add</mat-icon>
+                Nuevo Registro
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
 
-    <!-- PAGINADOR -->
-    <mat-paginator [pageSize]="10" [pageSizeOptions]="[5,10,20]" showFirstLastButtons>
-    </mat-paginator>
+      <!-- PANEL TABLA -->
+      <div class="tabla-panel">
+        <!-- FILTROS -->
+        <div class="filter-bar">
+          <div class="filter-bar__header">
+            <mat-icon>manage_search</mat-icon>
+            <h3 class="filter-bar__titulo">
+              Filtros de Búsqueda
+            </h3>
+          </div>
 
-  </mat-card>
+          <div class="filter-bar__campos">
+            <div class="filtro-campo">
+              <div class="filtro-label">
+                <mat-icon>search</mat-icon>
+                Buscar equipo
+              </div>
+              <input class="filtro-input"
+                     (keyup)="aplicarFiltro($event)"
+                     placeholder="Código o descripción...">
+            </div>
+          </div>
+        </div>
 
+        <!-- TABLA -->
+        <mat-card class="tabla-card tabla-card--equipos">
+          <div class="tabla-card__header">
+            <div class="tabla-card__titulo-wrap">
+              <mat-icon>table_rows</mat-icon>
+              <h3 class="tabla-card__titulo">
+                Registro de Equipos
+              </h3>
+            </div>
+
+            <span class="tabla-card__count">
+              {{ dataSource.data.length }} registros
+            </span>
+          </div>
+
+          <div class="table-responsive">
+            <table mat-table
+                   [dataSource]="dataSource"
+                   matSort
+                   matSortActive="codigo"
+                   matSortDirection="asc"
+                   matSortDisableClear>
+
+              <!-- CODIGO -->
+              <ng-container matColumnDef="codigo">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Código
+                </th>
+                <td mat-cell *matCellDef="let e" class="td-codigo"> {{e.codigo}} </td>
+              </ng-container>
+
+              <!-- DESCRIPCION -->
+              <ng-container matColumnDef="descripcion">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Descripción </th>
+                <td mat-cell *matCellDef="let e" class="td-desc"> {{e.descripcion}} </td>
+              </ng-container>
+
+              <!-- STOCK -->
+              <ng-container matColumnDef="stock">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Stock </th>
+                <td mat-cell *matCellDef="let e">
+                  <span class="stock-indicador"
+                        [class.stock-critico]="e.stock <= 2"
+                        [class.stock-bajo]="e.stock > 2 && e.stock <= 5">
+                    {{e.stock}}
+                  </span>
+                </td>
+              </ng-container>
+
+              <!-- UNIDAD -->
+              <ng-container matColumnDef="unidad">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Unidad </th>
+                <td mat-cell *matCellDef="let e">
+                  <span class="badge-unidad">
+                    {{e.unidad}}
+                  </span>
+                </td>
+              </ng-container>
+
+              <!-- PRECIO -->
+              <ng-container matColumnDef="precio">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Precio </th>
+                <td mat-cell *matCellDef="let e" class="td-precio"> ${{e.precio}} </td>
+              </ng-container>
+
+              <!-- ACCIONES -->
+              <ng-container matColumnDef="acciones">
+                <th mat-header-cell *matHeaderCellDef class="td-acciones"> Acciones </th>
+                <td mat-cell
+                    *matCellDef="let e"
+                    class="td-acciones">
+
+                  <button mat-icon-button
+                          class="btn-icono btn-editar"
+                          title="Editar"
+                          (click)="editar(e)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+
+                  <button mat-icon-button
+                          class="btn-icono btn-eliminar"
+                          title="Eliminar"
+                          (click)="eliminar(e.id)">
+                    <mat-icon>delete_forever</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row
+                  *matHeaderRowDef="displayedColumns">
+              </tr>
+              <tr mat-row
+                  *matRowDef="let row; columns: displayedColumns;"
+                  [class.fila-alerta]="row.stock <= 5">
+              </tr>
+            </table>
+          </div>
+
+          <!-- PAGINADOR -->
+          <mat-paginator [pageSize]="10"
+                         [pageSizeOptions]="[5,10,20]"
+                         showFirstLastButtons>
+          </mat-paginator>
+        </mat-card>
+      </div>
+    </div>
+  </div>
 </div>

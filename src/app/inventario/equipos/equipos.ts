@@ -29,7 +29,7 @@ import { EquiposService, equipos } from '../../services/equipos.service';
     MatSnackBarModule
   ],
   templateUrl: './equipos.html',
-  styleUrl: './equipos.css'
+  styleUrls: ['../materiales/materiales.css']
 })
 export class Equipos implements AfterViewInit {
 

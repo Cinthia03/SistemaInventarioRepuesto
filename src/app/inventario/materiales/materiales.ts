@@ -69,6 +69,7 @@ export class Materiales implements AfterViewInit {
       return item[property];
     };
   }
+  
 
   ngAfterViewInit(){
     this.dataSource.paginator = this.paginator;
@@ -230,6 +231,10 @@ export class Materiales implements AfterViewInit {
         }
       );
     })
+  }
+
+  getSelectValue(event: Event): string {
+    return (event.target as HTMLSelectElement).value;
   }
 
 }

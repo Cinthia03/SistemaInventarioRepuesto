@@ -1,135 +1,166 @@
 <div class="container">
 
-  <div class="form-section">
-
-    <h1 class="form-title">
-      <mat-icon class="title-icon">engineering</mat-icon>
-      Registro de Mano de Obra
-    </h1>
-
-    <form [formGroup]="form"
-          (ngSubmit)="guardar()"
-          class="material-form">
-
-      <!-- CODIGO -->
-      <mat-form-field appearance="outline" class="codigo-field">
-        <mat-label>Código</mat-label>
-        <input matInput formControlName="codigo" readonly>
-        <mat-icon matPrefix>qr_code</mat-icon>
-      </mat-form-field>
-
-      <!-- DESCRIPCION -->
-      <mat-form-field appearance="outline">
-        <mat-label>Descripción</mat-label>
-        <input matInput formControlName="descripcion">
-        <mat-icon matPrefix>description</mat-icon>
-      </mat-form-field>
-
-      <!-- UNIDAD -->
-      <mat-form-field appearance="outline">
-        <mat-label>Unidad</mat-label>
-        <input matInput formControlName="unidad">
-        <mat-icon matPrefix>straighten</mat-icon>
-      </mat-form-field>
-
-      <!-- PRECIO -->
-      <mat-form-field appearance="outline">
-        <mat-label>Precio</mat-label>
-        <input matInput type="number" formControlName="precio">
-        <mat-icon matPrefix>attach_money</mat-icon>
-      </mat-form-field>
-
-      <button mat-raised-button
-              class="btn-guardar"
-              type="submit"
-              [disabled]="form.invalid">
-        <mat-icon>{{ modoEdicion ? 'edit' : 'save' }}</mat-icon>
-        {{ modoEdicion ? 'Actualizar' : 'Guardar' }}
-      </button>
-
-      <button mat-raised-button
-          class="btn-nuevo"
-          type="button"
-          (click)="nuevoRegistro()">
-        <mat-icon>add</mat-icon>
-        Nuevo registro
-      </button>
-
-    </form>
+  <div class="header-banner banner--mano">
+    <div class="banner-contenido">
+      <div class="header-izq">
+        <div class="header-badge">
+          <mat-icon>engineering</mat-icon>
+        </div>
+        <div>
+          <h1 class="titulo">Mano de Obra</h1>
+          <p class="subtitulo">Gestión de personal, jornadas y tarifas por categoría laboral</p>
+        </div>
+      </div>
+      <div class="banner-chip">
+        <mat-icon>groups</mat-icon>
+        {{ dataSource.data.length }} registros activos
+      </div>
+    </div>
   </div>
 
-  <!-- ================= FILTRO ================= -->
+  <div class="inner">
+    <div class="layout-grid">
+      <div class="form-panel form-panel--mano">
+        <div class="form-panel__header">
+          <mat-icon>{{ modoEdicion ? 'edit_note' : 'add_box' }}</mat-icon>
+          <h3 class="form-panel__titulo">
+            {{ modoEdicion ? 'Modificar Registro' : 'Registrar Mano de Obra' }}
+          </h3>
+        </div>
+        <div class="form-panel__body">
+          <form [formGroup]="form" (ngSubmit)="guardar()">
 
-  <mat-form-field appearance="outline" class="filtro-campo">
-    <mat-label>Buscar mano de obra</mat-label>
-    <input matInput (keyup)="aplicarFiltro($event)" placeholder="Código o descripción">
-    <mat-icon matSuffix>search</mat-icon>
-  </mat-form-field>
+            <div class="campo-grupo">
+              <div class="campo-label">
+                <mat-icon>qr_code</mat-icon> Código
+              </div>
+              <input class="campo-input" formControlName="codigo" readonly>
+            </div>
 
-  <!-- ================= TABLA ================= -->
+            <div class="campo-grupo">
+              <div class="campo-label">
+                <mat-icon>description</mat-icon> Descripción
+              </div>
+              <input class="campo-input" formControlName="descripcion"
+                     placeholder="Nombre del cargo o categoría...">
+            </div>
 
-  <mat-card class="tabla-section">
-    <table mat-table
-           [dataSource]="dataSource"
-           matSort
-           matSortActive="codigo"
-           matSortDirection="asc">
+            <div class="form-grid-2">
+              <div class="campo-grupo">
+                <div class="campo-label">
+                  <mat-icon>straighten</mat-icon> Unidad
+                </div>
+                <input class="campo-input" formControlName="unidad"
+                       placeholder="hr, día...">
+              </div>
+              <div class="campo-grupo">
+                <div class="campo-label">
+                  <mat-icon>attach_money</mat-icon> Precio
+                </div>
+                <input class="campo-input" type="number"
+                       formControlName="precio" placeholder="0.00">
+              </div>
+            </div>
 
-      <!-- CODIGO -->
-      <ng-container matColumnDef="codigo">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Código </th>
-        <td mat-cell *matCellDef="let element"> {{element.codigo}} </td>
-      </ng-container>
+            <div class="botones-form">
+              <button class="btn-guardar" type="submit" [disabled]="form.invalid">
+                <mat-icon>{{ modoEdicion ? 'edit' : 'save' }}</mat-icon>
+                {{ modoEdicion ? 'Actualizar' : 'Guardar' }}
+              </button>
+              <button class="btn-nuevo" type="button" (click)="nuevoRegistro()">
+                <mat-icon>add</mat-icon>
+                Nuevo Registro
+              </button>
+            </div>
 
-      <!-- DESCRIPCION -->
-      <ng-container matColumnDef="descripcion">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Descripción </th>
-        <td mat-cell *matCellDef="let element"> {{element.descripcion}} </td>
-      </ng-container>
+          </form>
+        </div>
+      </div>
 
-      <!-- UNIDAD -->
-      <ng-container matColumnDef="unidad">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Unidad </th>
-        <td mat-cell *matCellDef="let element"> {{element.unidad}} </td>
-      </ng-container>
+      <div class="tabla-panel">
 
-      <!-- PRECIO -->
-      <ng-container matColumnDef="precio">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Precio </th>
-        <td mat-cell *matCellDef="let element"> ${{element.precio}} </td>
-      </ng-container>
+        <div class="filter-bar">
+          <div class="filter-bar__header">
+            <mat-icon>manage_search</mat-icon>
+            <h3 class="filter-bar__titulo">Filtros de Búsqueda</h3>
+          </div>
+          <div class="filter-bar__campos">
+            <div class="filtro-campo">
+              <div class="filtro-label">
+                <mat-icon>search</mat-icon> Buscar mano de obra
+              </div>
+              <input class="filtro-input"
+                     (keyup)="aplicarFiltro($event)"
+                     placeholder="Código o descripción...">
+            </div>
+          </div>
+        </div>
 
-      <!-- ACCIONES -->
-      <ng-container matColumnDef="acciones">
-        <th mat-header-cell *matHeaderCellDef> Acciones </th>
+        <mat-card class="tabla-card tabla-card--mano">
+          <div class="tabla-card__header">
+            <div class="tabla-card__titulo-wrap">
+              <mat-icon>table_rows</mat-icon>
+              <h3 class="tabla-card__titulo">Registro de Mano de Obra</h3>
+            </div>
+            <span class="tabla-card__count">{{ dataSource.data.length }} registros</span>
+          </div>
 
-        <td mat-cell *matCellDef="let element">
+          <div class="table-responsive">
+            <table mat-table [dataSource]="dataSource"
+                   matSort matSortActive="codigo"
+                   matSortDirection="asc" matSortDisableClear>
 
-          <button mat-icon-button class="btn-editar" (click)="editar(element)">
-            <mat-icon>edit</mat-icon>
-          </button>
+              <ng-container matColumnDef="codigo">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Código</th>
+                <td mat-cell *matCellDef="let e" class="td-codigo">{{e.codigo}}</td>
+              </ng-container>
 
-          <button mat-icon-button class="btn-eliminar" (click)="eliminar(element.id)">
-            <mat-icon>delete</mat-icon>
-          </button>
+              <ng-container matColumnDef="descripcion">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Descripción</th>
+                <td mat-cell *matCellDef="let e" class="td-desc">{{e.descripcion}}</td>
+              </ng-container>
 
-        </td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row
-          *matRowDef="let row; columns: displayedColumns;"
-          [attr.data-codigo]="row.codigo"
-          [class.fila-destacada]="row.codigo === filaActualizada">
-      </tr>
-    </table>
+              <ng-container matColumnDef="unidad">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Unidad</th>
+                <td mat-cell *matCellDef="let e">
+                  <span class="badge-unidad">{{e.unidad}}</span>
+                </td>
+              </ng-container>
 
-    <!-- PAGINADOR -->
-    <mat-paginator
-      [pageSize]="10"
-      [pageSizeOptions]="[5,10,20]"
-      showFirstLastButtons>
-    </mat-paginator>
+              <ng-container matColumnDef="precio">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Precio</th>
+                <td mat-cell *matCellDef="let e" class="td-precio">
+                  ${{e.precio | number:'1.2-2'}}
+                </td>
+              </ng-container>
 
-  </mat-card>
+              <ng-container matColumnDef="acciones">
+                <th mat-header-cell *matHeaderCellDef class="td-acciones">Acciones</th>
+                <td mat-cell *matCellDef="let e" class="td-acciones">
+                  <button mat-icon-button class="btn-icono btn-editar"
+                          title="Editar" (click)="editar(e)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button class="btn-icono btn-eliminar"
+                          title="Eliminar" (click)="eliminar(e.id)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
 
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+                  [attr.data-codigo]="row.codigo"
+                  [class.fila-destacada]="row.codigo === filaActualizada">
+              </tr>
+            </table>
+          </div>
+
+          <mat-paginator [pageSize]="10" [pageSizeOptions]="[5,10,20]"
+                         showFirstLastButtons></mat-paginator>
+        </mat-card>
+
+      </div>
+    </div>
+  </div>
 </div>

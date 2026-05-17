@@ -1,190 +1,243 @@
 <div class="container">
-  <div class="form-section">
-    <h1 class="form-title">
-      <mat-icon class="title-icon">inventory</mat-icon>
-      Registro de Nuevo Material
-    </h1>
 
-    <form [formGroup]="materialForm"
-          (ngSubmit)="guardarMaterial()"
-          class="material-form">
-
-      <mat-form-field appearance="outline">
-        <mat-label>Código</mat-label>
-        <input matInput formControlName="codigo" readonly>
-        <mat-icon matPrefix>qr_code</mat-icon>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Descripción</mat-label>
-        <input matInput formControlName="descripcion">
-        <mat-icon matPrefix>description</mat-icon>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Unidad de Medida</mat-label>
-        <input matInput formControlName="unidad">
-        <mat-icon matPrefix>straighten</mat-icon>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Precio Unitario</mat-label>
-        <input matInput type="number" formControlName="precio">
-        <mat-icon matPrefix>attach_money</mat-icon>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Stock Inicial</mat-label>
-        <input matInput type="number" formControlName="stock">
-        <mat-icon matPrefix>warehouse</mat-icon>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Categoría</mat-label>
-        <mat-select formControlName="categoria" (selectionChange)="generarCodigo($event.value)">
-          <mat-option value="ACERO Y VARILLAS">Acero y Varillas</mat-option>
-          <mat-option value="ALUMINIO Y VIDRIO">Aluminio y Vidrio</mat-option>
-          <mat-option value="ADOQUINES">Adoquines</mat-option>
-          <mat-option value="AGLOMERANTES">Aglomerantes</mat-option>
-          <mat-option value="AGREGADOS">Agregados</mat-option>
-          <mat-option value="AZULEJOS">Azulejos</mat-option>
-          <mat-option value="PISOS">Baldosas</mat-option>
-          <mat-option value="BLOQUE CONCRETO">Bloques de Concreto</mat-option>
-          <mat-option value="BLOQUE ARCILLA">Bloques de Arcilla</mat-option>
-          <mat-option value="MADERAS PUERTAS ACCESORIOS">Maderas y Puertas</mat-option>
-          <mat-option value="ENCOFRADO">Encofrado</mat-option>
-          <mat-option value="CUBIERTA Y TUMBADO">Cubierta y Tumbado</mat-option>
-          <mat-option value="PINTURAS">Pinturas</mat-option>
-          <mat-option value="VARIOS">Productos Varios</mat-option>
-          <mat-option value="AGUA POTABLE">Agua Potable</mat-option>
-          <mat-option value="AGUAS SERVIDAS">Aguas Servidas</mat-option>
-          <mat-option value="PIEZAS SANITARIAS">Piezas Sanitarias</mat-option>
-          <mat-option value="MATERIAL ELECTRICO">Material Electrico</mat-option>
-        </mat-select>
-        <mat-icon matPrefix>category</mat-icon>
-      </mat-form-field>
-
-      <button mat-raised-button
-              class="btn-guardar"
-              type="submit"
-              [disabled]="materialForm.invalid">
-        <mat-icon>{{ modoEdicion ? 'edit' : 'save' }}</mat-icon>
-        {{ modoEdicion ? 'Actalizar Material' : 'Guardar Material' }}
-      </button>
-
-      <button mat-raised-button
-          class="btn-nuevo"
-          type="button"
-          (click)="nuevoRegistro()">
-        <mat-icon>add</mat-icon>
-        Nuevo registro
-      </button>
-
-    </form>
+  <!-- BANNER -->
+  <div class="header-banner banner--materiales">
+    <div class="banner-contenido">
+      <div class="header-izq">
+        <div class="header-badge">
+          <mat-icon>inventory</mat-icon>
+        </div>
+        <div class="banner-textos">
+          <h1 class="titulo">Catálogo de Materiales</h1>
+          <p class="subtitulo">Administración y registro de insumos para la construcción</p>
+        </div>
+      </div>
+      <div class="banner-chip">
+        <mat-icon>layers</mat-icon>
+        {{ dataSource.data.length }} registros activos
+      </div>
+    </div>
   </div>
 
+  <div class="inner">
+    <div class="layout-grid">
+      <div class="form-panel form-panel--materiales">
+        <div class="form-panel__header">
+          <mat-icon>{{ modoEdicion ? 'edit_note' : 'add_box' }}</mat-icon>
+          <h3 class="form-panel__titulo">
+            {{ modoEdicion ? 'Modificar Material' : 'Registrar Nuevo Material' }}
+          </h3>
+        </div>
 
- <!-- ================= FILTROS ================= -->
-<mat-form-field appearance="outline" class="filtro-campo">
-  <mat-label>Buscar material</mat-label>
-  <input matInput (keyup)="aplicarFiltro($event)" placeholder="Código o descripción">
-  <mat-icon matSuffix>search</mat-icon>
-</mat-form-field>    
+        <div class="form-panel__body">
+          <form [formGroup]="materialForm" (ngSubmit)="guardarMaterial()">
 
-<mat-form-field appearance="outline" class="filtro-campo">
-  <mat-label>Categoría</mat-label>
-  <mat-select (selectionChange)="filtrarCategoria($event.value)">
-    <mat-option value="TODOS">Todos</mat-option>
-    <mat-option value="ACERO Y VARILLAS">Acero y Varillas</mat-option>
-          <mat-option value="ALUMINIO Y VIDRIO">Aluminio y Vidrio</mat-option>
-          <mat-option value="ADOQUINES">Adoquines</mat-option>
-          <mat-option value="AGLOMERANTES">Aglomerantes</mat-option>
-          <mat-option value="AGREGADOS">Agregados</mat-option>
-          <mat-option value="AZULEJOS">Azulejos</mat-option>
-          <mat-option value="PISOS">Baldosas</mat-option>
-          <mat-option value="BLOQUE CONCRETO">Bloques de Concreto</mat-option>
-          <mat-option value="BLOQUE ARCILLA">Bloques de Arcilla</mat-option>
-          <mat-option value="MADERAS PUERTAS ACCESORIOS">Maderas y Puertas</mat-option>
-          <mat-option value="ENCOFRADO">Encofrado</mat-option>
-          <mat-option value="CUBIERTA Y TUMBADO">Cubierta y Tumbado</mat-option>
-          <mat-option value="PINTURAS">Pinturas</mat-option>
-          <mat-option value="VARIOS">Productos Varios</mat-option>
-          <mat-option value="AGUA POTABLE">Agua Potable</mat-option>
-          <mat-option value="AGUAS SERVIDAS">Aguas Servidas</mat-option>
-          <mat-option value="PIEZAS SANITARIAS">Piezas Sanitarias</mat-option>
-          <mat-option value="MATERIAL ELECTRICO">Material Electrico</mat-option>
-  </mat-select>
-</mat-form-field>
- u
+            <div class="campo-grupo">
+              <div class="campo-label">
+                <mat-icon>qr_code</mat-icon> Código
+              </div>
+              <input class="campo-input" matInput formControlName="codigo" readonly>
+            </div>
 
-  <!-- ================= TABLA ================= -->
-<mat-card class="tabla-section">
-    <table mat-table
-       [dataSource]="dataSource"
-       matSort
-       matSortActive="codigo"
-       matSortDirection="asc"
-       matSortDisableClear>
-      <!-- CODIGO -->
-      <ng-container matColumnDef="codigo">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header="codigo"> Código </th>
-        <td mat-cell *matCellDef="let element"> {{element.codigo}} </td>
-      </ng-container>
+            <div class="campo-grupo">
+              <div class="campo-label">
+                <mat-icon>description</mat-icon> Descripción
+              </div>
+              <input class="campo-input" matInput formControlName="descripcion"
+                     placeholder="Nombre del material...">
+            </div>
 
-      <!-- DESCRIPCION -->
-      <ng-container matColumnDef="descripcion">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Descripción </th>
-        <td mat-cell *matCellDef="let element"> {{element.descripcion}} </td>
-      </ng-container>
+            <div class="form-grid-2">
+              <div class="campo-grupo">
+                <div class="campo-label">
+                  <mat-icon>straighten</mat-icon> Unidad
+                </div>
+                <input class="campo-input" matInput formControlName="unidad"
+                       placeholder="m³, kg, u...">
+              </div>
+              <div class="campo-grupo">
+                <div class="campo-label">
+                  <mat-icon>attach_money</mat-icon> Precio Unit.
+                </div>
+                <input class="campo-input" matInput type="number"
+                       formControlName="precio" placeholder="0.00">
+              </div>
+            </div>
 
-      <!-- UNIDAD -->
-      <ng-container matColumnDef="unidad">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Unidad </th>
-        <td mat-cell *matCellDef="let element"> {{element.unidad}} </td>
-      </ng-container>
+            <div class="campo-grupo">
+              <div class="campo-label">
+                <mat-icon>warehouse</mat-icon> Stock Inicial
+              </div>
+              <input class="campo-input" matInput type="number"
+                     formControlName="stock" placeholder="0">
+            </div>
 
-      <!-- PRECIO -->
-      <ng-container matColumnDef="precio">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Precio </th>
-        <td mat-cell *matCellDef="let element"> ${{element.precio}} </td>
-      </ng-container>
+            <div class="campo-grupo">
+              <div class="campo-label">
+                <mat-icon>category</mat-icon> Categoría
+              </div>
+              <select class="campo-select" formControlName="categoria" (change)="generarCodigo(getSelectValue($event))">
+                <option value="">— Seleccione categoría —</option>
+                <option value="ACERO Y VARILLAS">Acero y Varillas</option>
+                <option value="ALUMINIO Y VIDRIO">Aluminio y Vidrio</option>
+                <option value="ADOQUINES">Adoquines</option>
+                <option value="AGLOMERANTES">Aglomerantes</option>
+                <option value="AGREGADOS">Agregados</option>
+                <option value="AZULEJOS">Azulejos</option>
+                <option value="PISOS">Baldosas</option>
+                <option value="BLOQUE CONCRETO">Bloques de Concreto</option>
+                <option value="BLOQUE ARCILLA">Bloques de Arcilla</option>
+                <option value="MADERAS PUERTAS ACCESORIOS">Maderas y Puertas</option>
+                <option value="ENCOFRADO">Encofrado</option>
+                <option value="CUBIERTA Y TUMBADO">Cubierta y Tumbado</option>
+                <option value="PINTURAS">Pinturas</option>
+                <option value="VARIOS">Productos Varios</option>
+                <option value="AGUA POTABLE">Agua Potable</option>
+                <option value="AGUAS SERVIDAS">Aguas Servidas</option>
+                <option value="PIEZAS SANITARIAS">Piezas Sanitarias</option>
+                <option value="MATERIAL ELECTRICO">Material Eléctrico</option>
+              </select>
+            </div>
 
-      <!-- STOCK -->
-      <ng-container matColumnDef="stock">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Stock </th>
-        <td mat-cell *matCellDef="let element"> {{element.stock}} </td>
-      </ng-container>
+            <div class="botones-form">
+              <button class="btn-guardar" type="submit"
+                      [disabled]="materialForm.invalid">
+                <mat-icon>{{ modoEdicion ? 'edit' : 'save' }}</mat-icon>
+                {{ modoEdicion ? 'Actualizar' : 'Guardar Insumo' }}
+              </button>
+              <button class="btn-nuevo" type="button" (click)="nuevoRegistro()">
+                <mat-icon>add</mat-icon>
+                Nuevo Registro
+              </button>
+            </div>
 
-      <!-- ACCIONES -->
-      <ng-container matColumnDef="acciones">
-        <th mat-header-cell *matHeaderCellDef> Acciones </th>
-        <td mat-cell *matCellDef="let element">
-          <button mat-icon-button class="btn-editar" (click)="editar(element)">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button class="btn-eliminar" (click)="eliminar(element.id)">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: displayedColumns;"
-        [attr.data-codigo]="row.codigo">
-      </tr>
-    </table>
+          </form>
+        </div>
+      </div>
 
-    <!-- PAGINADOR -->
-    <mat-paginator
-      [pageSize]="10"
-      [pageSizeOptions]="[5,10,20]"
-      showFirstLastButtons>
-    </mat-paginator>
-  </mat-card>
+      <!-- TABLA (derecha) -->
+      <div class="tabla-panel">
 
+        <!-- Filtros -->
+        <div class="filter-bar">
+          <div class="filter-bar__header">
+            <mat-icon>manage_search</mat-icon>
+            <h3 class="filter-bar__titulo">Filtros de Búsqueda</h3>
+          </div>
+          <div class="filter-bar__campos">
+            <div class="filtro-campo">
+              <div class="filtro-label">
+                <mat-icon>search</mat-icon> Buscar material
+              </div>
+              <input class="filtro-input" (keyup)="aplicarFiltro($event)"
+                     placeholder="Código o descripción...">
+            </div>
+            <div class="filtro-campo">
+              <div class="filtro-label">
+                <mat-icon>filter_list</mat-icon> Categoría
+              </div>
+              <select class="filtro-select" (change)="filtrarCategoria(getSelectValue($event))">
+                <option value="TODOS">Todos los Materiales</option>
+                <option value="ACERO Y VARILLAS">Acero y Varillas</option>
+                <option value="ALUMINIO Y VIDRIO">Aluminio y Vidrio</option>
+                <option value="ADOQUINES">Adoquines</option>
+                <option value="AGLOMERANTES">Aglomerantes</option>
+                <option value="AGREGADOS">Agregados</option>
+                <option value="AZULEJOS">Azulejos</option>
+                <option value="PISOS">Baldosas</option>
+                <option value="BLOQUE CONCRETO">Bloques de Concreto</option>
+                <option value="BLOQUE ARCILLA">Bloques de Arcilla</option>
+                <option value="MADERAS PUERTAS ACCESORIOS">Maderas y Puertas</option>
+                <option value="ENCOFRADO">Encofrado</option>
+                <option value="CUBIERTA Y TUMBADO">Cubierta y Tumbado</option>
+                <option value="PINTURAS">Pinturas</option>
+                <option value="VARIOS">Productos Varios</option>
+                <option value="AGUA POTABLE">Agua Potable</option>
+                <option value="AGUAS SERVIDAS">Aguas Servidas</option>
+                <option value="PIEZAS SANITARIAS">Piezas Sanitarias</option>
+                <option value="MATERIAL ELECTRICO">Material Eléctrico</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla Material -->
+        <mat-card class="tabla-card tabla-card--materiales">
+          <div class="tabla-card__header">
+            <div class="tabla-card__titulo-wrap">
+              <mat-icon>table_rows</mat-icon>
+              <h3 class="tabla-card__titulo">Registro de Materiales</h3>
+            </div>
+            <span class="tabla-card__count">
+              {{ dataSource.data.length }} registros
+            </span>
+          </div>
+
+          <div class="table-responsive">
+            <table mat-table [dataSource]="dataSource"
+                   matSort matSortActive="codigo"
+                   matSortDirection="asc" matSortDisableClear>
+
+              <ng-container matColumnDef="codigo">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Código</th>
+                <td mat-cell *matCellDef="let e" class="td-codigo">{{e.codigo}}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="descripcion">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Descripción</th>
+                <td mat-cell *matCellDef="let e" class="td-desc">{{e.descripcion}}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="unidad">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Unidad</th>
+                <td mat-cell *matCellDef="let e">
+                  <span class="badge-unidad">{{e.unidad}}</span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="precio">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Precio</th>
+                <td mat-cell *matCellDef="let e" class="td-precio">
+                  ${{e.precio | number:'1.2-2'}}
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="stock">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Stock</th>
+                <td mat-cell *matCellDef="let e">
+                  <span class="stock-indicador"
+                    [class.stock-critico]="e.stock <= 2"
+                    [class.stock-bajo]="e.stock > 2 && e.stock <= 5">
+                    {{e.stock}}
+                  </span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="acciones">
+                <th mat-header-cell *matHeaderCellDef class="td-acciones">Acciones</th>
+                <td mat-cell *matCellDef="let e" class="td-acciones">
+                  <button mat-icon-button class="btn-icono btn-editar"
+                          title="Editar" (click)="editar(e)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button class="btn-icono btn-eliminar"
+                          title="Eliminar" (click)="eliminar(e.id)">
+                    <mat-icon>delete_forever</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+                  [class.fila-alerta]="row.stock <= 5"></tr>
+            </table>
+          </div>
+
+          <mat-paginator [pageSize]="10" [pageSizeOptions]="[5,10,20]"
+                         showFirstLastButtons></mat-paginator>
+        </mat-card>
+
+      </div>
+    </div>
+  </div>
 </div>
-
-
-
-

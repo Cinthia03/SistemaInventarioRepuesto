@@ -29,7 +29,7 @@ import { ManoDeObraService, ManoObra } from '../../services/mano-de-obra.service
     MatSnackBarModule
   ],
   templateUrl: './mano-de-obra.html',
-  styleUrls: ['./mano-de-obra.css']
+  styleUrls: ['../materiales/materiales.css']
 })
 export class ManoDeObra implements AfterViewInit {
 
