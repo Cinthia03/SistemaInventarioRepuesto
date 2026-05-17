@@ -108,6 +108,210 @@ app.get('/total-equipos', async (req, res) => {
   }
 })
 
+// KPI MATERIALES
+app.get('/materiales-kpi', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        COALESCE(SUM(stock * precio), 0) AS "valorTotal",
+        COUNT(CASE WHEN COALESCE(stock, 0) <= 5 THEN 1 END) AS "stockBajo",
+        COALESCE(
+          ROUND(
+            (COUNT(CASE WHEN COALESCE(stock, 0) > 5 THEN 1 END) * 100.0) / NULLIF(COUNT(*), 0)::numeric,
+            0
+          ),
+          0
+        ) AS "stockDisponible"
+      FROM materiales
+    `)
+    res.json({
+      valorTotal: parseFloat(result.rows[0].valorTotal) || 0,
+      stockBajo: parseInt(result.rows[0].stockBajo) || 0,
+      stockDisponible: parseInt(result.rows[0].stockDisponible) || 0
+    })
+  } catch (error) {
+    console.error('--- ERROR EN MATERIALES-KPI ---')
+    console.error(error)
+    res.status(500).json({
+      message: 'Error obteniendo KPI materiales'
+    })
+  }
+})
+
+// KPI MANO OBRA
+app.get('/manoobra-kpi', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        COUNT(*) AS total,
+        COALESCE(ROUND(AVG(precio)::numeric, 2), 0) AS "tarifaPromedio",
+        COUNT(DISTINCT unidad) AS categorias
+      FROM mano_obra
+    `)
+    const total = parseInt(result.rows[0].total) || 0
+    res.json({
+      tarifaPromedio: parseFloat(result.rows[0].tarifaPromedio) || 0,
+      categorias: parseInt(result.rows[0].categorias) || 0,
+      porcentajeActivo: total > 0 ? 100 : 0
+    })
+  } catch (error) {
+    console.error('--- ERROR EN MANOOBRA-KPI ---')
+    console.error(error)
+    res.status(500).json({
+      message: 'Error obteniendo KPI mano obra'
+    })
+  }
+})
+
+// KPI EQUIPOS
+app.get('/equipos-kpi', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        COUNT(*) AS total,
+        COALESCE(ROUND(AVG(precio)::numeric, 2), 0) AS "tarifaPromedio",
+        COUNT(CASE WHEN COALESCE(stock, 0) <= 0 THEN 1 END) AS mantenimiento,
+        COALESCE(
+          ROUND(
+            (COUNT(CASE WHEN COALESCE(stock, 0) > 0 THEN 1 END) * 100.0) / NULLIF(COUNT(*), 0)::numeric,
+            0
+          ), 
+          0
+        ) AS disponibilidad
+      FROM equipos
+    `)
+    res.json({
+      tarifaPromedio: parseFloat(result.rows[0].tarifaPromedio) || 0,
+      mantenimiento: parseInt(result.rows[0].mantenimiento) || 0,
+      disponibilidad: parseInt(result.rows[0].disponibilidad) || 0
+    })
+  } catch (error) {
+    console.error('--- ERROR DETALLADO EN EQUIPOS-KPI ---');
+    console.error(error);
+    console.error('--------------------------------------');
+    
+    res.status(500).json({
+      message: 'Error obteniendo KPI equipos'
+    })
+  }
+})
+
+// ACTIVIDAD RECIENTE
+app.get('/actividad-reciente', async (req, res) => {
+  try {
+    const materiales = await pool.query(`
+      SELECT
+        descripcion AS nombre,
+        'Registro actualizado' AS accion,
+        'materiales' AS modulo,
+        'Materiales' AS "moduloLabel",
+        'Hace unos minutos' AS tiempo
+      FROM materiales
+      ORDER BY id DESC
+      LIMIT 3
+    `).catch(err => { 
+      console.error("Error en subconsulta materiales:", err.message); 
+      return { rows: [] }; 
+    });
+
+    const equipos = await pool.query(`
+      SELECT
+        descripcion AS nombre,
+        'Equipo registrado' AS accion,
+        'equipos' AS modulo,
+        'Equipos' AS "moduloLabel",
+        'Hace unos minutos' AS tiempo
+      FROM equipos
+      ORDER BY id DESC
+      LIMIT 3
+    `).catch(err => { 
+      console.error("Error en subconsulta equipos:", err.message); 
+      return { rows: [] }; 
+    });
+
+    const manoObra = await pool.query(`
+      SELECT
+        descripcion AS nombre,
+        'Personal agregado' AS accion,
+        'mano' AS modulo,
+        'Mano de Obra' AS "moduloLabel",
+        'Hace unos minutos' AS tiempo
+      FROM mano_obra
+      ORDER BY id DESC
+      LIMIT 3
+    `).catch(err => { 
+      console.error("Error en subconsulta manoObra:", err.message); 
+      return { rows: [] }; 
+    });
+
+    // Unimos los resultados protegiéndonos de valores nulos o no definidos
+    const actividad = [
+      ...(materiales.rows || []),
+      ...(equipos.rows || []),
+      ...(manoObra.rows || [])
+    ];
+
+    res.json(actividad);
+  } catch (error) {
+    console.error('ERROR CRÍTICO EN ACTIVIDAD RECIENTE:', error);
+    res.status(500).json({
+      message: 'Error obteniendo actividad reciente'
+    });
+  }
+});
+
+// ALERTAS STOCK
+app.get('/alertas-stock', async (req, res) => {
+
+  try {
+
+    const materiales = await pool.query(`
+      SELECT
+        descripcion AS nombre,
+        'Materiales' AS modulo,
+        stock,
+        CASE
+          WHEN stock <= 2 THEN 'critico'
+          ELSE 'bajo'
+        END AS nivel,
+        'inventory_2' AS icono
+      FROM materiales
+      WHERE stock <= 5
+    `)
+
+    const equipos = await pool.query(`
+      SELECT
+        descripcion AS nombre,
+        'Equipos' AS modulo,
+        stock,
+        CASE
+          WHEN stock <= 1 THEN 'critico'
+          ELSE 'bajo'
+        END AS nivel,
+        'precision_manufacturing' AS icono
+      FROM equipos
+      WHERE stock <= 3
+    `)
+
+    const alertas = [
+      ...materiales.rows,
+      ...equipos.rows
+    ]
+
+    res.json(alertas)
+
+  } catch (error) {
+
+    console.log('ERROR ALERTAS:', error)
+
+    res.status(500).json({
+      message: 'Error obteniendo alertas stock'
+    })
+
+  }
+
+})
+
 
 
 

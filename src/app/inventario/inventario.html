@@ -1,34 +1,107 @@
 <div class="container">
 
-  <div class="header-section">
-    <h1 class="titulo">MODULO INVENTARIO</h1>
-    <p class="subtitulo">
-      Control integral de recursos de construcción
-    </p>
+  <!-- HEADER -->
+  <div class="header-banner">
+    <div class="banner-contenido">
+      <div class="header-izq">
+        <div class="header-badge">
+          <mat-icon>inventory</mat-icon>
+        </div>
+        <div class="banner-textos">
+          <h1 class="titulo">Módulo Inventario</h1>
+          <p class="subtitulo">Control integral de recursos de construcción</p>
+        </div>
+      </div>
+      
+      <div class="header-fecha">
+        <mat-icon>calendar_today</mat-icon>
+        <span>Actualizado: {{ fechaActual | date:'dd MMMM yyyy · HH:mm' }}</span>
+      </div>
+    </div>
   </div>
 
-  <!-- LOADING -->
-  <div *ngIf="cargando" class="loading">
-    <p>Cargando datos...</p>
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi-item">
+      <div class="kpi-icon kpi-icon--blue">
+        <mat-icon>inventory_2</mat-icon>
+      </div>
+      <div>
+        <div class="kpi-val">{{ totalRegistros }}</div>
+        <div class="kpi-label">Total de registros</div>
+      </div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-icon kpi-icon--green">
+        <mat-icon>check_circle</mat-icon>
+      </div>
+      <div>
+        <div class="kpi-val">{{ porcentajeOptimo }}%</div>
+        <div class="kpi-label">Stock en nivel óptimo</div>
+      </div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-icon kpi-icon--red">
+        <mat-icon>warning</mat-icon>
+      </div>
+      <div>
+        <div class="kpi-val">{{ itemsStockBajo }}</div>
+        <div class="kpi-label">Ítems con stock bajo</div>
+      </div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-icon kpi-icon--amber">
+        <mat-icon>update</mat-icon>
+      </div>
+      <div>
+        <div class="kpi-val">{{ actualizadosHoy }}</div>
+        <div class="kpi-label">Actualizados hoy</div>
+      </div>
+    </div>
   </div>
 
-  <!-- CONTENIDO -->
+  <!-- MÓDULOS -->
   <div class="cards" *ngIf="!cargando">
 
     <!-- MATERIALES -->
     <div class="card materiales" (click)="abrirCategoriaMateriales()">
-      <div class="top">
-        <div class="icon-box">
-          <mat-icon>inventory</mat-icon>
+      <div class="card-header">
+        <div class="card-header__left">
+          <div class="card-header__icono">
+            <mat-icon>inventory</mat-icon>
+          </div>
+          <h2 class="card-header__titulo">Materiales</h2>
         </div>
-        <div class="contador">
-          {{ totalMateriales }}
-          <span>registros</span>
+        <div class="card-header__contador">
+          <span class="card-header__numero">{{ totalMateriales }}</span>
+          <span class="card-header__label">registros</span>
         </div>
       </div>
-      <h2>Materiales</h2>
-      <p>Gestión de insumos de obra.</p>
-      <div class="footer">
+      <div class="card-body">
+        <p class="card-body__desc">
+          Administra los insumos de obra, controla stock y precios unitarios.
+        </p>
+        <div>
+          <div class="stock-bar-labels">
+            <span>Disponibilidad de stock</span>
+            <span>{{ stockMateriales }}%</span>
+          </div>
+          <div class="stock-bar-track">
+            <div class="stock-bar-fill" [style.width]="stockMateriales + '%'"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card-stats">
+        <div class="card-stat">
+          <span class="card-stat__val">$ {{ valorTotalMateriales | number:'1.0-0' }}</span>
+          <span class="card-stat__label">Valor total</span>
+        </div>
+        <div class="card-stat">
+          <span class="card-stat__val">{{ stockBajoMateriales }}</span>
+          <span class="card-stat__label">Stock bajo</span>
+        </div>
+      </div>
+      <div class="card-footer">
         <span>Ver módulo</span>
         <mat-icon>arrow_forward</mat-icon>
       </div>
@@ -36,18 +109,43 @@
 
     <!-- MANO DE OBRA -->
     <div class="card manobra" (click)="abrirCategoriaManObra()">
-      <div class="top">
-        <div class="icon-box">
-          <mat-icon>groups</mat-icon>
+      <div class="card-header">
+        <div class="card-header__left">
+          <div class="card-header__icono">
+            <mat-icon>groups</mat-icon>
+          </div>
+          <h2 class="card-header__titulo">Mano de Obra</h2>
         </div>
-        <div class="contador">
-          {{ totalTrabajadores }}
-          <span>personas</span>
+        <div class="card-header__contador">
+          <span class="card-header__numero">{{ totalTrabajadores }}</span>
+          <span class="card-header__label">personas</span>
         </div>
       </div>
-      <h2>Mano de Obra</h2>
-      <p>Gestión de personal.</p>
-      <div class="footer">
+      <div class="card-body">
+        <p class="card-body__desc">
+          Gestiona el personal, jornadas y tarifas por categoría laboral.
+        </p>
+        <div>
+          <div class="stock-bar-labels">
+            <span>Personal activo</span>
+            <span>{{ porcentajeActivo }}%</span>
+          </div>
+          <div class="stock-bar-track">
+            <div class="stock-bar-fill" [style.width]="porcentajeActivo + '%'"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card-stats">
+        <div class="card-stat">
+          <span class="card-stat__val">$ {{ tarifaPromedio | number:'1.2-2' }}</span>
+          <span class="card-stat__label">Tarifa prom./hr</span>
+        </div>
+        <div class="card-stat">
+          <span class="card-stat__val">{{ categoriasMano }}</span>
+          <span class="card-stat__label">Categorías</span>
+        </div>
+      </div>
+      <div class="card-footer">
         <span>Ver módulo</span>
         <mat-icon>arrow_forward</mat-icon>
       </div>
@@ -55,23 +153,126 @@
 
     <!-- EQUIPOS -->
     <div class="card equipos" (click)="abrirCategoriaEquipos()">
-      <div class="top">
-        <div class="icon-box">
-          <mat-icon>precision_manufacturing</mat-icon>
+      <div class="card-header">
+        <div class="card-header__left">
+          <div class="card-header__icono">
+            <mat-icon>precision_manufacturing</mat-icon>
+          </div>
+          <h2 class="card-header__titulo">Equipos</h2>
         </div>
-        <div class="contador">
-          {{ totalEquipos }}
-          <span>equipos</span>
+        <div class="card-header__contador">
+          <span class="card-header__numero">{{ totalEquipos }}</span>
+          <span class="card-header__label">equipos</span>
         </div>
       </div>
-      <h2>Equipos</h2>
-      <p>Control de maquinaria.</p>
-      <div class="footer">
+      <div class="card-body">
+        <p class="card-body__desc">
+          Controla maquinaria, tarifas por hora y disponibilidad en obra.
+        </p>
+        <div>
+          <div class="stock-bar-labels">
+            <span>Disponibilidad</span>
+            <span>{{ disponibilidadEquipos }}%</span>
+          </div>
+          <div class="stock-bar-track">
+            <div class="stock-bar-fill" [style.width]="disponibilidadEquipos + '%'"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card-stats">
+        <div class="card-stat">
+          <span class="card-stat__val">$ {{ tarifaEquipos | number:'1.2-2' }}</span>
+          <span class="card-stat__label">Tarifa prom./hr</span>
+        </div>
+        <div class="card-stat">
+          <span class="card-stat__val">{{ equiposMantenimiento }}</span>
+          <span class="card-stat__label">En mantenimiento</span>
+        </div>
+      </div>
+      <div class="card-footer">
         <span>Ver módulo</span>
         <mat-icon>arrow_forward</mat-icon>
       </div>
     </div>
+  </div>
 
+  <!-- LOADING -->
+  <div *ngIf="cargando" class="loading">
+    <p>Cargando datos...</p>
+  </div>
+
+  <!-- DATOS EXTRAS -->
+  <div class="bottom-row">
+    <!-- Actividad Reciente -->
+    <div class="panel">
+      <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <mat-icon>history</mat-icon>
+          <h3 class="panel-header__titulo">Actividad Reciente</h3>
+        </div>
+        <div class="paginacion-manual" *ngIf="actividadReciente.length > itemsPorPaginaAct">
+          <button mat-icon-button [disabled]="paginaActualAct === 1" (click)="paginaActualAct = paginaActualAct - 1">
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+          <span>{{ paginaActualAct }} / {{ totalPaginasAct() }}</span>
+          <button mat-icon-button [disabled]="paginaActualAct >= totalPaginasAct()" (click)="paginaActualAct = paginaActualAct + 1">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+      </div>
+      
+      <div>
+        <div class="actividad-item" *ngFor="let act of obtenerActividadPaginada()">
+          <div class="actividad-dot"
+            [class.actividad-dot--m]="act.modulo === 'materiales'"
+            [class.actividad-dot--n]="act.modulo === 'mano'"
+            [class.actividad-dot--e]="act.modulo === 'equipos'"
+          ></div>
+          <div class="actividad-texto">
+            <strong>{{ act.nombre }}</strong>
+            <span>{{ act.accion }} · {{ act.moduloLabel }}</span>
+          </div>
+          <div class="actividad-tiempo">{{ act.tiempo }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alertas Stock Bajo -->
+    <div class="panel">
+      <div class="panel-header alerta-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <mat-icon class="icono-alerta">warning_amber</mat-icon>
+          <h3 class="panel-header__titulo titulo-alerta">Alertas de Stock Bajo</h3>
+        </div>
+        <div class="paginacion-manual" *ngIf="alertasStock.length > itemsPorPaginaAle">
+          <button mat-icon-button [disabled]="paginaActualAle === 1" (click)="paginaActualAle = paginaActualAle - 1">
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+          <span>{{ paginaActualAle }} / {{ totalPaginasAle() }}</span>
+          <button mat-icon-button [disabled]="paginaActualAle >= totalPaginasAle()" (click)="paginaActualAle = paginaActualAle + 1">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <div class="alerta-item" *ngFor="let alerta of obtenerAlertasPaginated()">
+          <div class="alerta-icono">
+            <mat-icon>{{ alerta.icono }}</mat-icon>
+          </div>
+          <div class="alerta-info">
+            <strong>{{ alerta.nombre }}</strong>
+            <span>{{ alerta.modulo }} · Stock actual: {{ alerta.stock }}</span>
+          </div>
+          <span class="alerta-badge"
+            [class.alerta-badge--critico]="alerta.nivel === 'critico'"
+            [class.alerta-badge--bajo]="alerta.nivel === 'bajo'"
+          >
+            {{ alerta.nivel === 'critico' ? 'Crítico' : 'Bajo' }}
+          </span>
+        </div>
+      </div>
+    </div>
   </div>
 
 </div>
