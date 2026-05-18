@@ -2,11 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { RubrosService, Rubro } from '../../../services/Rubros.service';
-import { EquiposService, equipos } from '../../../services/equipos.service';
-import { ManoDeObraService, ManoObra } from '../../../services/mano-de-obra.service';
-import { MaterialeService, materiales } from '../../../services/materiales.service';
-import { ApuService, ApuGuardado } from '../../../services/apu.service';
+import { RubrosService, Rubro } from '../../../core/services/Rubros.service';
+import { EquiposService, equipos } from '../../../core/services/equipos.service';
+import { ManoDeObraService, ManoObra } from '../../../core/services/mano-de-obra.service';
+import { MaterialeService, materiales } from '../../../core/services/materiales.service';
+import { ApuService, ApuGuardado } from '../../../core/services/apu.service';
 import { MatIcon } from "@angular/material/icon";
 
 export interface EquipoCalculo {

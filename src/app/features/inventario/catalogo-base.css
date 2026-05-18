@@ -3,17 +3,17 @@
 
   --color-materiales:       #6d4d12;
   --color-materiales-tabla: #6d4d12c7;
-  --color-materiales-suave: #e7d9c08a;
+  --color-materiales-suave: #50696446;
   --color-materiales-dark:  #4e3509;
 
   --color-mano:             #572a55;
   --color-mano-tabla:       #572a55be;
-  --color-mano-suave:       #f3e8f3;
+  --color-mano-suave:       #50696446;
   --color-mano-dark:        #3d1c3b;
 
   --color-equipos:          #126d59;
   --color-equipos-tabla:    #126d59c5;
-  --color-equipos-suave:    #126d5946;
+  --color-equipos-suave:    #50696446;
   --color-equipos-dark:     #0c4237;
 
   --color-bg:               #f1f5f9;
@@ -46,7 +46,6 @@
   font-family: var(--font-cuerpo);
   background: var(--color-card);
   color: var(--color-texto);
-  min-height: 100vh;
 }
 
 /* ══════════════════════════════════════
@@ -76,7 +75,7 @@
 }
 
 /* Módulo equipos */
-.header-banner.banner--mano {
+.header-banner.banner--equipos {
   background: var(--color-equipos);
   box-shadow: 0 10px 25px rgba(42, 87, 85, 0.2);
 }
@@ -559,6 +558,7 @@ tr.mat-mdc-row:last-child td.mat-mdc-cell {
 /* CELDA CODIGO POR MODULO */
 .tabla-card--materiales .td-codigo { color: var(--color-materiales) !important; }
 .tabla-card--mano       .td-codigo { color: var(--color-mano) !important; }
+.tabla-card--equipos    .td-codigo { color: var(--color-equipos) !important; }
 
 .td-desc { 
   font-weight: 500 !important; 

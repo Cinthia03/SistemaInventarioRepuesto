@@ -1,84 +1,296 @@
-<div class="container">
+<div class="container apu-wrapper">
 
-  <div class="header-section">
-    <h1 class="titulo">MODULO PRESUPUESTO</h1>
-    <p class="subtitulo">
-      Gestión y cálculo de rubros de construcción organizados por sistemas.
-    </p>
+  <!-- HEADER TIPO BANNER -->
+  <div class="header-banner">
+    <div class="banner-contenido">
+      <div class="header-izq">
+        <div class="header-badge">
+          <mat-icon>calculate</mat-icon>
+        </div>
+        <div class="header-texto">
+          <h1 class="titulo">Modulo Calculos</h1>
+          <p class="subtitulo">Gestión técnica y presupuestaria organizada por sistemas de construcción.</p>
+        </div>
+      </div>
+      <div class="header-fecha">
+        <mat-icon>calendar_today</mat-icon>
+        <span>Actualizado: {{ fechaActual | date:'dd MMMM yyyy · HH:mm' }}</span>
+      </div>
+    </div>
   </div>
 
+  <!-- GRID DE MÓDULOS -->
   <div class="cards">
-    <!-- OBRA GRIS -->
-    <div class="card gris">
-        <div class="badge">Estructural</div>
-        <div class="top">
-        <div class="codigo">1.0</div>
-        <div class="icono">
-            <mat-icon>foundation</mat-icon>
-        </div>
-        </div>
-        <h2>Obra Gris</h2>
-        <p>
-        Trabajos estructurales: excavación, hormigón, mampostería y cubiertas.
-        </p>
 
-        <div class="acciones">
-        <button class="btn ver" (click)="AbrirObraGris()">Ver rubros</button>
-        <button class="btn calcular" (click)="Calcular()">Calcular</button>
+    <!-- OBRA GRIS -->
+    <div class="card obraGris">
+      <div class="card-header">
+        <div class="card-header__left">
+          <div class="card-header__icono">
+            <mat-icon>foundation</mat-icon>
+          </div>
+          <h2 class="card-header__titulo">Obra Gris</h2>
         </div>
+        <div class="card-header__contador">
+          <span class="card-header__numero">1.0</span>
+          <span class="card-header__label">Sistema</span>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <p class="card-body__desc">Estructuras, excavaciones y mampostería base del proyecto.</p>
+        <div class="stock-bar-labels">
+          <span>Complejidad</span>
+          <span>Alta</span>
+        </div>
+        <div class="stock-bar-track">
+          <div class="stock-bar-fill" style="width: 85%"></div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn-action btn-ver--obraGris" (click)="AbrirObraGris()">
+          <mat-icon>visibility</mat-icon> Ver Rubros
+        </button>
+        <button class="btn-action btn-calc" (click)="Calcular()">
+          <mat-icon>functions</mat-icon> Calcular
+        </button>
+      </div>
     </div>
 
     <!-- ACABADOS -->
     <div class="card acabados">
-        <div class="badge">Finalización</div>
-        <div class="top">
-        <div class="codigo">2.0</div>
-        <div class="icono">
+      <div class="card-header">
+        <div class="card-header__left">
+          <div class="card-header__icono">
             <mat-icon>format_paint</mat-icon>
+          </div>
+          <h2 class="card-header__titulo">Acabados</h2>
         </div>
+        <div class="card-header__contador">
+          <span class="card-header__numero">2.0</span>
+          <span class="card-header__label">Sistema</span>
         </div>
-        <h2>Acabados</h2>
-        <p>
-        Revestimientos, pintura, carpintería y detalles finales.
-        </p>
-        <div class="acciones">
-        <button class="btn ver" (click)="AbrirObrasAcabados()">Ver rubros</button>
+      </div>
+
+      <div class="card-body">
+        <p class="card-body__desc">Revestimientos, pintura y detalles de carpintería final.</p>
+        <div class="stock-bar-labels">
+          <span>Complejidad</span>
+          <span>Media</span>
         </div>
+        <div class="stock-bar-track">
+          <div class="stock-bar-fill" style="width: 60%"></div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn-action btn-ver--acabados" (click)="AbrirObrasAcabados()">
+          <mat-icon>visibility</mat-icon> Ver Rubros
+        </button>
+        <button class="btn-action btn-calc" (click)="Calcular()">
+          <mat-icon>functions</mat-icon> Calcular
+        </button>
+      </div>
     </div>
 
     <!-- HIDRÁULICO -->
     <div class="card hidraulico">
-        <div class="badge">Instalación</div>
-        <div class="top">
-        <div class="codigo">3.0</div>
-        <div class="icono">
+      <div class="card-header">
+        <div class="card-header__left">
+          <div class="card-header__icono">
             <mat-icon>water_drop</mat-icon>
+          </div>
+          <h2 class="card-header__titulo">Hidraulico</h2>
         </div>
+        <div class="card-header__contador">
+          <span class="card-header__numero">3.0</span>
+          <span class="card-header__label">Sistema</span>
         </div>
-        <h2>Sistema Hidráulico</h2>
-        <p>
-        Redes de agua potable, aguas servidas y sistemas sanitarios.
-        </p>
-        <div class="acciones">
-        <button class="btn ver" (click)="AbrirSistemaHidraulicoSanitario()">Ver rubros</button>
+      </div>
+
+      <div class="card-body">
+        <p class="card-body__desc">Instalaciones sanitarias y redes de agua potable.</p>
+        <div class="stock-bar-labels">
+          <span>Complejidad</span>
+          <span>Media</span>
         </div>
+        <div class="stock-bar-track">
+          <div class="stock-bar-fill" style="width: 45%"></div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn-action btn-ver--hidraulico" (click)="AbrirSistemaHidraulicoSanitario()">
+          <mat-icon>visibility</mat-icon> Ver Rubros
+        </button>
+        <button class="btn-action btn-calc" (click)="Calcular()">
+          <mat-icon>functions</mat-icon> Calcular
+        </button>
+      </div>
     </div>
 
-    <!-- ELÉCTRICO -->
+    <!-- ELECTRICO -->
     <div class="card electrico">
-        <div class="badge">Energía</div>
-            <div class="top">
-                <div class="codigo">4.0</div>
-                    <div class="icono">
-                        <mat-icon>bolt</mat-icon>
-                    </div>
-                    </div>
-                        <h2>Instalaciones Eléctricas</h2>
-                        <p> Cableado, iluminación, tableros y puntos eléctricos. </p>
-                    <div class="acciones">
-        <button class="btn ver" (click)="AbrirSistemaInstalacionesElectricas()">Ver rubros</button>
+      <div class="card-header">
+        <div class="card-header__left">
+          <div class="card-header__icono">
+            <mat-icon>bolt</mat-icon>
+          </div>
+          <h2 class="card-header__titulo">Electrico</h2>
         </div>
+        <div class="card-header__contador">
+          <span class="card-header__numero">4.0</span>
+          <span class="card-header__label">Sistema</span>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <p class="card-body__desc">Puntos de iluminación, fuerza y tableros de control.</p>
+        <div class="stock-bar-labels">
+          <span>Complejidad</span>
+          <span>Baja</span>
+        </div>
+        <div class="stock-bar-track">
+          <div class="stock-bar-fill" style="width: 30%"></div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn-action btn-ver--electrico" (click)="AbrirSistemaInstalacionesElectricas()">
+          <mat-icon>visibility</mat-icon> Ver Rubros
+        </button>
+        <button class="btn-action btn-calc" (click)="Calcular()">
+          <mat-icon>functions</mat-icon> Calcular
+        </button>
+      </div>
     </div>
 
+  </div>
+
+  <!-- CARTAS RESUMENES -->
+  <div class="bottom-row">
+    <!-- PANEL FLUJO DE CALCULO -->
+    <div class="panel">
+      <div class="panel-header">
+        <mat-icon>account_tree</mat-icon>
+        <h3 class="panel-header__titulo">Flujo de Cálculo APU</h3>
+      </div>
+
+      <div class="flujo-list">
+
+        <div class="flujo-item">
+          <div class="flujo-item__num flujo-item__num--1">1</div>
+          <div class="flujo-item__info">
+            <strong>Seleccionar sistema</strong>
+            <span>Elige el tipo de obra: civil, acabados, hidráulico o eléctrico.</span>
+          </div>
+          <mat-icon class="flujo-item__arrow">chevron_right</mat-icon>
+        </div>
+
+        <div class="flujo-item">
+          <div class="flujo-item__num flujo-item__num--2">2</div>
+          <div class="flujo-item__info">
+            <strong>Revisar rubros</strong>
+            <span>Consulta las partidas disponibles con sus rendimientos y unidades.</span>
+          </div>
+          <mat-icon class="flujo-item__arrow">chevron_right</mat-icon>
+        </div>
+
+        <div class="flujo-item">
+          <div class="flujo-item__num flujo-item__num--3">3</div>
+          <div class="flujo-item__info">
+            <strong>Calcular APU</strong>
+            <span>El sistema combina materiales, equipos y mano de obra del inventario.</span>
+          </div>
+          <mat-icon class="flujo-item__arrow">chevron_right</mat-icon>
+        </div>
+
+        <div class="flujo-item">
+          <div class="flujo-item__num flujo-item__num--4">4</div>
+          <div class="flujo-item__info">
+            <strong>Guardar y presupuestar</strong>
+            <span>El APU calculado alimenta automáticamente el módulo de presupuesto.</span>
+          </div>
+          <mat-icon class="flujo-item__arrow">chevron_right</mat-icon>
+        </div>
+
+      </div>
     </div>
+
+    <!-- PANEL RESUMEN DE SISTEMAS -->
+    <div class="panel">
+        <div class="panel-header">
+            <mat-icon>bar_chart</mat-icon>
+            <h3 class="panel-header__titulo">Resumen de Sistemas</h3>
+        </div>
+
+        <div class="resumen-list">
+            <div class="resumen-item">
+            <div class="resumen-item__dot resumen-item__dot--gris"></div>
+            <div class="resumen-item__info">
+                <span class="resumen-item__nombre">Obra Gris</span>
+                <span class="resumen-item__detalle">Estructural · Cimentación y muros</span>
+            </div>
+            <div class="resumen-item__bar-wrap">
+                <div class="resumen-item__bar">
+                <div class="resumen-item__fill resumen-item__fill--gris" style="width:85%"></div>
+                </div>
+                <span class="resumen-item__pct">85%</span>
+            </div>
+            </div>
+
+            <div class="resumen-item">
+            <div class="resumen-item__dot resumen-item__dot--acabados"></div>
+            <div class="resumen-item__info">
+                <span class="resumen-item__nombre">Acabados</span>
+                <span class="resumen-item__detalle">Finalización · Pintura y carpintería</span>
+            </div>
+            <div class="resumen-item__bar-wrap">
+                <div class="resumen-item__bar">
+                <div class="resumen-item__fill resumen-item__fill--acabados" style="width:60%"></div>
+                </div>
+                <span class="resumen-item__pct">60%</span>
+            </div>
+            </div>
+
+            <div class="resumen-item">
+            <div class="resumen-item__dot resumen-item__dot--hidraulico"></div>
+            <div class="resumen-item__info">
+                <span class="resumen-item__nombre">Hidráulico</span>
+                <span class="resumen-item__detalle">Instalación · Agua potable y sanitario</span>
+            </div>
+            <div class="resumen-item__bar-wrap">
+                <div class="resumen-item__bar">
+                <div class="resumen-item__fill resumen-item__fill--hidraulico" style="width:45%"></div>
+                </div>
+                <span class="resumen-item__pct">45%</span>
+            </div>
+            </div>
+
+            <div class="resumen-item">
+            <div class="resumen-item__dot resumen-item__dot--electrico"></div>
+            <div class="resumen-item__info">
+                <span class="resumen-item__nombre">Eléctrico</span>
+                <span class="resumen-item__detalle">Energía · Iluminación y tableros</span>
+            </div>
+            <div class="resumen-item__bar-wrap">
+                <div class="resumen-item__bar">
+                <div class="resumen-item__fill resumen-item__fill--electrico" style="width:30%"></div>
+                </div>
+                <span class="resumen-item__pct">30%</span>
+            </div>
+            </div>
+
+            <!-- Total -->
+            <div class="resumen-total">
+            <div class="resumen-total__label">
+                <mat-icon>functions</mat-icon>
+                Complejidad global del proyecto
+            </div>
+            <div class="resumen-total__valor">55%</div>
+            </div>
+        </div>
+    </div>
+  </div>
 </div>

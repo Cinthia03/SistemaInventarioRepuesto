@@ -10,10 +10,10 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { ManoDeObraService, ManoObra } from '../../services/mano-de-obra.service';
+import { EquiposService, equipos } from '../../../core/services/equipos.service';
 
 @Component({
-  selector: 'app-mano-de-obra',
+  selector: 'app-equipos',
   standalone: true,
   imports:  [
     CommonModule,
@@ -28,15 +28,15 @@ import { ManoDeObraService, ManoObra } from '../../services/mano-de-obra.service
     MatSortModule,
     MatSnackBarModule
   ],
-  templateUrl: './mano-de-obra.html',
-  styleUrls: ['../materiales/materiales.css']
+  templateUrl: './equipos.html',
+  styleUrls: ['../catalogo-base.css'],
 })
-export class ManoDeObra implements AfterViewInit {
+export class Equipos implements AfterViewInit {
 
   form!: FormGroup;
-  displayedColumns = ['codigo','descripcion','unidad','precio','acciones'];
-  dataSource = new MatTableDataSource<ManoObra>();
-  manoObra: ManoObra[] = [];
+  displayedColumns = ['codigo','descripcion','stock', 'unidad','precio','acciones'];
+  dataSource = new MatTableDataSource<equipos>();
+  Equipos: equipos[] = [];
   filtroTexto = "";
   modoEdicion = false;
   codigoEditar:string|null = null;
@@ -46,15 +46,16 @@ export class ManoDeObra implements AfterViewInit {
   @ViewChild(MatSort) sort!:MatSort;
 
   constructor(
-    private service:ManoDeObraService,
+    private service:EquiposService,
     private fb:FormBuilder,
     private snackBar:MatSnackBar
   ){
     this.form = this.fb.group({
       codigo:['',Validators.required],
       descripcion:['',Validators.required],
+      stock:[0, [Validators.required, Validators.min(0)]],
       unidad:['',Validators.required],
-      precio:[0,Validators.required]
+      precio:[0, [Validators.required, Validators.min(0)]]
     });
   }
 
@@ -68,13 +69,16 @@ export class ManoDeObra implements AfterViewInit {
   cargarDatos(){
     this.service.obtenerTodos().subscribe({
       next:(data)=>{
-        this.manoObra = data;
+        console.log("TOTAL:", data.length);
+        console.table(data);
+
+        this.Equipos = data;
         this.dataSource.data = data;
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
       },
       error:(err)=>{
-        console.error("Error cargando mano de obra",err);
+        console.error("Error cargando equipos de construccion",err);
       }
     });
   }
@@ -82,14 +86,14 @@ export class ManoDeObra implements AfterViewInit {
   aplicarFiltro(event:Event){
     const valor = (event.target as HTMLInputElement).value;
     this.filtroTexto = valor.toLowerCase();
-    this.dataSource.data = this.manoObra.filter(m =>
+    this.dataSource.data = this.Equipos.filter(m =>
       m.codigo.toLowerCase().includes(this.filtroTexto) ||
       m.descripcion.toLowerCase().includes(this.filtroTexto)
     );
   }
 
   irAFilaActualizada(codigo:string){
-    const index = this.manoObra.findIndex(m => m.codigo === codigo);
+    const index = this.Equipos.findIndex(m => m.codigo === codigo);
     if(index === -1) return;
     const pageSize = this.paginator.pageSize;
     const pageIndex = Math.floor(index / pageSize);
@@ -124,13 +128,35 @@ export class ManoDeObra implements AfterViewInit {
 
 
   guardar(){
-    const data = this.form.value;
-    if(this.modoEdicion){
-      this.service.actualizar(this.codigoEditar!,data).subscribe({
-        next:()=>{
-          this.filaActualizada = this.codigoEditar;
-          this.snackBar.open(
-              "✏️ Mano de obra actualizado correctamente",
+      const data = this.form.value;
+      if(this.modoEdicion){
+        this.service.actualizar(this.codigoEditar!,data).subscribe({
+          next:()=>{
+            this.filaActualizada = this.codigoEditar;
+            this.snackBar.open(
+                "✏️ Equipo actualizado correctamente",
+                "Cerrar",
+                {
+                  duration: 3000,
+                  horizontalPosition: "center",
+                  verticalPosition: "top"
+                }
+              );
+            const codigo = this.codigoEditar!;
+            this.form.reset();
+            this.modoEdicion=false;
+            this.cargarDatos();
+              setTimeout(()=>{
+                this.irAFilaActualizada(codigo);
+                },300);
+          },
+          error:(err)=>console.error(err)
+        });
+      }else{
+        this.service.crear(data).subscribe({
+          next:()=>{
+            this.snackBar.open(
+              "✅ Equipo registrado correctamente",
               "Cerrar",
               {
                 duration: 3000,
@@ -138,35 +164,13 @@ export class ManoDeObra implements AfterViewInit {
                 verticalPosition: "top"
               }
             );
-          const codigo = this.codigoEditar!;
-          this.form.reset();
-          this.modoEdicion=false;
-          this.cargarDatos();
-            setTimeout(()=>{
-              this.irAFilaActualizada(codigo);
-              },300);
-        },
-        error:(err)=>console.error(err)
-      });
-    }else{
-      this.service.crear(data).subscribe({
-        next:()=>{
-          this.snackBar.open(
-            "✅ Mano de obra registrado correctamente",
-            "Cerrar",
-            {
-              duration: 3000,
-              horizontalPosition: "center",
-              verticalPosition: "top"
-            }
-          );
-          this.form.reset();
-          this.generarCodigo();
-          this.cargarDatos();
-        },
-        error:(err)=>console.error(err)
-      });
-    }
+            this.form.reset();
+            this.generarCodigo();
+            this.cargarDatos();
+          },
+          error:(err)=>console.error(err)
+        });
+      }
   }
 
   nuevoRegistro(){
@@ -177,7 +181,8 @@ export class ManoDeObra implements AfterViewInit {
     this.cargarDatos();
   }
 
-  editar(item:ManoObra){
+
+  editar(item:equipos){
     this.modoEdicion=true;
     this.codigoEditar=item.codigo;
     this.form.patchValue(item);

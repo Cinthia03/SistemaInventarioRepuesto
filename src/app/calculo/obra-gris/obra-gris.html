@@ -1,35 +1,48 @@
-<div class="obra-gris">
-  <h2>Obra Gris</h2>
-
-  <div class="filtro">
-    <label>Filtrar categoría:</label>
-    <select [(ngModel)]="categoriaSeleccionada" (change)="filtrarPorCategoria()">
-      <option value="">Todas</option>
-      <option *ngFor="let c of categorias" [value]="c">
-        {{ c }}
-      </option>
-    </select>
-  </div>
-
-  <hr>
-
-  <div *ngIf="categoriaSeleccionada === ''">
-
-    <div *ngFor="let cat of categorias">
-      <h3 class="categoria-title">{{ cat }}</h3>
-      <ul class="categoria">
-        <li *ngFor="let r of obtenerPorCategoria(cat)">
-          <strong>{{ r.codigo }}</strong> - {{ r.descripcion }}
-        </li>
-      </ul>
+<div class="container apu-wrapper obra-gris">
+  <div class="header-interno">
+    <div class="header-interno__izq">
+      <div class="header-interno__badge">
+        <mat-icon>foundation</mat-icon>
+      </div>
+      <div class="header-interno__texto">
+        <h1 class="titulo-interno">Obra Gris</h1>
+        <p class="subtitulo-interno">Listado maestro de rubros, especificaciones y códigos de control.</p>
+      </div>
+    </div>
+    
+    <div class="filtro-wrapper">
+      <mat-icon class="filtro-icon">filter_list</mat-icon>
+      <select [(ngModel)]="categoriaSeleccionada" (change)="filtrarPorCategoria()" class="select-custom">
+        <option value="">Todas las categorías</option>
+        <option *ngFor="let c of categorias" [value]="c">
+          {{ c }}
+        </option>
+      </select>
     </div>
   </div>
 
-  <div *ngIf="categoriaSeleccionada !== ''">
-    <ul class="categoria">
-      <li *ngFor="let r of rubros">
-        <strong>{{ r.codigo }}</strong> - {{ r.descripcion }}
-      </li>
-    </ul>
+  <div class="rubros-contenido">
+    
+    <div *ngIf="categoriaSeleccionada === ''">
+      <div *ngFor="let cat of categorias" class="categoria-seccion">
+        <h3 class="categoria-title">{{ cat }}</h3>
+        <ul class="categoria-lista">
+          <li *ngFor="let r of obtenerPorCategoria(cat)" class="rubro-item">
+            <span class="rubro-codigo">{{ r.codigo }}</span>
+            <span class="rubro-descripcion">{{ r.descripcion }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div *ngIf="categoriaSeleccionada !== ''">
+      <ul class="categoria-lista">
+        <li *ngFor="let r of rubros" class="rubro-item">
+          <span class="rubro-codigo">{{ r.codigo }}</span>
+          <span class="rubro-descripcion">{{ r.descripcion }}</span>
+        </li>
+      </ul>
+    </div>
+
   </div>
 </div>

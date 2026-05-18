@@ -9,43 +9,43 @@ export const routes: Routes = [
   {
     path: 'login',
     loadComponent: () =>
-      import('./login/login')
+      import('./features/login/login')
         .then(m => m.Login)
   },
   {
     path: 'inicio',
     loadComponent: () =>
-      import('./inicio/inicio')
+      import('./features/inicio/inicio')
         .then(m => m.InicioComponent)
   },
   {
     path: 'inventario',
     loadComponent: () =>
-      import('./inventario/inventario')
+      import('./features/inventario/inventario')
         .then(m => m.InventarioComponent)
   },
   {
     path: 'materiales',
     loadComponent: () =>
-      import('./inventario/materiales/materiales')
+      import('./features/inventario/materiales/materiales')
         .then(m => m.Materiales)
   },
   {
     path: 'mano-de-obra',
     loadComponent: () =>
-      import('./inventario/mano-de-obra/mano-de-obra')
+      import('./features/inventario/mano-de-obra/mano-de-obra')
         .then(m => m.ManoDeObra)
   },
   {
     path: 'equipos',
     loadComponent: () =>
-      import('./inventario/equipos/equipos')
+      import('./features/inventario/equipos/equipos')
         .then(m => m.Equipos)
   },
   {
     path: 'materiales/editar/:id',
     loadComponent: () =>
-      import('./inventario/materiales/materiales')
+      import('./features/inventario/materiales/materiales')
         .then(m => m.Materiales)
   },
   {

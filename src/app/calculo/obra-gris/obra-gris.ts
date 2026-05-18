@@ -1,14 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { Rubro, RubrosService } from '../../services/Rubros.service';
+import { Rubro, RubrosService } from '../../core/services/Rubros.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { MatIconModule } from "@angular/material/icon";
 
 @Component({
   selector: 'app-obra-gris',
   imports: [
     CommonModule,
-    FormsModule
-  ],
+    FormsModule,
+    MatIconModule
+],
   templateUrl: './obra-gris.html',
   styleUrl: './obra-gris.css'
 })

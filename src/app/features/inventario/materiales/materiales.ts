@@ -10,7 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MaterialeService, materiales } from '../../services/materiales.service';
+import { MaterialeService, materiales } from '../../../core/services/materiales.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
@@ -32,7 +32,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     MatSnackBarModule
   ],
   templateUrl: './materiales.html',
-  styleUrls: ['./materiales.css'],
+  styleUrls: ['../catalogo-base.css'],
 })
 export class Materiales implements AfterViewInit {
   materialForm!: FormGroup;
