@@ -141,11 +141,16 @@ export class CalculoApuComponent implements OnInit {
   cargarCatalogoEquipos(): void {
     this.cargandoEquipos = true;
     this.equiposService.obtenerTodos().subscribe({
-      next: (data) => {
-        this.catalogoEquipos = data;
+      next: ({ data, error }) => {
+        if (error) {
+          console.error(error);
+          this.cargandoEquipos = false;
+          return;
+        }
+        this.catalogoEquipos = data || [];
         this.cargandoEquipos = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error al cargar equipos:', err);
         this.cargandoEquipos = false;
       }
@@ -155,11 +160,16 @@ export class CalculoApuComponent implements OnInit {
   cargarCatalogoManoObra(): void {
     this.cargandoManoObra = true;
     this.manoObraService.obtenerTodos().subscribe({
-      next: (data) => {
-        this.catalogManoObra = data;
+      next: ({ data, error }) => {
+        if (error) {
+          console.error(error);
+          this.cargandoManoObra = false;
+          return;
+        }
+        this.catalogManoObra = data || [];
         this.cargandoManoObra = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error al cargar mano de obra:', err);
         this.cargandoManoObra = false;
       }
@@ -169,11 +179,16 @@ export class CalculoApuComponent implements OnInit {
   cargarCatalogoMateriales(): void {
     this.cargandoMateriales = true;
     this.materialesService.obtenerTodos().subscribe({
-      next: (data) => {
-        this.catalogoMateriales = data;
+      next: ({ data, error }) => {
+        if (error) {
+          console.error(error);
+          this.cargandoMateriales = false;
+          return;
+        }
+        this.catalogoMateriales = data || [];
         this.cargandoMateriales = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error al cargar materiales:', err);
         this.cargandoMateriales = false;
       }
@@ -181,13 +196,18 @@ export class CalculoApuComponent implements OnInit {
   }
 
   cargarApusGuardados(): void {
-  this.apuService.obtenerTodos().subscribe({
-    next: (data) => {
-      console.log('APUs cargados:', data); 
-      this.apusGuardados = data;
-    },
-    error: (err) => console.error('Error al cargar APUs:', err)
-  });
+    this.apuService.obtenerTodos().subscribe({
+      next: ({ data, error }) => {
+        if (error) {
+          console.error('Error al cargar APUs:', error);
+          return;
+        }
+        this.apusGuardados = data || [];
+      },
+      error: (err: any) => {
+        console.error('Error al cargar APUs:', err);
+      }
+    });
   }
 
 
