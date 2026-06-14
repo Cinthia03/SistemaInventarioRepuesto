@@ -1,17 +1,26 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { from } from 'rxjs';
+import { SupabaseService } from './supabase.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  private API_URL = 'http://localhost:3000';
+  constructor(
+    private supabaseService: SupabaseService
+  ) {}
 
-  constructor(private http: HttpClient) {}
+  login(data: { user: string; password: string }) {
 
-  login(data: { user: string; password: string }): Observable<any> {
-    return this.http.post(`${this.API_URL}/Login`, data);
+    return from(
+      this.supabaseService.supabase
+        .from('usuarios')
+        .select('*')
+        .eq('usuario', data.user)
+        .eq('password', data.password)
+        .single()
+    );
+
   }
 }

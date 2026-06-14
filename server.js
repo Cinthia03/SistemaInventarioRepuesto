@@ -29,10 +29,10 @@ app.use(cors({
 //           CONEXIÓN 
 // ================================================
 const pool = new Pool({
-  connectionString: "postgresql://postgres:!Ddh*MxDT_6Y7Sz@db.rjccxgdmkkljqnywellt.supabase.co:5432/postgres",
+  connectionString: process.env.DATABASE_URL,
   ssl: {
-    rejectUnauthorized: false,
-  },
+    rejectUnauthorized: false
+  }
 });
 pool.connect()
   .then(() => console.log("✅ Conectado a Supabase"))
