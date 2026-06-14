@@ -65,45 +65,47 @@ export class EquiposService {
   ) {}
 
   obtenerTodos() {
-
     return from(
       this.supabaseService.supabase
         .from('equipos')
         .select('*')
         .order('codigo')
     );
+  }
 
+  generarCodigo() {
+    return from(
+      this.supabaseService.supabase
+        .from('equipos')
+        .select('codigo')
+        .order('codigo', { ascending: false })
+        .limit(1)
+    );
   }
 
   crear(data: any) {
-
     return from(
       this.supabaseService.supabase
         .from('equipos')
         .insert(data)
     );
-
   }
 
   actualizar(codigo: string, data: any) {
-
     return from(
       this.supabaseService.supabase
         .from('equipos')
         .update(data)
         .eq('codigo', codigo)
     );
-
   }
 
   eliminar(id: number) {
-
     return from(
       this.supabaseService.supabase
         .from('equipos')
         .delete()
         .eq('id', id)
     );
-
   }
 }

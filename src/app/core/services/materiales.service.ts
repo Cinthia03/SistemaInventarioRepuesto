@@ -70,45 +70,58 @@ export class MaterialeService {
   ) {}
 
   obtenerTodos() {
-
     return from(
       this.supabaseService.supabase
         .from('materiales')
         .select('*')
         .order('codigo')
     );
+  }
 
+  obtenerPorId(id: number) {
+    return from(
+      this.supabaseService.supabase
+        .from('materiales')
+        .select('*')
+        .eq('id', id)
+        .single()
+    );
+  }
+
+  generarCodigo(categoria: string) {
+    return from(
+      this.supabaseService.supabase
+        .from('materiales')
+        .select('codigo')
+        .eq('categoria', categoria)
+        .order('codigo', { ascending: false })
+        .limit(1)
+    );
   }
 
   crear(data: any) {
-
     return from(
       this.supabaseService.supabase
         .from('materiales')
         .insert(data)
     );
-
   }
 
   actualizar(codigo: string, data: any) {
-
     return from(
       this.supabaseService.supabase
         .from('materiales')
         .update(data)
         .eq('codigo', codigo)
     );
-
   }
 
   eliminar(id: number) {
-
     return from(
       this.supabaseService.supabase
         .from('materiales')
         .delete()
         .eq('id', id)
     );
-
   }
 }

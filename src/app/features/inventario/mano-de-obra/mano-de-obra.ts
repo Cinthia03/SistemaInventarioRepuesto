@@ -65,16 +65,21 @@ export class ManoDeObra implements AfterViewInit {
     this.generarCodigo();
   }
 
-  cargarDatos(){
+  cargarDatos() {
     this.service.obtenerTodos().subscribe({
-      next:(data)=>{
-        this.manoObra = data;
-        this.dataSource.data = data;
+      next: ({ data, error }) => {
+        if (error) {
+          console.error("Error cargando mano de obra", error);
+          return;
+        }
+        const manoObra = data || [];
+        this.manoObra = manoObra;
+        this.dataSource.data = manoObra;
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
       },
-      error:(err)=>{
-        console.error("Error cargando mano de obra",err);
+      error: (err: any) => {
+        console.error("Error cargando mano de obra", err);
       }
     });
   }
@@ -111,14 +116,26 @@ export class ManoDeObra implements AfterViewInit {
     },400);
   }
 
-  generarCodigo(){
+  generarCodigo() {
     this.service.generarCodigo().subscribe({
-      next:(res)=>{
+      next: ({ data, error }) => {
+        if (error) {
+          console.error(error);
+          return;
+        }
+        let codigo = '20.001';
+        if (data && data.length > 0) {
+          const ultimo = data[0].codigo;
+          const numero =
+            parseInt(ultimo.split('.')[1]) + 1;
+          codigo =
+            `20.${numero.toString().padStart(3, '0')}`;
+        }
         this.form.patchValue({
-          codigo: res.codigo
+          codigo
         });
       },
-      error:(err)=>console.error(err)
+      error: (err: any) => console.error(err)
     });
   }
 

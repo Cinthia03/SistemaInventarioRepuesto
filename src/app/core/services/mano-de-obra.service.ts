@@ -62,45 +62,47 @@ export class ManoDeObraService {
   ) {}
 
   obtenerTodos() {
-
     return from(
       this.supabaseService.supabase
         .from('mano_obra')
         .select('*')
         .order('codigo')
     );
+  }
 
+  generarCodigo() {
+    return from(
+      this.supabaseService.supabase
+        .from('mano_obra')
+        .select('codigo')
+        .order('codigo', { ascending: false })
+        .limit(1)
+    );
   }
 
   crear(data: any) {
-
     return from(
       this.supabaseService.supabase
         .from('mano_obra')
         .insert(data)
     );
-
   }
 
   actualizar(codigo: string, data: any) {
-
     return from(
       this.supabaseService.supabase
         .from('mano_obra')
         .update(data)
         .eq('codigo', codigo)
     );
-
   }
 
   eliminar(id: number) {
-
     return from(
       this.supabaseService.supabase
         .from('mano_obra')
         .delete()
         .eq('id', id)
     );
-
   }
 }

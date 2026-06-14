@@ -67,35 +67,29 @@ export class ApuService {
   ) {}
 
   guardar(apu: any) {
-
     return from(
       this.supabaseService.supabase
         .from('apus')
         .insert(apu)
         .select()
     );
-
   }
 
   obtenerTodos() {
-
     return from(
       this.supabaseService.supabase
         .from('apus')
         .select('*')
         .order('fecha', { ascending: false })
     );
-
   }
 
   eliminar(id: number) {
-
     return from(
       this.supabaseService.supabase
         .from('apus')
         .delete()
         .eq('id', id)
     );
-
   }
 }

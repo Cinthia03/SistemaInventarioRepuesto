@@ -77,22 +77,58 @@ export class Materiales implements AfterViewInit {
     this.cargarMateriales();
   }
 
-  cargarMateriales(){
-    this.service.obtenerTodos().subscribe(data=>{
-      this.materiales = data;
-      this.materialesFiltrados = [...data];
-      this.actualizarTabla();
-    })
+  cargarMateriales() {
+    this.service.obtenerTodos().subscribe({
+      next: ({ data, error }) => {
+        if (error) {
+          console.error(error);
+          return;
+        }
+        const materiales = data || [];
+        this.materiales = materiales;
+        this.materialesFiltrados = [...materiales];
+        this.actualizarTabla();
+      },
+      error: (err: any) => {
+        console.error(err);
+      }
+    });
   }
 
-  generarCodigo(categoria:string){
-    this.service.generarCodigo(categoria).subscribe((res:any)=>{
-      this.materialForm.patchValue({
-        codigo:res.codigo
-      })
-    })
-  }
+  generarCodigo(categoria: string) {
+    this.service.generarCodigo(categoria).subscribe({
+      next: ({ data, error }) => {
+        if (error) {
+          console.error(error);
+          return;
+        }
+        let codigo = '';
+        if (categoria === 'AGREGADOS') {
+          codigo = '1.001';
+        } else if (categoria === 'CEMENTOS') {
+          codigo = '2.001';
+        } else if (categoria === 'HIERROS') {
+          codigo = '3.001';
+        }
 
+        if (data && data.length > 0) {
+          const ultimo = data[0].codigo;
+          const prefijo = ultimo.split('.')[0];
+          const numero =
+            parseInt(ultimo.split('.')[1]) + 1;
+          codigo =
+            `${prefijo}.${numero.toString().padStart(3, '0')}`;
+        }
+        this.materialForm.patchValue({
+          codigo
+        });
+      },
+      error: (err: any) => {
+        console.error(err);
+      }
+    });
+  }
+  
   aplicarFiltro(event: Event){
     const valor = (event.target as HTMLInputElement).value;
     this.filtroTexto = valor.toLowerCase();

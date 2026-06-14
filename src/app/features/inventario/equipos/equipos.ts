@@ -66,19 +66,23 @@ export class Equipos implements AfterViewInit {
     this.generarCodigo();
   }
 
-  cargarDatos(){
+  cargarDatos() {
     this.service.obtenerTodos().subscribe({
-      next:(data)=>{
-        console.log("TOTAL:", data.length);
-        console.table(data);
-
-        this.Equipos = data;
-        this.dataSource.data = data;
+      next: ({ data, error }) => {
+        if (error) {
+          console.error(error);
+          return;
+        }
+        const equipos = data || [];
+        console.log("TOTAL:", equipos.length);
+        console.table(equipos);
+        this.Equipos = equipos;
+        this.dataSource.data = equipos;
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
       },
-      error:(err)=>{
-        console.error("Error cargando equipos de construccion",err);
+      error: (err: any) => {
+        console.error("Error cargando equipos", err);
       }
     });
   }
@@ -115,14 +119,26 @@ export class Equipos implements AfterViewInit {
     },400);
   }
 
-  generarCodigo(){
+  generarCodigo() {
     this.service.generarCodigo().subscribe({
-      next:(res)=>{
+      next: ({ data, error }) => {
+        if (error) {
+          console.error(error);
+          return;
+        }
+        let codigo = '19.001';
+        if (data && data.length > 0) {
+          const ultimo = data[0].codigo;
+          const numero =
+            parseInt(ultimo.split('.')[1]) + 1;
+          codigo =
+            `19.${numero.toString().padStart(3, '0')}`;
+        }
         this.form.patchValue({
-          codigo: res.codigo
+          codigo
         });
       },
-      error:(err)=>console.error(err)
+      error: (err) => console.error(err)
     });
   }
 
