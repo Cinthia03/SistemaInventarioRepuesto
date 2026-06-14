@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+/*import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -38,5 +38,72 @@ export class EquiposService {
 
   eliminar(id: number) {
     return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+}*/
+
+import { Injectable } from '@angular/core';
+import { from } from 'rxjs';
+import { SupabaseService } from './supabase.service';
+
+
+export interface equipos {
+  id?: number;
+  codigo: string;
+  descripcion: string;
+  stock: number;
+  unidad: string;
+  precio: number;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class EquiposService {
+
+  constructor(
+    private supabaseService: SupabaseService
+  ) {}
+
+  obtenerTodos() {
+
+    return from(
+      this.supabaseService.supabase
+        .from('equipos')
+        .select('*')
+        .order('codigo')
+    );
+
+  }
+
+  crear(data: any) {
+
+    return from(
+      this.supabaseService.supabase
+        .from('equipos')
+        .insert(data)
+    );
+
+  }
+
+  actualizar(codigo: string, data: any) {
+
+    return from(
+      this.supabaseService.supabase
+        .from('equipos')
+        .update(data)
+        .eq('codigo', codigo)
+    );
+
+  }
+
+  eliminar(id: number) {
+
+    return from(
+      this.supabaseService.supabase
+        .from('equipos')
+        .delete()
+        .eq('id', id)
+    );
+
   }
 }
