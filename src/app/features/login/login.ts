@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
 import { HttpClient } from '@angular/common/http'
 import { Router } from '@angular/router'
-
+import { SupabaseService } from '../../core/services/supabase.service';
 import { MatButtonModule } from '@angular/material/button'
 import { MatInputModule } from '@angular/material/input'
 import { MatCardModule } from '@angular/material/card'
@@ -25,35 +25,29 @@ import { MatFormFieldModule } from '@angular/material/form-field'
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
-export class Login {
 
+export class Login {
   user = ''
   password = ''
   error = ''
 
   constructor(
-    private http: HttpClient,
+    private supabaseService: SupabaseService,
     private router: Router
   ) {}
 
-  login() {
-    this.http.post<any>('http://localhost:3000/login', {
-      user: this.user,
-      password: this.password
-    }).subscribe({
-      next: (res) => {
-        console.log(res)
-
-        // 🔥 mejor validación
-        if (res.tipo) {
-          localStorage.setItem('tipo', res.tipo)
-          this.router.navigate(['/inicio'])
-        }
-      },
-      error: (err) => {
-        console.error(err)
-        this.error = err.error?.message || 'Error'
-      }
-    })
+  async login() {
+    const { data, error } = await this.supabaseService.supabase
+      .from('usuarios')
+      .select('*')
+      .eq('usuario', this.user)
+      .eq('password', this.password)
+      .single();
+    if (error || !data) {
+      this.error = 'Usuario o contraseña incorrectos';
+      return;
+    }
+    localStorage.setItem('tipo', data.tipo);
+    this.router.navigate(['/inicio']);
   }
 }
