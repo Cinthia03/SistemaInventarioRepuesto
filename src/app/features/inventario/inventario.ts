@@ -1,10 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core'
-import { CommonModule } from '@angular/common'
-import { Router } from '@angular/router'
-import { MatCardModule } from '@angular/material/card'
-import { MatIconModule } from '@angular/material/icon'
-import { HttpClient } from '@angular/common/http'
-import { forkJoin } from 'rxjs'
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { SupabaseService } from '../../core/services/supabase.service';
 
 @Component({
   selector: 'app-categorias-inventario',
@@ -20,176 +19,292 @@ import { forkJoin } from 'rxjs'
 export class InventarioComponent implements OnInit {
 
   // TOTALES
-  totalMateriales = 0
-  totalTrabajadores = 0
-  totalEquipos = 0
-  totalRegistros = 0
+  totalMateriales = 0;
+  totalTrabajadores = 0;
+  totalEquipos = 0;
+  totalRegistros = 0;
 
-  //KPIS
-  porcentajeOptimo = 0
-  itemsStockBajo = 0
-  actualizadosHoy = 0
+  // KPIS
+  porcentajeOptimo = 0;
+  itemsStockBajo = 0;
+  actualizadosHoy = 0;
 
   // MATERIALES
-  stockMateriales = 0
-  valorTotalMateriales = 0
-  stockBajoMateriales = 0
+  stockMateriales = 0;
+  valorTotalMateriales = 0;
+  stockBajoMateriales = 0;
 
   // MANO DE OBRA
-  porcentajeActivo = 0
-  tarifaPromedio = 0
-  categoriasMano = 0
+  porcentajeActivo = 0;
+  tarifaPromedio = 0;
+  categoriasMano = 0;
 
   // EQUIPOS
-  disponibilidadEquipos = 0
-  tarifaEquipos = 0
-  equiposMantenimiento = 0
+  disponibilidadEquipos = 0;
+  tarifaEquipos = 0;
+  equiposMantenimiento = 0;
 
-  //PAGINAS
-  paginaActualAct: number = 1;
-  itemsPorPaginaAct: number = 5;
-  paginaActualAle: number = 1;
-  itemsPorPaginaAle: number = 5;
+  // PAGINAS
+  paginaActualAct = 1;
+  itemsPorPaginaAct = 5;
+
+  paginaActualAle = 1;
+  itemsPorPaginaAle = 5;
 
   // OTROS
-  cargando = true
-  fechaActual = new Date()
-  actividadReciente: any[] = []
-  alertasStock: any[] = []
+  cargando = true;
+  fechaActual = new Date();
+  actividadReciente: any[] = [];
+  alertasStock: any[] = [];
 
   constructor(
     private router: Router,
-    private http: HttpClient,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private supabaseService: SupabaseService
   ) {}
 
   ngOnInit(): void {
-    this.cargarDashboard()
+    this.cargarDashboard();
   }
 
-  cargarDashboard(): void {
-    this.cargando = true
-    forkJoin({
-      // TOTALES 
-      materiales:
-        this.http.get<any>(
-          'http://localhost:3000/total-materiales'
-        ),
-      trabajadores:
-        this.http.get<any>(
-          'http://localhost:3000/total-trabajadores'
-        ),
-      equipos:
-        this.http.get<any>(
-          'http://localhost:3000/total-equipos'
-        ),
+  async cargarDashboard(): Promise<void> {
 
-      // KPIs MATERIALES 
-      materialesKpi:
-        this.http.get<any>(
-          'http://localhost:3000/materiales-kpi'
-        ),
-      manoObraKpi:
-        this.http.get<any>(
-          'http://localhost:3000/manoobra-kpi'
-        ),
-      equiposKpi:
-        this.http.get<any>(
-          'http://localhost:3000/equipos-kpi'
-        ),
+    this.cargando = true;
 
-      // ACTIVIDAD 
-      actividad:
-        this.http.get<any[]>(
-          'http://localhost:3000/actividad-reciente'
-        ),
+    try {
 
-      // ALERTAS
-      alertas:
-        this.http.get<any[]>(
-          'http://localhost:3000/alertas-stock'
-        )
-    }).subscribe({
-      next: (res) => {
-        // TOTALES
-        this.totalMateriales = res.materiales?.total ?? 0
-        this.totalTrabajadores = res.trabajadores?.total ?? 0
-        this.totalEquipos = res.equipos?.total ?? 0
-        this.totalRegistros = this.totalMateriales + this.totalTrabajadores + this.totalEquipos
+      const { data: materiales } =
+        await this.supabaseService.supabase
+          .from('materiales')
+          .select('*');
 
-        //MATERIALES
-        this.stockMateriales = res.materialesKpi?.stockDisponible ?? 0
-        this.valorTotalMateriales = res.materialesKpi?.valorTotal ?? 0
-        this.stockBajoMateriales = res.materialesKpi?.stockBajo ?? 0
+      const { data: manoObra } =
+        await this.supabaseService.supabase
+          .from('mano_obra')
+          .select('*');
 
-        //MANO OBRA
-        this.porcentajeActivo = res.manoObraKpi?.porcentajeActivo ?? 0
-        this.tarifaPromedio = res.manoObraKpi?.tarifaPromedio ?? 0
-        this.categoriasMano = res.manoObraKpi?.categorias ?? 0
+      const { data: equipos } =
+        await this.supabaseService.supabase
+          .from('equipos')
+          .select('*');
 
-        // EQUIPOS
-        this.disponibilidadEquipos = res.equiposKpi?.disponibilidad ?? 0
-        this.tarifaEquipos = res.equiposKpi?.tarifaPromedio ?? 0
-        this.equiposMantenimiento = res.equiposKpi?.mantenimiento ?? 0
+      const listaMateriales = materiales ?? [];
+      const listaManoObra = manoObra ?? [];
+      const listaEquipos = equipos ?? [];
 
-        // KPIs GLOBALES
-        this.porcentajeOptimo = res.materialesKpi?.stockDisponible ?? 0
-        this.itemsStockBajo = res.materialesKpi?.stockBajo ?? 0
-        this.actualizadosHoy = res.actividad?.length ?? 0
+      // ======================
+      // TOTALES
+      // ======================
 
-        // ACTIVIDAD
-        this.actividadReciente = res.actividad ?? []
+      this.totalMateriales = listaMateriales.length;
+      this.totalTrabajadores = listaManoObra.length;
+      this.totalEquipos = listaEquipos.length;
 
-        // ALERTAS
-        this.alertasStock = res.alertas ?? []
-        this.cargando = false
-        this.cd.detectChanges()
-      },
-      error: (err) => {
-        console.error(
-          'Error cargando dashboard:',
-          err
-        )
-        this.cargando = false
-      }
-    })
+      this.totalRegistros =
+        this.totalMateriales +
+        this.totalTrabajadores +
+        this.totalEquipos;
+
+      // ======================
+      // KPIs MATERIALES
+      // ======================
+
+      this.stockMateriales = listaMateriales.reduce(
+        (sum, m) => sum + Number(m.stock || 0),
+        0
+      );
+
+      this.valorTotalMateriales = listaMateriales.reduce(
+        (sum, m) =>
+          sum +
+          (Number(m.stock || 0) * Number(m.precio || 0)),
+        0
+      );
+
+      this.stockBajoMateriales = listaMateriales.filter(
+        m => Number(m.stock || 0) < 10
+      ).length;
+
+      // ======================
+      // KPIs MANO DE OBRA
+      // ======================
+
+      this.porcentajeActivo =
+        listaManoObra.length > 0 ? 100 : 0;
+
+      this.tarifaPromedio =
+        listaManoObra.length > 0
+          ? listaManoObra.reduce(
+              (sum, m) => sum + Number(m.precio || 0),
+              0
+            ) / listaManoObra.length
+          : 0;
+
+      this.categoriasMano = listaManoObra.length;
+
+      // ======================
+      // KPIs EQUIPOS
+      // ======================
+
+      this.disponibilidadEquipos =
+        listaEquipos.length > 0 ? 100 : 0;
+
+      this.tarifaEquipos =
+        listaEquipos.length > 0
+          ? listaEquipos.reduce(
+              (sum, e) => sum + Number(e.precio || 0),
+              0
+            ) / listaEquipos.length
+          : 0;
+
+      this.equiposMantenimiento = 0;
+
+      // ======================
+      // KPIs GLOBALES
+      // ======================
+
+      this.itemsStockBajo = this.stockBajoMateriales;
+
+      this.porcentajeOptimo =
+        this.totalMateriales > 0
+          ? Math.round(
+              ((this.totalMateriales -
+                this.stockBajoMateriales) /
+                this.totalMateriales) *
+                100
+            )
+          : 0;
+
+      this.actualizadosHoy =
+        listaMateriales.length +
+        listaManoObra.length +
+        listaEquipos.length;
+
+      // ======================
+      // ACTIVIDAD RECIENTE
+      // ======================
+
+      this.actividadReciente = [
+        ...listaMateriales.slice(0, 5).map(m => ({
+          tipo: 'Material',
+          descripcion: m.descripcion,
+          codigo: m.codigo
+        })),
+        ...listaManoObra.slice(0, 5).map(m => ({
+          tipo: 'Mano de Obra',
+          descripcion: m.descripcion,
+          codigo: m.codigo
+        })),
+        ...listaEquipos.slice(0, 5).map(e => ({
+          tipo: 'Equipo',
+          descripcion: e.descripcion,
+          codigo: e.codigo
+        }))
+      ];
+
+      // ======================
+      // ALERTAS STOCK
+      // ======================
+
+      this.alertasStock = listaMateriales
+        .filter(m => Number(m.stock || 0) < 10)
+        .map(m => ({
+          codigo: m.codigo,
+          descripcion: m.descripcion,
+          stock: m.stock
+        }));
+
+    } catch (err) {
+
+      console.error(
+        'Error cargando dashboard:',
+        err
+      );
+
+    } finally {
+
+      this.cargando = false;
+      this.cd.detectChanges();
+
+    }
   }
 
-  //FUNCIONES PARA PAGINACION
+  // ======================
+  // PAGINACION ACTIVIDAD
+  // ======================
+
   totalPaginasAct(): number {
-    return Math.ceil(this.actividadReciente.length / this.itemsPorPaginaAct) || 1;
+    return Math.ceil(
+      this.actividadReciente.length /
+      this.itemsPorPaginaAct
+    ) || 1;
   }
 
   obtenerActividadPaginada(): any[] {
-    const inicio = (this.paginaActualAct - 1) * this.itemsPorPaginaAct;
-    const fin = inicio + this.itemsPorPaginaAct;
-    return this.actividadReciente.slice(inicio, fin);
+
+    const inicio =
+      (this.paginaActualAct - 1) *
+      this.itemsPorPaginaAct;
+
+    const fin =
+      inicio +
+      this.itemsPorPaginaAct;
+
+    return this.actividadReciente.slice(
+      inicio,
+      fin
+    );
   }
 
+  // ======================
+  // PAGINACION ALERTAS
+  // ======================
+
   totalPaginasAle(): number {
-    return Math.ceil(this.alertasStock.length / this.itemsPorPaginaAle) || 1;
+    return Math.ceil(
+      this.alertasStock.length /
+      this.itemsPorPaginaAle
+    ) || 1;
   }
 
   obtenerAlertasPaginated(): any[] {
-    const inicio = (this.paginaActualAle - 1) * this.itemsPorPaginaAle;
-    const fin = inicio + this.itemsPorPaginaAle;
-    return this.alertasStock.slice(inicio, fin);
+
+    const inicio =
+      (this.paginaActualAle - 1) *
+      this.itemsPorPaginaAle;
+
+    const fin =
+      inicio +
+      this.itemsPorPaginaAle;
+
+    return this.alertasStock.slice(
+      inicio,
+      fin
+    );
   }
 
+  // ======================
+  // NAVEGACION
+  // ======================
 
-  // ABRIR CATEGORIAS
   abrirCategoriaMateriales() {
     this.router.navigate(['/materiales'])
-      .catch(err => console.error('Error navegación:', err))
+      .catch(err =>
+        console.error('Error navegación:', err)
+      );
   }
 
   abrirCategoriaManObra() {
     this.router.navigate(['/mano-de-obra'])
-      .catch(err => console.error('Error navegación:', err))
+      .catch(err =>
+        console.error('Error navegación:', err)
+      );
   }
 
   abrirCategoriaEquipos() {
     this.router.navigate(['/equipos'])
-      .catch(err => console.error('Error navegación:', err))
+      .catch(err =>
+        console.error('Error navegación:', err)
+      );
   }
 }
