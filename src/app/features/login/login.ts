@@ -42,12 +42,15 @@ export class Login {
       .select('*')
       .eq('usuario', this.user)
       .eq('password', this.password)
-      .single();
-    if (error || !data) {
+      .maybeSingle();
+    console.log('DATA:', data);
+    console.log('ERROR:', error);
+    if (!data) {
       this.error = 'Usuario o contraseña incorrectos';
       return;
     }
-    localStorage.setItem('tipo', data.tipo);
+    localStorage.setItem('rol', data.rol);
+    localStorage.setItem('usuario', data.usuario);
     this.router.navigate(['/inicio']);
   }
 }
