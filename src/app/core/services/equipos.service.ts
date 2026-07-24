@@ -108,4 +108,13 @@ export class EquiposService {
         .eq('id', id)
     );
   }
+
+  actualizarStock(id: number, nuevoStock: number) {
+    return from(
+      this.supabaseService.supabase
+        .from('equipos')
+        .update({ stock: nuevoStock })
+        .eq('id', id)
+    );
+  }
 }

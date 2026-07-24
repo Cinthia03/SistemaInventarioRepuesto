@@ -43,6 +43,7 @@ import { SupabaseService } from './supabase.service';
 
 export interface ApuGuardado {
   id?: number;
+  proyecto: string;  
   rubro_codigo: string;
   rubro_descripcion: string;
   fecha: string;

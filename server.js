@@ -706,7 +706,7 @@ app.get('/apus', async (req, res) => {
 app.post('/apus', async (req, res) => {
   try {
     const {
-      rubro_codigo, rubro_descripcion, fecha,
+      proyecto, rubro_codigo, rubro_descripcion, fecha,
       subtotal_equipos, subtotal_mano_obra,
       subtotal_materiales, subtotal_transporte,
       total_directo, detalle_equipos,
@@ -715,7 +715,7 @@ app.post('/apus', async (req, res) => {
 
     const result = await pool.query(
       `INSERT INTO apus 
-        (rubro_codigo, rubro_descripcion, fecha,
+        (proyecto, rubro_codigo, rubro_descripcion, fecha,
          subtotal_equipos, subtotal_mano_obra,
          subtotal_materiales, subtotal_transporte,
          total_directo, detalle_equipos,
@@ -723,7 +723,7 @@ app.post('/apus', async (req, res) => {
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
        RETURNING *`,
       [
-        rubro_codigo, rubro_descripcion, fecha,
+        proyecto, rubro_codigo, rubro_descripcion, fecha,
         subtotal_equipos, subtotal_mano_obra,
         subtotal_materiales, subtotal_transporte,
         total_directo, detalle_equipos,

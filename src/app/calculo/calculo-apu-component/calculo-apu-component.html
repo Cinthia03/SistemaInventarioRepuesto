@@ -11,12 +11,27 @@
           <p class="subtitulo">Sistema de cálculo de costos directos por rubro</p>
         </div>
       </div>
-      
-      <div class="header-fecha">
-        <mat-icon>calendar_today</mat-icon>
-        <span>Actualizado: {{ fechaActual | date:'dd MMMM yyyy · HH:mm' }}</span>
+
+      <div class="header-derecha">
+          <button class="btn-ver-guardados" (click)="irACalculosGuardados()">
+          📁 Ver Cálculos Guardados
+        </button>
       </div>
     </div>
+  </div>
+
+  <!-- PROYECTO / PRESUPUESTO -->
+  <div class="card selector-card">
+    <label class="field-label">
+      <span class="field-label__icon">🏗️</span>
+      Proyecto / Presupuesto
+    </label>
+    <input
+      type="text"
+      class="input-proyecto"
+      [(ngModel)]="proyectoDescripcion"
+      placeholder="Ej: Presupuesto Edificio Norte - Fase 1"
+    />
   </div>
 
   <!-- SELECCIÓN DE RUBRO -->
@@ -37,7 +52,7 @@
     </select>
   </div>
 
-  <!-- ALERTA DE ERROR DE STOCK -->
+  <!-- ALERTA DE ERROR -->
   <div class="alerta-error" *ngIf="mensajeError" role="alert">
     <span class="alerta-error__icono">⚠️</span>
     {{ mensajeError }}
@@ -54,7 +69,7 @@
       <span class="rubro-titulo__nombre">{{ rubroSeleccionado.descripcion }}</span>
     </div>
 
-    <!-- SECCIÓN: EQUIPOS  -->
+    <!-- SECCIÓN: EQUIPOS -->
     <div class="card seccion-card">
       <div class="seccion-header seccion-header--equipos">
         <span class="seccion-header__letra">E</span>
@@ -70,15 +85,9 @@
               <th>Cant. <br> (A)</th>
               <th>Stock</th>
               <th>Tarifa <br> (B)</th>
-              <th>
-                Costo Hora <br>
-                (C=A×B)
-              </th>
+              <th>Costo Hora <br> (C=A×B)</th>
               <th>Rendimiento</th>
-              <th>
-                Costo <br>
-                (D=C×Rend)
-              </th>
+              <th>Costo <br> (D=C×Rend)</th>
               <th></th>
             </tr>
           </thead>
@@ -88,8 +97,13 @@
               <td>
                 <select class="select-equipo" [(ngModel)]="e.id" (change)="seleccionarEquipo(e, $event)">
                   <option value="">Seleccione equipo</option>
-                  <option *ngFor="let eq of catalogoEquipos" [value]="eq.id">
-                    {{ eq.descripcion }}
+                  <option
+                    *ngFor="let eq of catalogoEquipos"
+                    [value]="eq.id"
+                    [disabled]="eq.stock === 0"
+                    [class.option-sin-stock]="eq.stock === 0"
+                  >
+                    {{ eq.descripcion }}{{ eq.stock === 0 ? ' (Sin stock)' : '' }}
                   </option>
                 </select>
               </td>
@@ -156,16 +170,10 @@
               <th>Código</th>
               <th>Descripción</th>
               <th>Cant. <br> (A)</th>
-              <th>Jorna/hr  <br> (B)</th>
-              <th>
-                Costo Hora <br>
-                (C=A×B)
-              </th>
+              <th>Jorna/hr <br> (B)</th>
+              <th>Costo Hora <br> (C=A×B)</th>
               <th>Rendimiento</th>
-              <th>
-                Costo <br>
-                (D=C×Rend)
-              </th>
+              <th>Costo <br> (D=C×Rend)</th>
               <th></th>
             </tr>
           </thead>
@@ -240,10 +248,7 @@
               <th>Cant. <br> (A)</th>
               <th>Stock</th>
               <th>Unitario <br> (B)</th>
-              <th>
-                Costo <br>
-                (C=A×B)
-              </th>          
+              <th>Costo <br> (C=A×B)</th>
               <th></th>
             </tr>
           </thead>
@@ -253,8 +258,13 @@
               <td>
                 <select class="select-equipo" [(ngModel)]="e.id" (change)="seleccionarMateriales(e, $event)">
                   <option value="">Seleccione materiales</option>
-                  <option *ngFor="let eq of catalogoMateriales" [value]="eq.id">
-                    {{ eq.descripcion }}
+                  <option
+                    *ngFor="let eq of catalogoMateriales"
+                    [value]="eq.id"
+                    [disabled]="eq.stock === 0"
+                    [class.option-sin-stock]="eq.stock === 0"
+                  >
+                    {{ eq.descripcion }}{{ eq.stock === 0 ? ' (Sin stock)' : '' }}
                   </option>
                 </select>
               </td>
@@ -276,7 +286,6 @@
               </td>
               <td class="td-valor">{{ e.unitario | number:'1.2-2' }}</td>
               <td class="td-valor">{{ e.costo | number:'1.2-2' }}</td>
-          
               <td>
                 <button class="btn-eliminar" (click)="eliminarMaterial(i)" title="Eliminar fila">✕</button>
               </td>
@@ -305,69 +314,74 @@
         <h2 class="seccion-header__titulo">Transporte</h2>
       </div>
 
-    <div class="tabla-responsive">
-      <table class="tabla-apu">
-        <thead>
-          <tr>
-            <th>Código</th>
-            <th>Descripción</th>
-            <th>Unidad</th>
-            <th>Cant. <br>(A)</th>
-            <th>Stock</th>
-            <th>Unitario <br>(B)</th>
-            <th>Costo <br>(C=A×B)</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let t of transporteList; let i = index" class="fila-dato">
-            <td class="td-codigo">{{ t.codigo || '—' }}</td>
-            <td>
-              <select class="select-equipo" [(ngModel)]="t.id" (change)="seleccionarTransporte(t, $event)">
-                <option value="">Seleccione transporte</option>
-                <option *ngFor="let tr of catalogoTransportes" [value]="tr.id">
-                  {{ tr.descripcion }}
-                </option>
-              </select>
-            </td>
-            <td class="td-unidad">{{ t.unidad || '—' }}</td>
-            <td>
-              <input
-                type="number"
-                class="input-numero"
-                [(ngModel)]="t.cantidad"
-                [max]="t.stock"
-                min="0"
-                (input)="validarStockMat(t)"
-              />
-            </td>
-            <td>
-              <span class="badge-stock" [class.badge-stock--bajo]="(t.cantidad || 0) >= t.stock">
-                {{ t.stock }}
-              </span>
-            </td>
-            <td class="td-valor">{{ t.unitario | number:'1.2-2' }}</td>
-            <td class="td-valor td-costo">{{ t.costo | number:'1.2-2' }}</td>
-            <td>
-              <button class="btn-eliminar" (click)="eliminarTransporte(i)" title="Eliminar fila">✕</button>
-            </td>
-          </tr>
-          <tr *ngIf="transporteList.length === 0" class="fila-vacia">
-            <td colspan="8">No hay transporte agregado. Use el botón para añadir.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+      <div class="tabla-responsive">
+        <table class="tabla-apu">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Descripción</th>
+              <th>Unidad</th>
+              <th>Cant. <br>(A)</th>
+              <th>Stock</th>
+              <th>Unitario <br>(B)</th>
+              <th>Costo <br>(C=A×B)</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let t of transporteList; let i = index" class="fila-dato">
+              <td class="td-codigo">{{ t.codigo || '—' }}</td>
+              <td>
+                <select class="select-equipo" [(ngModel)]="t.id" (change)="seleccionarTransporte(t, $event)">
+                  <option value="">Seleccione transporte</option>
+                  <option
+                    *ngFor="let tr of catalogoTransportes"
+                    [value]="tr.id"
+                    [disabled]="tr.stock === 0"
+                    [class.option-sin-stock]="tr.stock === 0"
+                  >
+                    {{ tr.descripcion }}{{ tr.stock === 0 ? ' (Sin stock)' : '' }}
+                  </option>
+                </select>
+              </td>
+              <td class="td-unidad">{{ t.unidad || '—' }}</td>
+              <td>
+                <input
+                  type="number"
+                  class="input-numero"
+                  [(ngModel)]="t.cantidad"
+                  [max]="t.stock"
+                  min="0"
+                  (input)="validarStockMat(t)"
+                />
+              </td>
+              <td>
+                <span class="badge-stock" [class.badge-stock--bajo]="(t.cantidad || 0) >= t.stock">
+                  {{ t.stock }}
+                </span>
+              </td>
+              <td class="td-valor">{{ t.unitario | number:'1.2-2' }}</td>
+              <td class="td-valor td-costo">{{ t.costo | number:'1.2-2' }}</td>
+              <td>
+                <button class="btn-eliminar" (click)="eliminarTransporte(i)" title="Eliminar fila">✕</button>
+              </td>
+            </tr>
+            <tr *ngIf="transporteList.length === 0" class="fila-vacia">
+              <td colspan="8">No hay transporte agregado. Use el botón para añadir.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-    <div class="seccion-footer">
-      <button class="btn-agregar" (click)="agregarTransporte()">
-        <span>＋</span> Agregar Transporte
-      </button>
-      <div class="subtotal-chip">
-        Subtotal P: <strong>{{ subtotalTransporte | number:'1.2-2' }}</strong>
+      <div class="seccion-footer">
+        <button class="btn-agregar" (click)="agregarTransporte()">
+          <span>＋</span> Agregar Transporte
+        </button>
+        <div class="subtotal-chip">
+          Subtotal P: <strong>{{ subtotalTransporte | number:'1.2-2' }}</strong>
+        </div>
       </div>
     </div>
-  </div>
 
     <!-- RESUMEN TOTAL -->
     <div class="card resumen-card">
@@ -414,100 +428,6 @@
         <button class="btn-guardar" (click)="guardarCalculo()">
           💾 Guardar cálculos
         </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- CARDS REGISTROS -->
-  <div class="apus-guardados" *ngIf="apusGuardados.length > 0">
-    <h2 class="apus-guardados__titulo">📁 CALCULOS GUARDADOS</h2>
-    <div class="apus-grid">
-      <div class="apu-card" *ngFor="let apu of apusGuardados">
-        <div class="apu-card__header">
-          <span class="apu-card__codigo">{{ apu.rubro_codigo }}</span>
-          <span class="apu-card__fecha">{{ apu.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
-        </div>
-        <p class="apu-card__desc">{{ apu.rubro_descripcion }}</p>
-        <div class="apu-card__total">
-          Total: <strong>$ {{ apu.total_directo | number:'1.2-2' }}</strong>
-        </div>
-        <div class="apu-card__acciones">
-          <button class="btn-ver" (click)="abrirModal(apu)">👁 Ver más</button>
-          <button class="btn-eliminar" (click)="eliminarApu(apu.id!)">✕</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL DETALLE -->
-  <div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarModal()">
-    <div class="modal-contenido" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2>{{ apuSeleccionado?.rubro_codigo }} · {{ apuSeleccionado?.rubro_descripcion }}</h2>
-        <button class="btn-cerrar-modal" (click)="cerrarModal()">✕</button>
-      </div>
-      <p class="modal-fecha">{{ apuSeleccionado?.fecha | date:'dd/MM/yyyy HH:mm' }}</p>
-
-      <div class="modal-seccion" *ngIf="apuSeleccionado?.detalle_equipos?.length">
-        <h3>⚙️ Equipos</h3>
-        <table class="tabla-modal  tabla-modal--m" >
-          <thead><tr><th>Descripción</th><th>Cant.</th><th>Tarifa</th><th>Rend.</th><th>Costo</th></tr></thead>
-          <tbody>
-            <tr *ngFor="let e of apuSeleccionado?.detalle_equipos">
-              <td>{{ e.descripcion }}</td><td>{{ e.cantidad }}</td>
-              <td>{{ e.tarifa | number:'1.2-2' }}</td><td>{{ e.rendimiento }}</td>
-              <td>{{ e.costo | number:'1.2-2' }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="modal-seccion" *ngIf="apuSeleccionado?.detalle_mano_obra?.length">
-        <h3>👷 Mano de Obra</h3>
-        <table class="tabla-modal tabla-modal--n">
-          <thead><tr><th>Descripción</th><th>Cant.</th><th>Tarifa</th><th>Rend.</th><th>Costo</th></tr></thead>
-          <tbody>
-            <tr *ngFor="let mo of apuSeleccionado?.detalle_mano_obra">
-              <td>{{ mo.descripcion }}</td><td>{{ mo.cantidad }}</td>
-              <td>{{ mo.tarifa | number:'1.2-2' }}</td><td>{{ mo.rendimiento }}</td>
-              <td>{{ mo.costo | number:'1.2-2' }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="modal-seccion" *ngIf="apuSeleccionado?.detalle_materiales?.length">
-        <h3>🧱 Materiales</h3>
-        <table class="tabla-modal tabla-modal--o">
-          <thead><tr><th>Descripción</th><th>Unidad</th><th>Cant.</th><th>Unitario</th><th>Costo</th></tr></thead>
-          <tbody>
-            <tr *ngFor="let m of apuSeleccionado?.detalle_materiales">
-              <td>{{ m.descripcion }}</td><td>{{ m.unidad }}</td><td>{{ m.cantidad }}</td>
-              <td>{{ m.unitario | number:'1.2-2' }}</td><td>{{ m.costo | number:'1.2-2' }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="modal-seccion" *ngIf="apuSeleccionado?.detalle_transporte?.length">
-        <h3>🚛 Transporte</h3>
-        <table class="tabla-modal tabla-modal--p">
-          <thead><tr><th>Descripción</th><th>Unidad</th><th>Cant.</th><th>Unitario</th><th>Costo</th></tr></thead>
-          <tbody>
-            <tr *ngFor="let t of apuSeleccionado?.detalle_transporte">
-              <td>{{ t.descripcion }}</td><td>{{ t.unidad }}</td><td>{{ t.cantidad }}</td>
-              <td>{{ t.unitario | number:'1.2-2' }}</td><td>{{ t.costo | number:'1.2-2' }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="modal-resumen">
-        <div>Equipos: <strong>$ {{ apuSeleccionado?.subtotal_equipos | number:'1.2-2' }}</strong></div>
-        <div>Mano de Obra: <strong>$ {{ apuSeleccionado?.subtotal_mano_obra | number:'1.2-2' }}</strong></div>
-        <div>Materiales: <strong>$ {{ apuSeleccionado?.subtotal_materiales | number:'1.2-2' }}</strong></div>
-        <div>Transporte: <strong>$ {{ apuSeleccionado?.subtotal_transporte | number:'1.2-2' }}</strong></div>
-        <div class="modal-total">Total Directo: <strong>$ {{ apuSeleccionado?.total_directo | number:'1.2-2' }}</strong></div>
       </div>
     </div>
   </div>
