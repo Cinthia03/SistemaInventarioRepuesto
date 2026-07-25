@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Rubro, RubrosService } from '../../core/services/Rubros.service';
+import { Rubro, RubrosObraGrisService } from '../../core/services/rubros-obra-gris.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from "@angular/material/icon";
@@ -12,7 +12,7 @@ import { MatIconModule } from "@angular/material/icon";
     MatIconModule
 ],
   templateUrl: './obra-gris.html',
-  styleUrl: './obra-gris.css'
+  styleUrl: '../rubros.css'
 })
 export class ObraGris implements OnInit {
 
@@ -20,22 +20,22 @@ export class ObraGris implements OnInit {
   categorias: string[] = [];
   categoriaSeleccionada: string = '';
 
-  constructor(private rubrosService: RubrosService) {}
+  constructor(private RubrosObraGrisService: RubrosObraGrisService) {}
 
   ngOnInit(): void {
-    this.rubros = this.rubrosService.getRubros();
-    this.categorias = this.rubrosService.getCategorias();
+    this.rubros = this.RubrosObraGrisService.getRubros();
+    this.categorias = this.RubrosObraGrisService.getCategorias();
   }
 
   filtrarPorCategoria(): void {
     if (this.categoriaSeleccionada === '') {
-      this.rubros = this.rubrosService.getRubros();
+      this.rubros = this.RubrosObraGrisService.getRubros();
     } else {
-      this.rubros = this.rubrosService.getRubrosPorCategoria(this.categoriaSeleccionada);
+      this.rubros = this.RubrosObraGrisService.getRubrosPorCategoria(this.categoriaSeleccionada);
     }
   }
 
   obtenerPorCategoria(cat: string): Rubro[] {
-    return this.rubrosService.getRubrosPorCategoria(cat);
+    return this.RubrosObraGrisService.getRubrosPorCategoria(cat);
   }
 }

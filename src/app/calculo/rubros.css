@@ -1,7 +1,17 @@
 :host {
   --color-primario: #133b4b;
+  
   --color-obraGris: #5e584f;
   --color-obraGris-suave: #5e584f96;
+
+  --color-acabados:          #92400e;
+  --color-acabados-suave:    #92400e20;
+
+  --color-hidraulico:        #297771;
+  --color-hidraulico-suave:  rgba(12, 74, 110, 0.151);
+
+  --color-electrico:         #15376b;
+  --color-electrico-suave:   #15376b5e;
 
   --color-bg: #f1f5f9;
   --color-card: #ffffff;
@@ -46,6 +56,42 @@
   width: 52px;
   height: 52px;
   background: var(--color-obraGris);
+  color: white;
+  border-radius: var(--radio-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(94, 88, 79, 0.2);
+}
+
+.header-interno__badge_acabados {
+  width: 52px;
+  height: 52px;
+  background: var(--color-acabados);
+  color: white;
+  border-radius: var(--radio-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(94, 88, 79, 0.2);
+}
+
+.header-interno__badge_hidraulico {
+  width: 52px;
+  height: 52px;
+  background: var(--color-hidraulico);
+  color: white;
+  border-radius: var(--radio-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(94, 88, 79, 0.2);
+}
+
+.header-interno__badge_electrico {
+  width: 52px;
+  height: 52px;
+  background: var(--color-electrico);
   color: white;
   border-radius: var(--radio-sm);
   display: flex;

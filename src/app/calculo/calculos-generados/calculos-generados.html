@@ -29,22 +29,29 @@
     <div class="filtros-grid">
       <div class="filtro-campo">
         <label class="field-label">🏗️ Proyecto</label>
-        <input
-          type="text"
+        <select
           [(ngModel)]="filtroProyecto"
           (ngModelChange)="aplicarFiltros()"
-          placeholder="Buscar por proyecto..."
-        />
+        >
+          <option value="">TODOS</option>
+          <option [value]="SIN_PROYECTO">Sin asignación de proyecto</option>
+          <option *ngFor="let p of proyectosDisponibles" [value]="p">
+            {{ p }}
+          </option>
+        </select>
       </div>
 
       <div class="filtro-campo">
-        <label class="field-label">📋 Rubro</label>
-        <input
-          type="text"
-          [(ngModel)]="filtroRubro"
-          (ngModelChange)="aplicarFiltros()"
-          placeholder="Código o descripción..."
-        />
+        <label class="field-label">🏗️ Categoría</label>
+        <select
+          [(ngModel)]="filtroCategoria"
+          (ngModelChange)="onCambiarCategoria()"
+        >
+          <option value="">TODAS</option>
+          <option *ngFor="let c of categorias" [value]="c.clave">
+            {{ c.nombre }}
+          </option>
+        </select>
       </div>
 
       <div class="filtro-campo">
@@ -93,6 +100,7 @@
           <tr>
             <th>Código</th>
             <th>Rubro</th>
+            <th>Categoría</th>
             <th>Fecha</th>
             <th>Total Directo</th>
             <th></th>
@@ -102,6 +110,7 @@
           <tr *ngFor="let apu of grupo.items" class="fila-dato">
             <td class="td-codigo">{{ apu.rubro_codigo }}</td>
             <td>{{ apu.rubro_descripcion }}</td>
+            <td>{{ nombreCategoria(apu.categoria) }}</td>
             <td>{{ apu.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
             <td class="td-valor td-costo">$ {{ apu.total_directo | number:'1.2-2' }}</td>
             <td class="td-acciones">

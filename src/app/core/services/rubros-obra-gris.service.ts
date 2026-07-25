@@ -9,7 +9,7 @@ export interface Rubro {
 @Injectable({
   providedIn: 'root'
 })
-export class RubrosService {
+export class RubrosObraGrisService {
 
   private rubros: Rubro[] = [
 

@@ -79,7 +79,7 @@ export const routes: Routes = [
         .then(m => m.SistemaInstalacionesElectricas)
   },
   {
-    path: 'calculo-apu-component',
+    path: 'calculo-apu-component/:categoria',
     loadComponent: () =>
       import('./calculo/calculo-apu-component/calculo-apu-component')
         .then(m => m.CalculoApuComponent)
@@ -87,7 +87,7 @@ export const routes: Routes = [
   {
     path: 'calculos-generados',
     loadComponent: () =>
-      import('./calculo/calculo-apu-component/calculos-generados/calculos-generados')
+      import('./calculo/calculos-generados/calculos-generados')
         .then(m => m.CalculosGenerados)
   },
   {
@@ -96,6 +96,4 @@ export const routes: Routes = [
       import('./presupuesto/presupuesto')
         .then(m => m.Presupuesto)
   }
-  
-
 ]

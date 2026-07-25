@@ -13,7 +13,7 @@ import { DatePipe } from '@angular/common';
   styleUrl: './calculo.css',
 })
 export class Calculo {
-  
+
   fechaActual = new Date()
 
   constructor(private router: Router) {}
@@ -34,8 +34,9 @@ export class Calculo {
     this.router.navigate(['/sistema-instalaciones-electricas']);
   }
 
-  Calcular() {
-    this.router.navigate(['/calculo-apu-component']);
+  // AHORA RECIBE LA CATEGORÍA Y NAVEGA AL COMPONENTE GENÉRICO DE CÁLCULO
+  Calcular(categoria: string) {
+    this.router.navigate(['/calculo-apu-component', categoria]);
   }
 
 }

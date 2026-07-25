@@ -156,6 +156,9 @@
   font-weight: 500;
 }
 
+
+
+
 /* FILTROS */
 .filtros-card {
   padding: 18px 24px;
@@ -181,6 +184,26 @@
   font-size: 14px;
 }
 
+.filtro-campo select {
+  width: 100%;
+  max-width: 560px;
+  padding: 11px 16px;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-sm);
+  background: var(--color-bg);
+  font-size: 14px;
+  font-family: var(--font-cuerpo);
+  color: var(--color-texto);
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transicion), box-shadow var(--transicion);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
 .filtro-campo--boton {
   align-self: end;
 }
@@ -192,8 +215,8 @@
 }
 
 .btn-limpiar-filtros {
-  background: #f0f2f5;
-  border: 1px solid #d8dde3;
+  background: rgba(255, 153, 0, 0.459);
+  border: 1px solid rgba(255, 153, 0, 0.596);
   color: #444;
   padding: 9px 14px;
   border-radius: 8px;
@@ -203,8 +226,11 @@
 }
 
 .btn-limpiar-filtros:hover {
-  background: #e4e7ec;
+  background: rgba(255, 153, 0, 0.664);
 }
+
+
+
 
 /* ESTADO VACÍO */
 .estado-vacio {
@@ -213,6 +239,9 @@
   color: #8a92a0;
   font-style: italic;
 }
+
+
+
 
 /* GRUPOS POR PROYECTO */
 .proyecto-grupo__header {
@@ -237,6 +266,9 @@
   font-size: 14px;
   color: #444;
 }
+
+
+
 
 /* TABLA */
 .tabla-responsive {
