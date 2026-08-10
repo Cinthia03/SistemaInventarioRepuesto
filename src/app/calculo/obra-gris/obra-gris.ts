@@ -1,41 +1,74 @@
 import { Component, OnInit } from '@angular/core';
-import { Rubro, RubrosObraGrisService } from '../../core/services/rubros-obra-gris.service';
-import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatIconModule } from "@angular/material/icon";
+import { Rubro, RubrosObraGrisService } from '../../core/services/rubros-obra-gris.service';
 
 @Component({
   selector: 'app-obra-gris',
+  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
     MatIconModule
-],
+  ],
   templateUrl: './obra-gris.html',
   styleUrl: '../rubros.css'
 })
 export class ObraGris implements OnInit {
 
-  rubros: Rubro[] = [];
-  categorias: string[] = [];
-  categoriaSeleccionada: string = '';
+  todosLosRubros: Rubro[] = [];
+  rubrosMostrados: Rubro[] = [];
+  subcategorias: string[] = [];
+  subcategoriaSeleccionada: string = '';
+  cargando: boolean = false;
 
-  constructor(private RubrosObraGrisService: RubrosObraGrisService) {}
+  constructor(private rubrosObraGrisService: RubrosObraGrisService) {}
 
   ngOnInit(): void {
-    this.rubros = this.RubrosObraGrisService.getRubros();
-    this.categorias = this.RubrosObraGrisService.getCategorias();
+    this.cargarDatos();
+  }
+
+  cargarDatos(): void {
+    this.cargando = true;
+
+    // 1. Cargar subcategorías pertenecientes a Obra Gris
+    this.rubrosObraGrisService.getSubcategoriasObraGris().subscribe({
+      next: (subs) => {
+        this.subcategorias = subs;
+      },
+      error: (err) => console.error('Error al obtener subcategorías:', err)
+    });
+
+    // 2. Cargar rubros y sus tablas de APU
+    this.rubrosObraGrisService.getRubrosObraGris().subscribe({
+      next: (rubros) => {
+        this.todosLosRubros = rubros;
+        this.rubrosMostrados = rubros;
+        this.cargando = false;
+      },
+      error: (err) => {
+        console.error('Error al obtener rubros:', err);
+        this.cargando = false;
+      }
+    });
+  }
+
+  toggleDesplegar(rubro: Rubro): void {
+    rubro.desplegado = !rubro.desplegado;
   }
 
   filtrarPorCategoria(): void {
-    if (this.categoriaSeleccionada === '') {
-      this.rubros = this.RubrosObraGrisService.getRubros();
+    if (this.subcategoriaSeleccionada === '') {
+      this.rubrosMostrados = [...this.todosLosRubros];
     } else {
-      this.rubros = this.RubrosObraGrisService.getRubrosPorCategoria(this.categoriaSeleccionada);
+      this.rubrosMostrados = this.todosLosRubros.filter(
+        r => r.subcategoria_nombre === this.subcategoriaSeleccionada
+      );
     }
   }
 
-  obtenerPorCategoria(cat: string): Rubro[] {
-    return this.RubrosObraGrisService.getRubrosPorCategoria(cat);
+  obtenerPorSubcategoria(subcategoriaNombre: string): Rubro[] {
+    return this.todosLosRubros.filter(r => r.subcategoria_nombre === subcategoriaNombre);
   }
 }

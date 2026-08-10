@@ -85,12 +85,6 @@ export const routes: Routes = [
         .then(m => m.CalculoApuComponent)
   },
   {
-    path: 'calculos-generados',
-    loadComponent: () =>
-      import('./calculo/calculos-generados/calculos-generados')
-        .then(m => m.CalculosGenerados)
-  },
-  {
     path: 'presupuesto',
     loadComponent: () =>
       import('./presupuesto/presupuesto')

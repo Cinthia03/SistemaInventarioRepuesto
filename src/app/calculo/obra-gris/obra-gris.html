@@ -1,4 +1,5 @@
 <div class="container apu-wrapper obra-gris">
+  <!-- Header -->
   <div class="header-interno">
     <div class="header-interno__izq">
       <div class="header-interno__badge">
@@ -6,42 +7,293 @@
       </div>
       <div class="header-interno__texto">
         <h1 class="titulo-interno">Obra Gris</h1>
-        <p class="subtitulo-interno">Listado maestro de rubros, especificaciones y códigos de control.</p>
+        <p class="subtitulo-interno">Listado maestro de rubros, especificaciones y análisis de costos unitarios.</p>
       </div>
     </div>
     
     <div class="filtro-wrapper">
       <mat-icon class="filtro-icon">filter_list</mat-icon>
-      <select [(ngModel)]="categoriaSeleccionada" (change)="filtrarPorCategoria()" class="select-custom">
-        <option value="">Todas las categorías</option>
-        <option *ngFor="let c of categorias" [value]="c">
-          {{ c }}
+      <select [(ngModel)]="subcategoriaSeleccionada" (change)="filtrarPorCategoria()" class="select-custom">
+        <option value="">Todas las subcategorías</option>
+        <option *ngFor="let sub of subcategorias" [value]="sub">
+          {{ sub }}
         </option>
       </select>
     </div>
   </div>
 
-  <div class="rubros-contenido">
+  <!-- Estado de Carga -->
+  <div *ngIf="cargando" class="cargando-wrapper">
+    <p>Cargando información de rubros y APU...</p>
+  </div>
+
+  <!-- Contenido -->
+  <div class="rubros-contenido" *ngIf="!cargando">
     
-    <div *ngIf="categoriaSeleccionada === ''">
-      <div *ngFor="let cat of categorias" class="categoria-seccion">
-        <h3 class="categoria-title">{{ cat }}</h3>
-        <ul class="categoria-lista">
-          <li *ngFor="let r of obtenerPorCategoria(cat)" class="rubro-item">
-            <span class="rubro-codigo">{{ r.codigo }}</span>
-            <span class="rubro-descripcion">{{ r.descripcion }}</span>
-          </li>
-        </ul>
+    <!-- Vista Agrupada cuando no hay filtro o para 'Todas' -->
+    <div *ngIf="subcategoriaSeleccionada === ''">
+      <div *ngFor="let sub of subcategorias" class="categoria-seccion">
+        <h3 class="categoria-title">{{ sub }}</h3>
+        
+        <div class="rubros-acordeon-lista">
+          <div *ngFor="let r of obtenerPorSubcategoria(sub)" class="rubro-card">
+            
+            <!-- Fila del Rubro con Icono para Desplegar -->
+            <div class="rubro-header" (click)="toggleDesplegar(r)">
+              <div class="rubro-header__left">
+                <button type="button" class="btn-expandir">
+                  <mat-icon>{{ r.desplegado ? 'expand_less' : 'expand_more' }}</mat-icon>
+                </button>
+                <span class="rubro-codigo">{{ r.codigo }}</span>
+                <span class="rubro-descripcion">{{ r.descripcion }}</span>
+              </div>
+              <div class="rubro-header__right">
+                <span class="unidad-badge">Unidad: {{ r.unidad_medida }}</span>
+                <span class="costo-total-tag">${{ r.costo_directo_total | number:'1.2-2' }}</span>
+              </div>
+            </div>
+
+            <!-- Tablas Desplegables del APU -->
+            <div class="rubro-detalles-body" *ngIf="r.desplegado">
+              
+              <!-- 1. EQUIPOS -->
+              <div class="tabla-seccion" *ngIf="r.equipos.length > 0">
+                <h4 class="tabla-seccion__titulo">1. Equipos y Herramientas</h4>
+                <table class="apu-tabla">
+                  <thead>
+                    <tr>
+                      <th>Descripción</th>
+                      <th>Cantidad</th>
+                      <th>Tarifa ($)</th>
+                      <th>Rendimiento</th>
+                      <th>Costo Hora</th>
+                      <th>Costo Total ($)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let eq of r.equipos">
+                      <td>{{ eq.descripcion }}</td>
+                      <td>{{ eq.cantidad | number:'1.2-4' }}</td>
+                      <td>${{ eq.tarifa_unitario | number:'1.2-2' }}</td>
+                      <td>{{ eq.rendimiento | number:'1.2-4' }}</td>
+                      <td>${{ eq.costo_hora | number:'1.2-2' }}</td>
+                      <td>${{ eq.costo_total | number:'1.2-2' }}</td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="5" class="text-right font-bold">Subtotal Equipos:</td>
+                      <td class="font-bold">${{ r.subtotalEquipos | number:'1.2-2' }}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+
+              <!-- 2. MANO DE OBRA -->
+              <div class="tabla-seccion" *ngIf="r.manoObra.length > 0">
+                <h4 class="tabla-seccion__titulo">2. Mano de Obra</h4>
+                <table class="apu-tabla">
+                  <thead>
+                    <tr>
+                      <th>Descripción</th>
+                      <th>Cantidad</th>
+                      <th>Jornal/Tarifa ($)</th>
+                      <th>Rendimiento</th>
+                      <th>Costo Hora</th>
+                      <th>Costo Total ($)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let mo of r.manoObra">
+                      <td>{{ mo.descripcion }}</td>
+                      <td>{{ mo.cantidad | number:'1.2-4' }}</td>
+                      <td>${{ mo.tarifa_unitario | number:'1.2-2' }}</td>
+                      <td>{{ mo.rendimiento | number:'1.2-4' }}</td>
+                      <td>${{ mo.costo_hora | number:'1.2-2' }}</td>
+                      <td>${{ mo.costo_total | number:'1.2-2' }}</td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="5" class="text-right font-bold">Subtotal Mano de Obra:</td>
+                      <td class="font-bold">${{ r.subtotalManoObra | number:'1.2-2' }}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+
+              <!-- 3. MATERIALES -->
+              <div class="tabla-seccion" *ngIf="r.materiales.length > 0">
+                <h4 class="tabla-seccion__titulo">3. Materiales</h4>
+                <table class="apu-tabla">
+                  <thead>
+                    <tr>
+                      <th>Descripción</th>
+                      <th>Unidad</th>
+                      <th>Cantidad</th>
+                      <th>Precio Unitario ($)</th>
+                      <th>Costo Total ($)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let mat of r.materiales">
+                      <td>{{ mat.descripcion }}</td>
+                      <td>{{ mat.unidad }}</td>
+                      <td>{{ mat.cantidad | number:'1.2-4' }}</td>
+                      <td>${{ mat.tarifa_unitario | number:'1.2-2' }}</td>
+                      <td>${{ mat.costo_total | number:'1.2-2' }}</td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="4" class="text-right font-bold">Subtotal Materiales:</td>
+                      <td class="font-bold">${{ r.subtotalMateriales | number:'1.2-2' }}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+
+              <!-- 4. TRANSPORTE -->
+              <div class="tabla-seccion" *ngIf="r.transporte.length > 0">
+                <h4 class="tabla-seccion__titulo">4. Transporte</h4>
+                <table class="apu-tabla">
+                  <thead>
+                    <tr>
+                      <th>Descripción</th>
+                      <th>Unidad</th>
+                      <th>Cantidad</th>
+                      <th>Tarifa ($)</th>
+                      <th>Costo Total ($)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let tr of r.transporte">
+                      <td>{{ tr.descripcion }}</td>
+                      <td>{{ tr.unidad }}</td>
+                      <td>{{ tr.cantidad | number:'1.2-4' }}</td>
+                      <td>${{ tr.tarifa_unitario | number:'1.2-2' }}</td>
+                      <td>${{ tr.costo_total | number:'1.2-2' }}</td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="4" class="text-right font-bold">Subtotal Transporte:</td>
+                      <td class="font-bold">${{ r.subtotalTransporte | number:'1.2-2' }}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+
+              <div *ngIf="r.equipos.length === 0 && r.manoObra.length === 0 && r.materiales.length === 0 && r.transporte.length === 0" class="sin-apu">
+                No hay desglose de APU guardado para este rubro.
+              </div>
+
+              <!-- RESUMEN COSTO DIRECTO TOTAL -->
+              <div class="resumen-directo">
+                <span>COSTO DIRECTO TOTAL DEL RUBRO:</span>
+                <strong>${{ r.costo_directo_total | number:'1.2-2' }} / {{ r.unidad_medida }}</strong>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
       </div>
     </div>
 
-    <div *ngIf="categoriaSeleccionada !== ''">
-      <ul class="categoria-lista">
-        <li *ngFor="let r of rubros" class="rubro-item">
-          <span class="rubro-codigo">{{ r.codigo }}</span>
-          <span class="rubro-descripcion">{{ r.descripcion }}</span>
-        </li>
-      </ul>
+    <!-- Vista Filtrada -->
+    <div *ngIf="subcategoriaSeleccionada !== ''">
+      <div class="rubros-acordeon-lista">
+        <div *ngFor="let r of rubrosMostrados" class="rubro-card">
+          
+          <div class="rubro-header" (click)="toggleDesplegar(r)">
+            <div class="rubro-header__left">
+              <button type="button" class="btn-expandir">
+                <mat-icon>{{ r.desplegado ? 'expand_less' : 'expand_more' }}</mat-icon>
+              </button>
+              <span class="rubro-codigo">{{ r.codigo }}</span>
+              <span class="rubro-descripcion">{{ r.descripcion }}</span>
+            </div>
+            <div class="rubro-header__right">
+              <span class="unidad-badge">Unidad: {{ r.unidad_medida }}</span>
+              <span class="costo-total-tag">${{ r.costo_directo_total | number:'1.2-2' }}</span>
+            </div>
+          </div>
+
+          <div class="rubro-detalles-body" *ngIf="r.desplegado">
+            <!-- Mismas tablas para filtro -->
+            <div class="tabla-seccion" *ngIf="r.equipos.length > 0">
+              <h4 class="tabla-seccion__titulo">1. Equipos y Herramientas</h4>
+              <table class="apu-tabla">
+                <thead>
+                  <tr>
+                    <th>Descripción</th><th>Cantidad</th><th>Tarifa ($)</th><th>Rendimiento</th><th>Costo Hora</th><th>Costo Total ($)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let eq of r.equipos">
+                    <td>{{ eq.descripcion }}</td><td>{{ eq.cantidad | number:'1.2-4' }}</td><td>${{ eq.tarifa_unitario | number:'1.2-2' }}</td><td>{{ eq.rendimiento | number:'1.2-4' }}</td><td>${{ eq.costo_hora | number:'1.2-2' }}</td><td>${{ eq.costo_total | number:'1.2-2' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="tabla-seccion" *ngIf="r.manoObra.length > 0">
+              <h4 class="tabla-seccion__titulo">2. Mano de Obra</h4>
+              <table class="apu-tabla">
+                <thead>
+                  <tr>
+                    <th>Descripción</th><th>Cantidad</th><th>Tarifa ($)</th><th>Rendimiento</th><th>Costo Hora</th><th>Costo Total ($)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let mo of r.manoObra">
+                    <td>{{ mo.descripcion }}</td><td>{{ mo.cantidad | number:'1.2-4' }}</td><td>${{ mo.tarifa_unitario | number:'1.2-2' }}</td><td>{{ mo.rendimiento | number:'1.2-4' }}</td><td>${{ mo.costo_hora | number:'1.2-2' }}</td><td>${{ mo.costo_total | number:'1.2-2' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="tabla-seccion" *ngIf="r.materiales.length > 0">
+              <h4 class="tabla-seccion__titulo">3. Materiales</h4>
+              <table class="apu-tabla">
+                <thead>
+                  <tr>
+                    <th>Descripción</th><th>Unidad</th><th>Cantidad</th><th>Precio Unitario ($)</th><th>Costo Total ($)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let mat of r.materiales">
+                    <td>{{ mat.descripcion }}</td><td>{{ mat.unidad }}</td><td>{{ mat.cantidad | number:'1.2-4' }}</td><td>${{ mat.tarifa_unitario | number:'1.2-2' }}</td><td>${{ mat.costo_total | number:'1.2-2' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="tabla-seccion" *ngIf="r.transporte.length > 0">
+              <h4 class="tabla-seccion__titulo">4. Transporte</h4>
+              <table class="apu-tabla">
+                <thead>
+                  <tr>
+                    <th>Descripción</th><th>Unidad</th><th>Cantidad</th><th>Tarifa ($)</th><th>Costo Total ($)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let tr of r.transporte">
+                    <td>{{ tr.descripcion }}</td><td>{{ tr.unidad }}</td><td>{{ tr.cantidad | number:'1.2-4' }}</td><td>${{ tr.tarifa_unitario | number:'1.2-2' }}</td><td>${{ tr.costo_total | number:'1.2-2' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="resumen-directo">
+              <span>COSTO DIRECTO TOTAL DEL RUBRO:</span>
+              <strong>${{ r.costo_directo_total | number:'1.2-2' }} / {{ r.unidad_medida }}</strong>
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
 
   </div>

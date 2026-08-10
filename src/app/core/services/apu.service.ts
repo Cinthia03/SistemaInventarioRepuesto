@@ -1,62 +1,40 @@
-/*import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-
-export interface ApuGuardado {
-  id?: number;
-  rubro_codigo: string;
-  rubro_descripcion: string;
-  fecha: string;
-  subtotal_equipos: number;
-  subtotal_mano_obra: number;
-  subtotal_materiales: number;
-  subtotal_transporte: number;
-  total_directo: number;
-  detalle_equipos: any;      // ← any, no string
-  detalle_mano_obra: any;    // ← any, no string
-  detalle_materiales: any;   // ← any, no string
-  detalle_transporte: any;   // ← any, no string
-}
-
-@Injectable({ providedIn: 'root' })
-export class ApuService {
-  private apiUrl = 'http://localhost:3000/apus';
-
-  constructor(private http: HttpClient) {}
-
-  guardar(apu: ApuGuardado): Observable<ApuGuardado> {
-    return this.http.post<ApuGuardado>(this.apiUrl, apu);
-  }
-
-  obtenerTodos(): Observable<ApuGuardado[]> {
-    return this.http.get<ApuGuardado[]>(this.apiUrl);
-  }
-
-  eliminar(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
-  }
-}*/
-
 import { Injectable } from '@angular/core';
-import { from } from 'rxjs';
+import { from, Observable, map } from 'rxjs';
 import { SupabaseService } from './supabase.service';
 
+export interface Subcategoria {
+  id: number;
+  categoria_id: number;
+  nombre: string;
+  codigo_prefix?: string;
+}
+
+export interface RubroBD {
+  id?: number;
+  subcategoria_id: number;
+  codigo: string;
+  descripcion: string;
+  unidad_medida?: string;
+  costo_directo_total?: number;
+  created_at?: string;
+}
+
 export interface ApuGuardado {
   id?: number;
-  categoria: string;  
-  proyecto: string;  
-  rubro_codigo: string;
-  rubro_descripcion: string;
+  rubroCodigo: string;
+  rubroDescripcion: string;
+  categoria: string;
+  subcategoriaId?: number;
+  equipos?: any[];
+  manoObra?: any[];
+  materiales?: any[];
+  transporte?: any[];
+  subtotalEquipos: number;
+  subtotalManoObra: number;
+  subtotalMateriales: number;
+  subtotalTransporte: number;
+  totalDirecto: number;
   fecha: string;
-  subtotal_equipos: number;
-  subtotal_mano_obra: number;
-  subtotal_materiales: number;
-  subtotal_transporte: number;
-  total_directo: number;
-  detalle_equipos: any;    
-  detalle_mano_obra: any; 
-  detalle_materiales: any;  
-  detalle_transporte: any;  
 }
 
 @Injectable({
@@ -64,32 +42,158 @@ export interface ApuGuardado {
 })
 export class ApuService {
 
-  constructor(
-    private supabaseService: SupabaseService
-  ) {}
+  constructor(private supabaseService: SupabaseService) {}
 
-  guardar(apu: any) {
+  /**
+   * Obtiene las subcategorías asociadas a una categoría dinámica desde la BD.
+   */
+  getSubcategoriasPorCategoria(nombreCategoria: string): Observable<Subcategoria[]> {
     return from(
       this.supabaseService.supabase
-        .from('apus')
-        .insert(apu)
-        .select()
+        .from('subcategorias')
+        .select('*, categorias!inner(nombre)')
+        .ilike('categorias.nombre', nombreCategoria.replace('-', ' '))
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        return (data || []).map(item => ({
+          id: item.id,
+          categoria_id: item.categoria_id,
+          nombre: item.nombre,
+          codigo_prefix: item.codigo_prefix
+        }));
+      })
     );
   }
 
-  obtenerTodos() {
+  /**
+   * Obtiene el último número secuencial registrado para una subcategoría.
+   */
+  getUltimoCodigo(subcategoriaId: number): Observable<number> {
     return from(
       this.supabaseService.supabase
-        .from('apus')
-        .select('*')
-        .order('fecha', { ascending: false })
+        .from('rubros')
+        .select('codigo')
+        .eq('subcategoria_id', subcategoriaId)
+        .order('id', { ascending: false })
+        .limit(1)
+    ).pipe(
+      map(({ data, error }) => {
+        if (error || !data || data.length === 0) return 0;
+        
+        // Extrae el último segmento numérico (Ej: '1.1.04' -> 4)
+        const partes = data[0].codigo.split('.');
+        const ultimoNumero = parseInt(partes[partes.length - 1], 10);
+        return isNaN(ultimoNumero) ? 0 : ultimoNumero;
+      })
     );
   }
 
-  eliminar(id: number) {
+  /**
+   * Guarda el rubro y su APU en Supabase usando una transacción lógica.
+   */
+  guardar(payload: ApuGuardado): Observable<any> {
+    return from(
+      (async () => {
+        // 1. Insertar el rubro en la tabla 'rubros'
+        const { data: rubroData, error: rubroError } = await this.supabaseService.supabase
+          .from('rubros')
+          .insert({
+            subcategoria_id: payload.subcategoriaId,
+            codigo: payload.rubroCodigo,
+            descripcion: payload.rubroDescripcion,
+            costo_directo_total: payload.totalDirecto
+          })
+          .select()
+          .single();
+
+        if (rubroError) throw rubroError;
+
+        // 2. Mapear e insertar detalles en 'apu_detalles'
+        const detalles: any[] = [];
+
+        payload.equipos?.forEach(item => {
+          if (item.id) {
+            detalles.push({
+              rubro_id: rubroData.id,
+              tipo_insumo: 'EQUIPO',
+              insumo_id: item.id,
+              cantidad: item.cantidad,
+              rendimiento: item.rendimiento,
+              costo_unitario: item.tarifa,
+              subtotal: item.costo
+            });
+          }
+        });
+
+        payload.manoObra?.forEach(item => {
+          if (item.id) {
+            detalles.push({
+              rubro_id: rubroData.id,
+              tipo_insumo: 'MANO_OBRA',
+              insumo_id: item.id,
+              cantidad: item.cantidad,
+              rendimiento: item.rendimiento,
+              costo_unitario: item.tarifa,
+              subtotal: item.costo
+            });
+          }
+        });
+
+        payload.materiales?.forEach(item => {
+          if (item.id) {
+            detalles.push({
+              rubro_id: rubroData.id,
+              tipo_insumo: 'MATERIAL',
+              insumo_id: item.id,
+              cantidad: item.cantidad,
+              rendimiento: 0,
+              costo_unitario: item.unitario,
+              subtotal: item.costo
+            });
+          }
+        });
+
+        payload.transporte?.forEach(item => {
+          if (item.id) {
+            detalles.push({
+              rubro_id: rubroData.id,
+              tipo_insumo: 'TRANSPORTE',
+              insumo_id: item.id,
+              cantidad: item.cantidad,
+              rendimiento: 0,
+              costo_unitario: item.unitario,
+              subtotal: item.costo
+            });
+          }
+        });
+
+        if (detalles.length > 0) {
+          const { error: detallesError } = await this.supabaseService.supabase
+            .from('apu_detalles')
+            .insert(detalles);
+
+          if (detallesError) throw detallesError;
+        }
+
+        return rubroData;
+      })()
+    );
+  }
+
+  obtenerTodos(): Observable<any> {
     return from(
       this.supabaseService.supabase
-        .from('apus')
+        .from('rubros')
+        .select('*, apu_detalles(*)')
+        .order('created_at', { ascending: false })
+    );
+  }
+
+  eliminar(id: number): Observable<any> {
+    return from(
+      this.supabaseService.supabase
+        .from('rubros')
         .delete()
         .eq('id', id)
     );

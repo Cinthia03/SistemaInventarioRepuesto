@@ -1,0 +1,56 @@
+--
+CREATE TABLE apus_rubros (
+    id BIGSERIAL PRIMARY KEY,
+    rubro_codigo VARCHAR(50) NOT NULL,
+    rubro_descripcion TEXT NOT NULL,
+    categoria VARCHAR(100) NOT NULL,
+    subtotal_equipos NUMERIC(14,4) NOT NULL DEFAULT 0,
+    subtotal_mano_obra NUMERIC(14,4) NOT NULL DEFAULT 0,
+    subtotal_materiales NUMERIC(14,4) NOT NULL DEFAULT 0,
+    subtotal_transporte NUMERIC(14,4) NOT NULL DEFAULT 0,
+    total_directo NUMERIC(14,4) NOT NULL DEFAULT 0,
+    fecha TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    creado_en TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    actualizado_en TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 1. Tabla de Categorías Principales (Ej: Obra Gris, Acabados, etc.)
+CREATE TABLE categorias (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    codigo_prefix VARCHAR(10)
+);
+
+-- 2. Tabla de Subcategorías (Ej: Instalaciones Provisionales, Mantenimiento de Obra, etc.)
+CREATE TABLE subcategorias (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    categoria_id INT,
+    nombre VARCHAR(150) NOT NULL,
+    FOREIGN KEY (categoria_id) REFERENCES categorias(id) ON DELETE CASCADE
+);
+
+-- 3. Tabla Principal de Rubros
+CREATE TABLE rubros (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    subcategoria_id INT,
+    codigo VARCHAR(20) NOT NULL UNIQUE, -- Ej: 1.1.01, 1.1.02, 1.2.01
+    descripcion VARCHAR(255) NOT NULL,
+    unidad_medida VARCHAR(20) DEFAULT 'u',
+    costo_directo_total DECIMAL(12,4) DEFAULT 0.0000,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (subcategoria_id) REFERENCES subcategorias(id) ON DELETE CASCADE
+);
+
+-- 4. Detalle APU: Registro de los insumos seleccionados por rubro
+CREATE TABLE apu_detalles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    rubro_id INT NOT NULL,
+    tipo_insumo ENUM('EQUIPO', 'MANO_OBRA', 'MATERIAL', 'TRANSPORTE') NOT NULL,
+    insumo_id INT NOT NULL, -- ID proveniente de su respectivo catálogo
+    cantidad DECIMAL(12,4) DEFAULT 0,
+    rendimiento DECIMAL(12,4) DEFAULT 0,
+    costo_unitario DECIMAL(12,4) DEFAULT 0,
+    subtotal DECIMAL(12,4) DEFAULT 0,
+    FOREIGN KEY (rubro_id) REFERENCES rubros(id) ON DELETE CASCADE
+);
+
