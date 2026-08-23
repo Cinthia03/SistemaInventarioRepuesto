@@ -1,3 +1,4 @@
+/*RUBRO CSS*/
 :host {
   --color-primario: #133b4b;
   
@@ -12,6 +13,11 @@
 
   --color-electrico:         #15376b;
   --color-electrico-suave:   #15376b5e;
+
+  --color-equipos:        #126d59;
+  --color-mano:           #572a55;
+  --color-materiales:     #6d4d12;
+  --color-transporte:     #5f1a1a;
 
   --color-bg: #f1f5f9;
   --color-card: #ffffff;
@@ -160,33 +166,6 @@
   letter-spacing: 0.3px;
 }
 
-.categoria-lista {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.rubro-item {
-  background: var(--color-card);
-  border: 1px solid var(--color-borde);
-  border-radius: var(--radio-sm);
-  padding: 16px 20px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  box-shadow: var(--sombra);
-  transition: transform var(--trans), box-shadow var(--trans);
-}
-
-.rubro-item:hover {
-  transform: translateX(4px);
-  box-shadow: var(--sombra-hover);
-  border-color: var(--color-obraGris-suave);
-}
-
 .rubro-codigo {
   font-family: var(--font-titulo);
   font-size: 15px;
@@ -204,4 +183,243 @@
   color: var(--color-texto);
   font-weight: 500;
   line-height: 1.4;
+}
+
+/* ── ACORDEÓN DE RUBROS ─────────────────────────── */
+.cargando-wrapper {
+  padding: 40px;
+  text-align: center;
+  color: var(--color-suave);
+  font-size: 14px;
+}
+
+.rubros-acordeon-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rubro-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-sm);
+  box-shadow: var(--sombra);
+  overflow: hidden;
+  transition: box-shadow var(--trans);
+}
+
+.rubro-card:hover { box-shadow: var(--sombra-hover); }
+
+.rubro-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 20px;
+  cursor: pointer;
+  flex-wrap: wrap;
+}
+
+.rubro-header__left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.btn-expandir {
+  border: none;
+  background: var(--color-bg);
+  color: var(--color-obraGris);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--trans);
+}
+
+.btn-expandir:hover { background: var(--color-obraGris-suave); }
+.btn-expandir mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+.rubro-header__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.unidad-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-suave);
+  background: var(--color-bg);
+  border: 1px solid var(--color-borde);
+  padding: 4px 10px;
+  border-radius: 99px;
+  white-space: nowrap;
+}
+
+.costo-total-tag {
+  font-family: var(--font-titulo);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-obraGris);
+  background: var(--color-obraGris-suave);
+  padding: 4px 12px;
+  border-radius: var(--radio-sm);
+  white-space: nowrap;
+}
+
+/* ── TABLAS DE APU ───────────────────────────────── */
+.rubro-detalles-body {
+  padding: 0 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  border-top: 1px solid var(--color-borde);
+  padding-top: 18px;
+}
+
+.tabla-seccion {
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-sm);
+  overflow: hidden;
+}
+
+.tabla-seccion__titulo {
+  font-family: var(--font-titulo);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--color-card);
+  margin: 0;
+  padding: 10px 16px;
+}
+
+.tabla-seccion--equipos     .tabla-seccion__titulo { background: var(--color-equipos); }
+.tabla-seccion--mano-obra   .tabla-seccion__titulo { background: var(--color-mano); }
+.tabla-seccion--materiales  .tabla-seccion__titulo { background: var(--color-materiales); }
+.tabla-seccion--transporte  .tabla-seccion__titulo { background: var(--color-transporte); }
+
+.apu-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.apu-tabla thead th {
+  background: var(--color-bg);
+  color: var(--color-suave);
+  font-weight: 600;
+  text-align: left;
+  padding: 8px 14px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.apu-tabla thead th:not(:first-child),
+.apu-tabla tbody td:not(:first-child) { text-align: right; }
+
+.apu-tabla tbody td {
+  padding: 8px 14px;
+  color: var(--color-texto);
+  border-bottom: 1px solid var(--color-bg);
+}
+
+.apu-tabla tbody tr:last-child td { border-bottom: none; }
+.apu-tabla tbody tr:hover { background: var(--color-bg); }
+
+.apu-tabla tfoot td {
+  padding: 8px 14px;
+  font-size: 12px;
+  border-top: 1px solid var(--color-borde);
+  color: var(--color-texto);
+}
+
+.apu-tabla .text-right { text-align: right; }
+.apu-tabla .font-bold { font-weight: 700; color: var(--color-texto); }
+
+.sin-apu {
+  padding: 16px;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--color-suave);
+  background: var(--color-bg);
+  border-radius: var(--radio-sm);
+  border: 1px dashed var(--color-borde);
+}
+
+.resumen-directo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--color-texto);
+  border-radius: var(--radio-sm);
+}
+
+.resumen-directo span {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-card);
+  opacity: 0.8;
+}
+
+.resumen-directo strong {
+  font-family: var(--font-titulo);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-card);
+}
+
+.subcategoria-badge {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--color-obraGris);
+  background: var(--color-obraGris-suave);
+  padding: 4px 10px;
+  border-radius: 99px;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.btn-editar-rubro {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+
+  border: 1px solid var(--color-obraGris);
+  background: white;
+  color: var(--color-obraGris);
+
+  padding: 6px 11px;
+  border-radius: 6px;
+
+  font-family: var(--font-cuerpo);
+  font-size: 11px;
+  font-weight: 700;
+
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+
+.btn-editar-rubro mat-icon {
+  font-size: 17px;
+  width: 17px;
+  height: 17px;
+}
+
+.btn-editar-rubro:hover {
+  background: var(--color-obraGris);
+  color: white;
+  transform: translateY(-1px);
 }
