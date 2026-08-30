@@ -1,43 +1,97 @@
 import { Component, OnInit } from '@angular/core';
-import { RubrosInstalacionesElectricasService, RubroInstalacionesElectricas  } from '../../core/services/rubros-instalaciones-electricas.service';
-import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from "@angular/material/icon";
+import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
+import { forkJoin } from 'rxjs';
+import { Router } from '@angular/router';
+import { Rubro, RubrosInstalacionesElectricasService } from '../../core/services/rubros-instalaciones-electricas.service';
+
+interface GrupoSubcategoria {
+  subcategoria: string;
+  rubros: Rubro[];
+}
 
 @Component({
   selector: 'app-sistema-instalaciones-electricas',
+  standalone: true,
   imports: [
-      CommonModule,
-      FormsModule,
-      MatIconModule
+    CommonModule,
+    FormsModule,
+    MatIconModule
   ],
   templateUrl: './sistema-instalaciones-electricas.html',
   styleUrl: '../rubros.css'
 })
 export class SistemaInstalacionesElectricas implements OnInit {
 
-  rubros: RubroInstalacionesElectricas[] = [];
-  categorias: string[] = [];
-  categoriaSeleccionada: string = '';
+  todosLosRubros: Rubro[] = [];
+  rubrosMostrados: Rubro[] = [];
+  subcategorias: string[] = [];
+  gruposPorSubcategoria: GrupoSubcategoria[] = [];
+  subcategoriaSeleccionada: string = '';
+  cargando: boolean = false;
 
-  constructor(private RubrosInstalacionesElectricasService: RubrosInstalacionesElectricasService) {}
+  constructor(private rubrosInstalacionesElectricasService: RubrosInstalacionesElectricasService, private router: Router) {}
 
   ngOnInit(): void {
-    this.rubros = this.RubrosInstalacionesElectricasService.getRubros();
-    this.categorias = this.RubrosInstalacionesElectricasService.getCategorias();
+    this.cargarDatos();
+  }
+
+  cargarDatos(): void {
+    this.cargando = true;
+
+    forkJoin({
+      subcategorias: this.rubrosInstalacionesElectricasService.getSubcategoriasElectrico(),
+      rubros: this.rubrosInstalacionesElectricasService.getRubrosElectrico()
+    }).subscribe({
+      next: ({ subcategorias, rubros }) => {
+        const compararCodigo = (a: Rubro, b: Rubro) =>
+          a.codigo.localeCompare(b.codigo, undefined, { numeric: true, sensitivity: 'base' });
+
+        this.subcategorias = subcategorias;
+        this.todosLosRubros = [...rubros].sort(compararCodigo);
+        this.rubrosMostrados = [...this.todosLosRubros];
+        this.armarGrupos(compararCodigo);
+        this.cargando = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar datos de Sistema de Instalaciones Eléctricas:', err);
+        this.cargando = false;
+      }
+    });
+  }
+
+    private armarGrupos(compararCodigo: (a: Rubro, b: Rubro) => number): void {
+      this.gruposPorSubcategoria = this.subcategorias
+        .map(nombre => ({
+          subcategoria: nombre,
+          rubros: this.todosLosRubros
+            .filter(r => r.subcategoria_nombre === nombre)
+            .sort(compararCodigo)
+        }))
+        .filter(grupo => grupo.rubros.length > 0)
+        .sort((a, b) => compararCodigo(a.rubros[0], b.rubros[0]));
+    }
+
+  toggleDesplegar(rubro: Rubro): void {
+    rubro.desplegado = !rubro.desplegado;
   }
 
   filtrarPorCategoria(): void {
-    if (this.categoriaSeleccionada === '') {
-      this.rubros = this.RubrosInstalacionesElectricasService.getRubros();
-    } else {
-      this.rubros = this.RubrosInstalacionesElectricasService.getRubrosPorCategoria(this.categoriaSeleccionada);
-    }
+    this.rubrosMostrados = this.subcategoriaSeleccionada === ''
+      ? [...this.todosLosRubros]
+      : this.todosLosRubros.filter(r => r.subcategoria_nombre === this.subcategoriaSeleccionada);
   }
 
-  obtenerPorCategoria(cat: string): RubroInstalacionesElectricas[] {
-    return this.RubrosInstalacionesElectricasService.getRubrosPorCategoria(cat);
+  editarRubro(rubro: Rubro, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+
+    this.router.navigate(['/calculo-apu-component', 'sistema-instalaciones-electricas'], {
+      queryParams: {
+        rubroId: rubro.id
+      }
+    });
   }
 }
-
-

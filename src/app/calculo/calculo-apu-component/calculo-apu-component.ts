@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -6,7 +6,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { EquiposService, equipos } from '../../core/services/equipos.service';
 import { ManoDeObraService, ManoObra } from '../../core/services/mano-de-obra.service';
 import { MaterialeService, materiales } from '../../core/services/materiales.service';
-import { ApuService, Subcategoria, ApuGuardado } from '../../core/services/apu.service';
+import {
+  ApuService,
+  Subcategoria,
+  ApuGuardado,
+  SistemaConfig,
+  SISTEMA_OBRA_GRIS,
+  SISTEMA_HIDRAULICO,
+  SISTEMA_ELECTRICO,
+  SISTEMA_ACABADOS
+} from '../../core/services/apu.service';
 
 export interface EquipoCalculo {
   id?: number;
@@ -45,6 +54,17 @@ export interface MaterialesCalculo {
   costo: number;
 }
 
+/**
+ * Mapa: segmento de ruta (":categoria") -> configuración de tablas del sistema.
+ * Único lugar a tocar si en el futuro agregas un sistema nuevo.
+ */
+const SISTEMAS_POR_RUTA: Record<string, SistemaConfig> = {
+  'obra-gris': SISTEMA_OBRA_GRIS,
+  'sistema-hidraulico-sanitario': SISTEMA_HIDRAULICO,
+  'sistema-instalaciones-electricas': SISTEMA_ELECTRICO,
+  'obra-de-acabados': SISTEMA_ACABADOS
+};
+
 @Component({
   selector: 'app-calculo-apu-component',
   standalone: true,
@@ -62,6 +82,14 @@ export class CalculoApuComponent implements OnInit {
   rubroDescripcion: string = '';
   categoriaActual: string = '';
   categoriaTitulo: string = '';
+
+  /** Configuración de tablas (rubros / apu_detalles) resuelta para la categoría actual de la ruta */
+  sistemaActual: SistemaConfig = SISTEMA_OBRA_GRIS;
+
+  /** Modo edición: viene de ?rubroId=... en la URL (botón "Editar" de la pantalla "Ver Rubros") */
+  modoEdicion: boolean = false;
+  rubroIdEdicion: number | null = null;
+  cargandoRubroEdicion: boolean = false;
 
   subcategoriaId: number | null = null;
   subcategoriasList: Subcategoria[] = [];
@@ -94,7 +122,8 @@ export class CalculoApuComponent implements OnInit {
     private materialesService: MaterialeService,
     private apuService: ApuService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) { }
 
   get catalogoTransportes(): equipos[] {
@@ -107,10 +136,22 @@ export class CalculoApuComponent implements OnInit {
     this.categoriaActual = this.route.snapshot.paramMap.get('categoria') || this.extraerCategoriaDeRuta();
     this.categoriaTitulo = this.formatearTitulo(this.categoriaActual);
 
+    // Resuelve a qué tablas (rubros/apu_detalles) apuntar según la categoría de la ruta.
+    this.sistemaActual = SISTEMAS_POR_RUTA[this.categoriaActual] || SISTEMA_OBRA_GRIS;
+
+    // ¿Venimos del botón "Editar" de la pantalla "Ver Rubros"? (/calculo-apu-component/<categoria>?rubroId=123)
+    const rubroIdParam = this.route.snapshot.queryParamMap.get('rubroId');
+    this.rubroIdEdicion = rubroIdParam ? Number(rubroIdParam) : null;
+    this.modoEdicion = this.rubroIdEdicion !== null && !isNaN(this.rubroIdEdicion);
+
     this.cargarSubcategorias();
     this.cargarCatalogoEquipos();
     this.cargarCatalogoManoObra();
     this.cargarCatalogoMateriales();
+
+    if (this.modoEdicion && this.rubroIdEdicion) {
+      this.cargarRubroParaEditar(this.rubroIdEdicion);
+    }
   }
 
   private extraerCategoriaDeRuta(): string {
@@ -126,34 +167,115 @@ export class CalculoApuComponent implements OnInit {
       .join(' ');
   }
 
+  /* ==================== MODO EDICIÓN ==================== */
+  cargarRubroParaEditar(id: number): void {
+    this.cargandoRubroEdicion = true;
+    this.apuService.obtenerRubroParaEditar(id, this.sistemaActual).subscribe({
+      next: ({ rubro, detalles }) => {
+        this.subcategoriaId = rubro.subcategoria_id ?? null;
+        this.rubroCodigo = rubro.codigo || '';
+        this.rubroDescripcion = rubro.descripcion || '';
+
+        this.equiposList = detalles
+          .filter(d => d.tipo_insumo === 'EQUIPO')
+          .map(d => this.detalleAEquipo(d));
+
+        this.manoObraList = detalles
+          .filter(d => d.tipo_insumo === 'MANO_OBRA')
+          .map(d => this.detalleAManoObra(d));
+
+        this.materialesList = detalles
+          .filter(d => d.tipo_insumo === 'MATERIAL')
+          .map(d => this.detalleAMaterial(d));
+
+        this.transporteList = detalles
+          .filter(d => d.tipo_insumo === 'TRANSPORTE')
+          .map(d => this.detalleAMaterial(d));
+
+        this.calcularTodo();
+        this.cargandoRubroEdicion = false;
+        this.cdr.detectChanges(); // fuerza el repintado: los datos de Supabase llegan fuera de la zona de Angular
+      },
+      error: () => {
+        this.cargandoRubroEdicion = false;
+        this.mostrarError('No se pudo cargar el rubro seleccionado para editar.');
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private detalleAEquipo(d: any): EquipoCalculo {
+    return {
+      id: d.insumo_id,
+      descripcion: d.descripcion || '',
+      unidad: d.unidad || '',
+      stock: 0, // se refresca solo si el usuario vuelve a elegir el insumo en el combo
+      cantidad: Number(d.cantidad) || 0,
+      tarifa: Number(d.costo_unitario) || 0,
+      rendimiento: Number(d.rendimiento) || 0,
+      costoHora: (Number(d.cantidad) || 0) * (Number(d.costo_unitario) || 0),
+      costo: Number(d.subtotal) || 0
+    };
+  }
+
+  private detalleAManoObra(d: any): ManoObraCalculo {
+    return {
+      id: d.insumo_id,
+      descripcion: d.descripcion || '',
+      unidad: d.unidad || '',
+      cantidad: Number(d.cantidad) || 0,
+      tarifa: Number(d.costo_unitario) || 0,
+      rendimiento: Number(d.rendimiento) || 0,
+      costoHora: (Number(d.cantidad) || 0) * (Number(d.costo_unitario) || 0),
+      costo: Number(d.subtotal) || 0
+    };
+  }
+
+  private detalleAMaterial(d: any): MaterialesCalculo {
+    return {
+      id: d.insumo_id,
+      descripcion: d.descripcion || '',
+      unidad: d.unidad || '',
+      stock: 0,
+      cantidad: Number(d.cantidad) || 0,
+      unitario: Number(d.costo_unitario) || 0,
+      costo: Number(d.subtotal) || 0
+    };
+  }
+
   /* ==================== CARGA DINÁMICA DE SUBCATEGORÍAS ==================== */
   cargarSubcategorias(): void {
     this.cargandoSubcategorias = true;
-    this.apuService.getSubcategoriasPorCategoria(this.categoriaActual).subscribe({
+    this.apuService.getSubcategoriasPorCategoria(this.sistemaActual.categoriaNombre).subscribe({
       next: (subcategorias) => {
         this.subcategoriasList = subcategorias;
         this.cargandoSubcategorias = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.cargandoSubcategorias = false;
         this.mostrarError('Error al cargar las subcategorías desde la base de datos.');
+        this.cdr.detectChanges();
       }
     });
   }
 
   generarSiguienteCodigoRubro(): void {
+    // En modo edición no se autogenera un código nuevo: se respeta el código ya cargado.
+    if (this.modoEdicion) {
+      return;
+    }
+
     if (!this.subcategoriaId) {
       this.rubroCodigo = '';
       return;
     }
 
     const sub = this.subcategoriasList.find(s => s.id === Number(this.subcategoriaId));
-    
-    this.apuService.getUltimoCodigo(Number(this.subcategoriaId)).subscribe({
+
+    this.apuService.getUltimoCodigo(Number(this.subcategoriaId), this.sistemaActual.tablaRubros).subscribe({
       next: (ultimoSecuencial: number) => {
         const siguienteNum = (ultimoSecuencial + 1).toString().padStart(2, '0');
-        
-        // Si la subcategoría define un prefijo personalizado usa ese, de lo contrario genera con su ID
         const prefix = sub?.codigo_prefix || `1.${this.subcategoriaId}`;
         this.rubroCodigo = `${prefix}.${siguienteNum}`;
       },
@@ -181,8 +303,9 @@ export class CalculoApuComponent implements OnInit {
           this.catalogoEquipos = data.sort((a, b) => a.descripcion.localeCompare(b.descripcion));
         }
         this.cargandoEquipos = false;
+        this.cdr.detectChanges();
       },
-      error: () => this.cargandoEquipos = false
+      error: () => { this.cargandoEquipos = false; this.cdr.detectChanges(); }
     });
   }
 
@@ -194,8 +317,9 @@ export class CalculoApuComponent implements OnInit {
           this.catalogManoObra = data.sort((a, b) => a.descripcion.localeCompare(b.descripcion));
         }
         this.cargandoManoObra = false;
+        this.cdr.detectChanges();
       },
-      error: () => this.cargandoManoObra = false
+      error: () => { this.cargandoManoObra = false; this.cdr.detectChanges(); }
     });
   }
 
@@ -207,8 +331,9 @@ export class CalculoApuComponent implements OnInit {
           this.catalogoMateriales = data.sort((a, b) => a.descripcion.localeCompare(b.descripcion));
         }
         this.cargandoMateriales = false;
+        this.cdr.detectChanges();
       },
-      error: () => this.cargandoMateriales = false
+      error: () => { this.cargandoMateriales = false; this.cdr.detectChanges(); }
     });
   }
 
@@ -244,7 +369,7 @@ export class CalculoApuComponent implements OnInit {
         codigo: eq.codigo,
         descripcion: eq.descripcion,
         unidad: eq.unidad,
-        tarifa: eq.precio, 
+        tarifa: eq.precio,
         stock: eq.stock
       });
       this.validarStock(item);
@@ -260,7 +385,7 @@ export class CalculoApuComponent implements OnInit {
         codigo: mo.codigo,
         descripcion: mo.descripcion,
         unidad: mo.unidad,
-        tarifa: mo.precio 
+        tarifa: mo.precio
       });
       this.calcularTodo();
     }
@@ -275,7 +400,7 @@ export class CalculoApuComponent implements OnInit {
         codigo: mat.codigo,
         descripcion: mat.descripcion,
         unidad: mat.unidad,
-        unitario: mat.precio, 
+        unitario: mat.precio,
         stock: mat.stock
       });
       this.validarStockMat(item);
@@ -291,7 +416,7 @@ export class CalculoApuComponent implements OnInit {
         codigo: tr.codigo,
         descripcion: tr.descripcion,
         unidad: tr.unidad,
-        unitario: tr.precio, 
+        unitario: tr.precio,
         stock: tr.stock
       });
       this.validarStockMat(item);
@@ -318,7 +443,11 @@ export class CalculoApuComponent implements OnInit {
   private mostrarError(msj: string): void {
     this.mensajeError = msj;
     this.irAlInicio();
-    setTimeout(() => this.mensajeError = '', 3500);
+    this.cdr.detectChanges();
+    setTimeout(() => {
+      this.mensajeError = '';
+      this.cdr.detectChanges();
+    }, 3500);
   }
 
   calcularTodo(): void {
@@ -348,6 +477,8 @@ export class CalculoApuComponent implements OnInit {
   }
 
   limpiarCalculos(): void {
+    this.modoEdicion = false;
+    this.rubroIdEdicion = null;
     this.subcategoriaId = null;
     this.rubroCodigo = '';
     this.rubroDescripcion = '';
@@ -390,12 +521,28 @@ export class CalculoApuComponent implements OnInit {
       fecha: new Date().toISOString()
     };
 
-    this.apuService.guardar(payload).subscribe({
+    // En modo edición se ACTUALIZA el rubro existente; si no, se crea uno nuevo.
+    const operacion = (this.modoEdicion && this.rubroIdEdicion)
+      ? this.apuService.actualizar(this.rubroIdEdicion, payload, this.sistemaActual)
+      : this.apuService.guardar(payload, this.sistemaActual);
+
+    const esEdicion = this.modoEdicion;
+
+    operacion.subscribe({
       next: () => {
-        this.mensajeExito = 'Cálculo APU y Rubro guardados exitosamente en la base de datos.';
+        this.mensajeExito = esEdicion
+          ? 'Cálculo APU actualizado exitosamente en la base de datos.'
+          : 'Cálculo APU y Rubro guardados exitosamente en la base de datos.';
+
+        // Siempre se limpia el formulario después de guardar, sea creación o edición.
         this.limpiarCalculos();
+
         this.irAlInicio();
-        setTimeout(() => this.mensajeExito = '', 3500);
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          this.mensajeExito = '';
+          this.cdr.detectChanges();
+        }, 3500);
       },
       error: () => this.mostrarError('Ocurrió un error al intentar guardar en la base de datos.')
     });

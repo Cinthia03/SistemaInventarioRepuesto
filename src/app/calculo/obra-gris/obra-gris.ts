@@ -68,7 +68,8 @@ export class ObraGris implements OnInit {
           .filter(r => r.subcategoria_nombre === nombre)
           .sort(compararCodigo)
       }))
-      .filter(grupo => grupo.rubros.length > 0);
+      .filter(grupo => grupo.rubros.length > 0)
+      .sort((a, b) => compararCodigo(a.rubros[0], b.rubros[0]));
   }
 
   toggleDesplegar(rubro: Rubro): void {
@@ -86,7 +87,7 @@ export class ObraGris implements OnInit {
       event.stopPropagation();
     }
 
-    this.router.navigate(['/calculos'], {
+    this.router.navigate(['/calculo-apu-component', 'obra-gris'], {
       queryParams: {
         rubroId: rubro.id
       }

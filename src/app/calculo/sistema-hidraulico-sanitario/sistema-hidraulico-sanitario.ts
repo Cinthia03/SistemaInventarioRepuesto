@@ -1,43 +1,97 @@
 import { Component, OnInit } from '@angular/core';
-import { RubrosHidraulicoService, RubroHidraulico } from '../../core/services/rubros-hidraulico.service';
-import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from "@angular/material/icon";
+import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
+import { forkJoin } from 'rxjs';
+import { Router } from '@angular/router';
+import { Rubro, RubrosHidraulicoService } from '../../core/services/rubros-hidraulico.service';
+
+interface GrupoSubcategoria {
+  subcategoria: string;
+  rubros: Rubro[];
+}
 
 @Component({
   selector: 'app-sistema-hidraulico-sanitario',
+  standalone: true,
   imports: [
-      CommonModule,
-      FormsModule,
-      MatIconModule
+    CommonModule,
+    FormsModule,
+    MatIconModule
   ],
   templateUrl: './sistema-hidraulico-sanitario.html',
   styleUrl: '../rubros.css'
 })
 export class SistemaHidraulicoSanitario implements OnInit {
 
-  rubros: RubroHidraulico[] = [];
-  categorias: string[] = [];
-  categoriaSeleccionada: string = '';
+  todosLosRubros: Rubro[] = [];
+  rubrosMostrados: Rubro[] = [];
+  subcategorias: string[] = [];
+  gruposPorSubcategoria: GrupoSubcategoria[] = [];
+  subcategoriaSeleccionada: string = '';
+  cargando: boolean = false;
 
-  constructor(private RubrosHidraulicoService: RubrosHidraulicoService) {}
+  constructor(private rubrosHidraulicoService: RubrosHidraulicoService, private router: Router) {}
 
   ngOnInit(): void {
-    this.rubros = this.RubrosHidraulicoService.getRubros();
-    this.categorias = this.RubrosHidraulicoService.getCategorias();
+    this.cargarDatos();
+  }
+
+  cargarDatos(): void {
+    this.cargando = true;
+
+    forkJoin({
+      subcategorias: this.rubrosHidraulicoService.getSubcategoriasHidraulico(),
+      rubros: this.rubrosHidraulicoService.getRubrosHidraulico()
+    }).subscribe({
+      next: ({ subcategorias, rubros }) => {
+        const compararCodigo = (a: Rubro, b: Rubro) =>
+          a.codigo.localeCompare(b.codigo, undefined, { numeric: true, sensitivity: 'base' });
+
+        this.subcategorias = subcategorias;
+        this.todosLosRubros = [...rubros].sort(compararCodigo);
+        this.rubrosMostrados = [...this.todosLosRubros];
+        this.armarGrupos(compararCodigo);
+        this.cargando = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar datos de Sistema Hidráulico-Sanitario:', err);
+        this.cargando = false;
+      }
+    });
+  }
+
+    private armarGrupos(compararCodigo: (a: Rubro, b: Rubro) => number): void {
+      this.gruposPorSubcategoria = this.subcategorias
+        .map(nombre => ({
+          subcategoria: nombre,
+          rubros: this.todosLosRubros
+            .filter(r => r.subcategoria_nombre === nombre)
+            .sort(compararCodigo)
+        }))
+        .filter(grupo => grupo.rubros.length > 0)
+        .sort((a, b) => compararCodigo(a.rubros[0], b.rubros[0]));
+    }
+
+  toggleDesplegar(rubro: Rubro): void {
+    rubro.desplegado = !rubro.desplegado;
   }
 
   filtrarPorCategoria(): void {
-    if (this.categoriaSeleccionada === '') {
-      this.rubros = this.RubrosHidraulicoService.getRubros();
-    } else {
-      this.rubros = this.RubrosHidraulicoService.getRubrosPorCategoria(this.categoriaSeleccionada);
-    }
+    this.rubrosMostrados = this.subcategoriaSeleccionada === ''
+      ? [...this.todosLosRubros]
+      : this.todosLosRubros.filter(r => r.subcategoria_nombre === this.subcategoriaSeleccionada);
   }
 
-  obtenerPorCategoria(cat: string): RubroHidraulico[] {
-    return this.RubrosHidraulicoService.getRubrosPorCategoria(cat);
+  editarRubro(rubro: Rubro, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+
+    this.router.navigate(['/calculo-apu-component', 'sistema-hidraulico-sanitario'], {
+      queryParams: {
+        rubroId: rubro.id
+      }
+    });
   }
 }
-
-
