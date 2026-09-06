@@ -230,7 +230,7 @@
 
 /* BACKGROUNDS POR SECCIÓN  */
 .inventario .section__bg {
-  background-image: url('https://jkasg.com/wp-content/uploads/2025/06/Obra-civil-JKASG-1-e1748888469728.jpeg');
+  background-image: url('/imagenes/inventario.jpg');
 }
 .inventario .section__overlay {
   background: linear-gradient(105deg, rgba(13,27,42,0.94) 0%, rgba(13,27,42,0.70) 50%, rgba(13,27,42,0.05) 100%);
@@ -239,7 +239,7 @@
 .inventario .section-num::before { background: var(--M1); }
 
 .calculo .section__bg {
-  background-image: url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1600&q=80');
+  background-image: url('/imagenes/calculos.jpg');
 }
 .calculo .section__overlay {
   background: linear-gradient(105deg, rgba(13,27,42,0.94) 0%, rgba(13,27,42,0.68) 50%, rgba(13,27,42,0.05) 100%);
@@ -248,7 +248,7 @@
 .calculo .section-num::before { background: var(--M2); }
 
 .presupuesto .section__bg {
-  background-image: url('https://f.hubspotusercontent20.net/hubfs/2283874/gesti%C3%B3n%20de%20presupuestos%20y%20cuadro%20de%20mandos.jpg');
+  background-image: url('/imagenes/presupuesto.jpg');
 }
 .presupuesto .section__overlay {
   background: linear-gradient(105deg, rgba(13,27,42,0.94) 0%, rgba(13,27,42,0.68) 50%, rgba(13,27,42,0.05) 100%);

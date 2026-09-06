@@ -12,7 +12,7 @@
       rgba(0, 0, 0, 0.6),
       rgba(0, 0, 0, 0.6)
     ),
-    url("https://jkasg.com/wp-content/uploads/2025/06/Casa-de-lujo-Diana-e1748887530185.jpg")
+    url('/imagenes/inicio.jpg')
       no-repeat center/cover;
 }
 

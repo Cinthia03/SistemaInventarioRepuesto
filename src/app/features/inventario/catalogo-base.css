@@ -53,6 +53,7 @@
 ══════════════════════════════════════ */
 .header-banner {
   width: 100%;
+  box-sizing: border-box;
   background: var(--color-primario);
   border-radius: var(--radio);
   padding: 32px 0px;
@@ -160,6 +161,14 @@
   grid-template-columns: 360px 1fr;
   gap: 30px;
   align-items: start;
+}
+
+/* Evita el bug clásico de CSS Grid: por defecto un item de grid no puede encogerse
+   por debajo del ancho mínimo de su contenido (min-width: auto implícito), lo que
+   hacía que la columna se expandiera más allá del viewport en pantallas angostas
+   apenas algo adentro (un <select>, un input) tuviera un ancho intrínseco grande. */
+.layout-grid > * {
+  min-width: 0;
 }
 
 /* ══════════════════════════════════════
