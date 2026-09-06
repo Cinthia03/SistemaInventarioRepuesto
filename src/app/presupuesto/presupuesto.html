@@ -1,122 +1,395 @@
-<div class="obra-gris">
+<div class="container apu-wrapper obra-gris presupuesto-general">
 
-<h2>1. OBRA GRIS</h2>
+  <!-- Header -->
+  <div class="header-interno">
+    <div class="header-interno__izq">
+      <div class="header-interno__badge">
+        <mat-icon>request_quote</mat-icon>
+      </div>
+      <div class="header-interno__texto">
+        <h1 class="titulo-interno">Presupuesto General</h1>
+        <p class="subtitulo-interno" *ngIf="vista === 'nuevo'">Elige los rubros de Obra Gris, Acabados, Hidráulico y Eléctrico que necesitas para este proyecto; el costo se calcula con el APU de cada uno.</p>
+        <p class="subtitulo-interno" *ngIf="vista === 'historial'">Presupuestos que ya has guardado anteriormente.</p>
+        <p class="subtitulo-interno" *ngIf="vista === 'detalle' && presupuestoDetalle">{{ presupuestoDetalle.nombre }} · {{ presupuestoDetalle.creado_en | date:'dd MMMM yyyy · HH:mm' }}</p>
+      </div>
+    </div>
 
-<table class="tabla-rubros">
+    <!-- Navegación entre vistas -->
+    <div class="vista-tabs no-print">
+      <button type="button" class="btn-vista" [class.btn-vista--activo]="vista === 'nuevo'" (click)="mostrarNuevo()">
+        <mat-icon>add_box</mat-icon> Nuevo Presupuesto
+      </button>
+      <button type="button" class="btn-vista" [class.btn-vista--activo]="vista === 'historial' || vista === 'detalle'" (click)="mostrarHistorial()">
+        <mat-icon>history</mat-icon> Presupuestos Guardados
+      </button>
+    </div>
+  </div>
 
-<!-- 1.1 -->
-<tr class="titulo-seccion">
-<td colspan="2">1.1 INSTALACIONES PROVISIONALES</td>
-</tr>
+  <!-- =======================================================
+       VISTA 1: ARMAR / EDITAR UN PRESUPUESTO NUEVO
+  ======================================================== -->
+  <ng-container *ngIf="vista === 'nuevo'">
 
-<tr><td>1.1.01</td><td>Caseta de oficina, bodega y guardiania</td></tr>
-<tr><td>1.1.02</td><td>Instalación eléctrica provisional</td></tr>
-<tr><td>1.1.03</td><td>Instalación AAPP provisional</td></tr>
-<tr><td>1.1.04</td><td>Cerramiento de Obra</td></tr>
+    <div class="filtro-wrapper no-print">
+      <mat-icon class="filtro-icon">filter_list</mat-icon>
+      <select [(ngModel)]="categoriaSeleccionada" class="select-custom">
+        <option value="">Todos los sistemas</option>
+        <option *ngFor="let cat of gruposPorCategoria" [value]="cat.clave">{{ cat.nombre }}</option>
+      </select>
+    </div>
 
+    <!-- Resumen general -->
+    <div class="resumen-presupuesto" *ngIf="!cargando">
+      <div
+        class="resumen-presupuesto__chip"
+        *ngFor="let cat of gruposPorCategoria"
+        [ngClass]="'resumen-presupuesto__chip--' + cat.claseColor">
+        <span class="resumen-presupuesto__nombre">{{ cat.nombre }}</span>
+        <span class="resumen-presupuesto__valor">${{ cat.subtotal | number:'1.2-2' }}</span>
+        <span class="resumen-presupuesto__contador">{{ contarSeleccionados(cat) }} rubro(s)</span>
+      </div>
 
-<!-- 1.2 -->
-<tr class="titulo-seccion">
-<td colspan="2">1.2 MANTENIMIENTO DE OBRA</td>
-</tr>
+      <div class="resumen-presupuesto__total">
+        <span>PRESUPUESTO TOTAL DE LA OBRA</span>
+        <strong>${{ totalGeneral | number:'1.2-2' }}</strong>
+      </div>
+    </div>
 
-<tr><td>1.2.01</td><td>Limpieza general de la obra</td></tr>
-<tr><td>1.2.02</td><td>Desalojo de limpieza</td></tr>
+    <!-- Panel para guardar el presupuesto -->
+    <div class="guardar-panel no-print" *ngIf="!cargando">
+      <input
+        type="text"
+        class="guardar-panel__input"
+        placeholder="Nombre del presupuesto (ej. Vivienda familia Pérez)"
+        [(ngModel)]="nombrePresupuesto" />
 
+      <button type="button" class="btn-guardar-presupuesto" [disabled]="guardando" (click)="guardarPresupuesto()">
+        <mat-icon>save</mat-icon>
+        {{ guardando ? 'Guardando...' : 'Guardar Presupuesto' }}
+      </button>
 
-<!-- 1.3 -->
-<tr class="titulo-seccion">
-<td colspan="2">1.3 PREPARACION DEL TERRENO</td>
-</tr>
+      <button type="button" class="btn-imprimir" (click)="imprimir()">
+        <mat-icon>print</mat-icon> Imprimir
+      </button>
 
-<tr><td>1.3.01</td><td>Limpieza del terreno</td></tr>
-<tr><td>1.3.02</td><td>Replanteo y trazado de cimientos</td></tr>
+      <span class="guardar-panel__mensaje" *ngIf="mensajeGuardado">{{ mensajeGuardado }}</span>
+    </div>
 
+    <!-- Estado de Carga -->
+    <div *ngIf="cargando" class="cargando-wrapper">
+      <p>Cargando los rubros de todos los sistemas...</p>
+    </div>
 
-<!-- 1.4 -->
-<tr class="titulo-seccion">
-<td colspan="2">1.4 MOVIMIENTOS DE TIERRA</td>
-</tr>
+    <!-- Contenido -->
+    <div class="rubros-contenido" *ngIf="!cargando">
 
-<tr><td>1.4.01</td><td>Excavacion</td></tr>
-<tr><td>1.4.02</td><td>Relleno compactado con material importado</td></tr>
+      <div
+        *ngFor="let categoria of categoriasMostradas"
+        class="seccion-categoria-presupuesto"
+        [ngClass]="'seccion-categoria-presupuesto--' + categoria.claseColor">
 
+        <!-- Cabecera de la categoría: se puede plegar/expandir -->
+        <div class="categoria-header-principal" (click)="toggleCategoria(categoria)">
+          <div class="categoria-header-principal__izq">
+            <button type="button" class="btn-toggle-categoria no-print" [attr.aria-label]="categoria.expandido ? 'Contraer' : 'Expandir'">
+              <mat-icon>{{ categoria.expandido ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </button>
+            <h2 class="categoria-title" [ngClass]="'categoria-title--' + categoria.claseColor">
+              <mat-icon>{{ categoria.icono }}</mat-icon>
+              {{ categoria.nombre }}
+            </h2>
+            <span class="categoria-header-principal__contador">
+              {{ contarSeleccionados(categoria) }} rubro(s) seleccionados
+            </span>
+          </div>
 
-<!-- 1.5 -->
-<tr class="titulo-seccion">
-<td colspan="2">1.5 ESTRUCTURAS DE HORMIGON SIMPLE</td>
-</tr>
+          <span class="costo-total-tag costo-total-tag--categoria">
+            Subtotal {{ categoria.nombre }}: ${{ categoria.subtotal | number:'1.2-2' }}
+          </span>
+        </div>
 
-<tr><td>1.5.01</td><td>Replantillo e= 10cm</td></tr>
-<tr><td>1.5.02</td><td>Muro Ciclopeo</td></tr>
+        <!-- Contenido plegable de la categoría (se oculta con CSS, no con *ngIf, para que
+             la impresión siempre pueda mostrar todo aunque el usuario lo haya contraído) -->
+        <div class="categoria-body" [class.categoria-body--colapsada]="!categoria.expandido">
 
+          <div *ngIf="categoria.grupos.length === 0" class="sin-apu">
+            No hay rubros registrados todavía para este sistema.
+          </div>
 
-<!-- 1.6 -->
-<tr class="titulo-seccion">
-<td colspan="2">1.6 ESTRUCTURAS DE HORMIGON ARMADO</td>
-</tr>
+          <div *ngFor="let grupo of categoria.grupos" class="categoria-seccion">
+            <h3 class="subcategoria-titulo">{{ grupo.subcategoria }}</h3>
 
-<tr><td>1.6.01</td><td>Zapatas y vigas: en cimientos</td></tr>
-<tr><td>1.6.02</td><td>Riostras</td></tr>
-<tr><td>1.6.03</td><td>Columnas cimiento a losa vivienda</td></tr>
-<tr><td>1.6.04</td><td>Columnas losa a cubierta</td></tr>
-<tr><td>1.6.05</td><td>Columnas cimiento a losa garaje</td></tr>
-<tr><td>1.6.06</td><td>Vigas losa entrepiso</td></tr>
-<tr><td>1.6.07</td><td>Losa entrepiso e= 25cm</td></tr>
-<tr><td>1.6.08</td><td>Escaleras de hormigon</td></tr>
-<tr><td>1.6.09</td><td>Vigas de cubierta</td></tr>
-<tr><td>1.6.10</td><td>Vigas losa de garaje</td></tr>
-<tr><td>1.6.11</td><td>Losa garaje e= 25cm</td></tr>
-<tr><td>1.6.12</td><td>Cisterna</td></tr>
+            <div class="tabla-rubros-scroll">
+              <!-- Encabezado de columnas: mismo grid que cada fila de rubro, para que todo quede alineado -->
+              <div class="rubro-columnas">
+                <span class="col-header no-print"></span>
+                <span class="col-header no-print"></span>
+                <span class="col-header">Código</span>
+                <span class="col-header">Descripción</span>
+                <span class="col-header col-header--right">Unidad</span>
+                <span class="col-header col-header--right">P.U. ($)</span>
+                <span class="col-header col-header--right">Cantidad</span>
+                <span class="col-header col-header--right">Total ($)</span>
+                <span class="col-header no-print"></span>
+              </div>
 
+              <div class="rubros-acordeon-lista">
+                <div
+                  *ngFor="let r of grupo.rubros"
+                  class="rubro-card"
+                  [ngClass]="{ 'rubro-card--excluido': !r.seleccionado }">
 
-<!-- 1.7 -->
-<tr class="titulo-seccion">
-<td colspan="2">1.7 ESTRUCTURAS METALICAS Y CUBIERTAS</td>
-</tr>
+                  <div class="rubro-header" (click)="toggleDesplegar(r)">
 
-<tr><td>1.7.01</td><td>Estructuras metalicas: de cubierta</td></tr>
-<tr><td>1.7.02</td><td>Cubierta Eternit</td></tr>
-<tr><td>1.7.03</td><td>Tejas sobre cubierta</td></tr>
+                    <div class="rubro-header__check no-print" (click)="$event.stopPropagation()">
+                      <input
+                        type="checkbox"
+                        title="Incluir este rubro en el presupuesto"
+                        [(ngModel)]="r.seleccionado"
+                        (ngModelChange)="actualizarSeleccion(categoria)" />
+                    </div>
 
+                    <button type="button" class="btn-expandir no-print">
+                      <mat-icon>{{ r.desplegado ? 'expand_less' : 'expand_more' }}</mat-icon>
+                    </button>
 
-<!-- 1.8 -->
-<tr class="titulo-seccion">
-<td colspan="2">1.8 CONTRAPISOS</td>
-</tr>
+                    <span class="rubro-codigo">{{ r.codigo }}</span>
+                    <span class="rubro-descripcion">{{ r.descripcion }}</span>
+                    <span class="col-unidad">{{ r.unidad_medida }}</span>
+                    <span class="col-pu">${{ r.costo_directo_total | number:'1.2-2' }}</span>
 
-<tr><td>1.8.01</td><td>Contrapiso interior hormigon simple e= 10cm</td></tr>
+                    <div class="cantidad-wrapper" (click)="$event.stopPropagation()">
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        class="cantidad-input"
+                        [(ngModel)]="r.cantidad"
+                        (ngModelChange)="actualizarCantidad(r, categoria)" />
+                    </div>
 
+                    <span class="col-total">${{ r.totalPresupuestado | number:'1.2-2' }}</span>
 
-<!-- 1.9 -->
-<tr class="titulo-seccion">
-<td colspan="2">1.9 ALBAÑILERIAS</td>
-</tr>
+                    <div class="col-acciones no-print" (click)="$event.stopPropagation()">
+                      <button
+                        type="button"
+                        class="btn-editar-rubro"
+                        title="Editar APU"
+                        (click)="editarRubro(r, categoria, $event)">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                    </div>
+                  </div>
 
-<tr><td>1.9.01</td><td>Pared mamposteria bloque e= 19cm</td></tr>
-<tr><td>1.9.02</td><td>Pared mamposteria bloque e= 9cm</td></tr>
-<tr><td>1.9.03</td><td>Viguetas y pilaretes h. armado 19x20cm</td></tr>
-<tr><td>1.9.04</td><td>Viguetas y pilaretes h. armado 9x20cm</td></tr>
-<tr><td>1.9.05</td><td>Enlucido interior</td></tr>
-<tr><td>1.9.06</td><td>Enlucido exterior</td></tr>
-<tr><td>1.9.07</td><td>Enlucido de columnas</td></tr>
-<tr><td>1.9.08</td><td>Enlucido de tumbado de losa</td></tr>
-<tr><td>1.9.09</td><td>Enlucido sobre losas de cubierta</td></tr>
-<tr><td>1.9.10</td><td>Enlucido de escalera (rampa y escalones)</td></tr>
-<tr><td>1.9.11</td><td>Filos de columnas y paredes</td></tr>
-<tr><td>1.9.12</td><td>Cuadrada de boquetes</td></tr>
-<tr><td>1.9.13</td><td>Molduras en cubiertas</td></tr>
-<tr><td>1.9.14</td><td>Molduras en ventanas</td></tr>
-<tr><td>1.9.15</td><td>Meson de h. armado en cocina</td></tr>
-<tr><td>1.9.16</td><td>Meson de h. armado en baños</td></tr>
-<tr><td>1.9.17</td><td>Muro de tina de baño (inc. enlucido)</td></tr>
-<tr><td>1.9.18</td><td>Cajas de registro (h. simple) AA.SS.</td></tr>
-<tr><td>1.9.19</td><td>Cajas de registro (h. simple) AA.LL.</td></tr>
-<tr><td>1.9.20</td><td>Sumidero (h. simple) AA.LL.</td></tr>
-<tr><td>1.9.21</td><td>Cajas de paso (mamposteria) electrica</td></tr>
-<tr><td>1.9.22</td><td>Enlucido cisterna</td></tr>
-<tr><td>1.9.23</td><td>Impermeabilizacion en losa de cubiertas y cisterna</td></tr>
+                  <div class="rubro-detalles-body" *ngIf="r.desplegado">
 
-</table>
+                    <div class="tabla-seccion tabla-seccion--equipos" *ngIf="r.equipos.length > 0">
+                      <h4 class="tabla-seccion__titulo">1. Equipos y Herramientas</h4>
+                      <table class="apu-tabla">
+                        <thead>
+                          <tr>
+                            <th>Descripción</th><th>Cantidad</th><th>Costo Unitario ($)</th><th>Rendimiento</th><th>Subtotal ($)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let eq of r.equipos">
+                            <td>{{ eq.descripcion }}</td><td>{{ eq.cantidad | number:'1.2-4' }}</td><td>${{ eq.costo_unitario | number:'1.2-2' }}</td><td>{{ eq.rendimiento | number:'1.2-4' }}</td><td>${{ eq.subtotal | number:'1.2-2' }}</td>
+                          </tr>
+                        </tbody>
+                        <tfoot>
+                          <tr>
+                            <td colspan="4" class="text-right font-bold">Subtotal Equipos:</td>
+                            <td class="font-bold">${{ r.subtotalEquipos | number:'1.2-2' }}</td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+
+                    <div class="tabla-seccion tabla-seccion--mano-obra" *ngIf="r.manoObra.length > 0">
+                      <h4 class="tabla-seccion__titulo">2. Mano de Obra</h4>
+                      <table class="apu-tabla">
+                        <thead>
+                          <tr>
+                            <th>Descripción</th><th>Cantidad</th><th>Costo Unitario ($)</th><th>Rendimiento</th><th>Subtotal ($)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let mo of r.manoObra">
+                            <td>{{ mo.descripcion }}</td><td>{{ mo.cantidad | number:'1.2-4' }}</td><td>${{ mo.costo_unitario | number:'1.2-2' }}</td><td>{{ mo.rendimiento | number:'1.2-4' }}</td><td>${{ mo.subtotal | number:'1.2-2' }}</td>
+                          </tr>
+                        </tbody>
+                        <tfoot>
+                          <tr>
+                            <td colspan="4" class="text-right font-bold">Subtotal Mano de Obra:</td>
+                            <td class="font-bold">${{ r.subtotalManoObra | number:'1.2-2' }}</td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+
+                    <div class="tabla-seccion tabla-seccion--materiales" *ngIf="r.materiales.length > 0">
+                      <h4 class="tabla-seccion__titulo">3. Materiales</h4>
+                      <table class="apu-tabla">
+                        <thead>
+                          <tr>
+                            <th>Descripción</th><th>Unidad</th><th>Cantidad</th><th>Costo Unitario ($)</th><th>Subtotal ($)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let mat of r.materiales">
+                            <td>{{ mat.descripcion }}</td><td>{{ mat.unidad }}</td><td>{{ mat.cantidad | number:'1.2-4' }}</td><td>${{ mat.costo_unitario | number:'1.2-2' }}</td><td>${{ mat.subtotal | number:'1.2-2' }}</td>
+                          </tr>
+                        </tbody>
+                        <tfoot>
+                          <tr>
+                            <td colspan="4" class="text-right font-bold">Subtotal Materiales:</td>
+                            <td class="font-bold">${{ r.subtotalMateriales | number:'1.2-2' }}</td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+
+                    <div class="tabla-seccion tabla-seccion--transporte" *ngIf="r.transporte.length > 0">
+                      <h4 class="tabla-seccion__titulo">4. Transporte</h4>
+                      <table class="apu-tabla">
+                        <thead>
+                          <tr>
+                            <th>Descripción</th><th>Unidad</th><th>Cantidad</th><th>Costo Unitario ($)</th><th>Subtotal ($)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let tr of r.transporte">
+                            <td>{{ tr.descripcion }}</td><td>{{ tr.unidad }}</td><td>{{ tr.cantidad | number:'1.2-4' }}</td><td>${{ tr.costo_unitario | number:'1.2-2' }}</td><td>${{ tr.subtotal | number:'1.2-2' }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div *ngIf="r.equipos.length === 0 && r.manoObra.length === 0 && r.materiales.length === 0 && r.transporte.length === 0" class="sin-apu">
+                      No hay desglose de APU guardado para este rubro.
+                    </div>
+
+                    <div class="resumen-directo">
+                      <span>COSTO DIRECTO UNITARIO (P.U.):</span>
+                      <strong>${{ r.costo_directo_total | number:'1.2-2' }} / {{ r.unidad_medida }}</strong>
+                    </div>
+
+                    <div class="resumen-directo resumen-directo--presupuesto">
+                      <span>TOTAL PRESUPUESTADO DEL RUBRO ({{ r.cantidad | number:'1.2-2' }} {{ r.unidad_medida }}):</span>
+                      <strong>${{ r.totalPresupuestado | number:'1.2-2' }}</strong>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </ng-container>
+
+  <!-- =======================================================
+       VISTA 2: LISTA DE PRESUPUESTOS GUARDADOS
+  ======================================================== -->
+  <ng-container *ngIf="vista === 'historial'">
+
+    <div *ngIf="cargandoHistorial" class="cargando-wrapper">
+      <p>Cargando presupuestos guardados...</p>
+    </div>
+
+    <div *ngIf="!cargandoHistorial && presupuestosGuardados.length === 0" class="sin-apu">
+      Todavía no has guardado ningún presupuesto.
+    </div>
+
+    <div class="historial-lista" *ngIf="!cargandoHistorial && presupuestosGuardados.length > 0">
+      <div class="historial-fila historial-fila--titulos">
+        <span>Nombre</span>
+        <span>Fecha</span>
+        <span class="text-right">Total</span>
+        <span></span>
+      </div>
+
+      <div
+        class="historial-fila"
+        *ngFor="let p of presupuestosGuardados"
+        (click)="verDetalle(p.id)">
+        <span class="historial-fila__nombre">{{ p.nombre }}</span>
+        <span>{{ p.creado_en | date:'dd/MM/yyyy HH:mm' }}</span>
+        <span class="text-right font-bold">${{ p.total | number:'1.2-2' }}</span>
+        <span class="historial-fila__acciones">
+          <button type="button" class="btn-editar-rubro" (click)="verDetalle(p.id); $event.stopPropagation()">
+            <mat-icon>visibility</mat-icon> Ver
+          </button>
+          <button type="button" class="btn-eliminar-presupuesto" (click)="eliminarPresupuesto(p.id, $event)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </span>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- =======================================================
+       VISTA 3: DETALLE DE UN PRESUPUESTO GUARDADO (imprimible)
+  ======================================================== -->
+  <ng-container *ngIf="vista === 'detalle'">
+
+    <div class="detalle-toolbar no-print">
+      <button type="button" class="btn-vista" (click)="volverAHistorial()">
+        <mat-icon>arrow_back</mat-icon> Volver al historial
+      </button>
+      <button type="button" class="btn-imprimir" (click)="imprimir()">
+        <mat-icon>print</mat-icon> Imprimir
+      </button>
+    </div>
+
+    <div *ngIf="cargandoDetalle" class="cargando-wrapper">
+      <p>Cargando presupuesto...</p>
+    </div>
+
+    <div *ngIf="!cargandoDetalle && presupuestoDetalle">
+
+      <div class="detalle-encabezado">
+        <h2>{{ presupuestoDetalle.nombre }}</h2>
+        <span>Guardado el {{ presupuestoDetalle.creado_en | date:'dd MMMM yyyy · HH:mm' }}</span>
+      </div>
+
+      <div class="detalle-tabla-wrapper">
+        <table class="apu-tabla detalle-tabla">
+          <thead>
+            <tr>
+              <th>Sistema</th>
+              <th>Subcategoría</th>
+              <th>Código</th>
+              <th>Descripción</th>
+              <th>Unidad</th>
+              <th class="text-right">P.U. ($)</th>
+              <th class="text-right">Cantidad</th>
+              <th class="text-right">Total ($)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of presupuestoDetalle.items">
+              <td>{{ item.categoria_nombre }}</td>
+              <td>{{ item.subcategoria_nombre }}</td>
+              <td>{{ item.rubro_codigo }}</td>
+              <td>{{ item.rubro_descripcion }}</td>
+              <td>{{ item.unidad_medida }}</td>
+              <td class="text-right">${{ item.costo_unitario | number:'1.2-2' }}</td>
+              <td class="text-right">{{ item.cantidad | number:'1.2-2' }}</td>
+              <td class="text-right font-bold">${{ item.total | number:'1.2-2' }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="7" class="text-right font-bold">TOTAL DEL PRESUPUESTO:</td>
+              <td class="text-right font-bold">${{ presupuestoDetalle.total | number:'1.2-2' }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </ng-container>
 
 </div>
