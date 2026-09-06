@@ -110,17 +110,31 @@
         <tbody>
           <tr *ngFor="let item of equiposList; let i = index" class="fila-dato">
             <td>
-              <select class="select-rubro" (change)="seleccionarEquipo(item, $event)">
-                <option value="">-- Seleccionar Equipo --</option>
-                <option 
-                  *ngFor="let eq of catalogoEquipos" 
-                  [value]="eq.id" 
-                  [selected]="eq.id === item.id"
-                  [disabled]="(eq.stock || 0) <= 0"
-                  [class.option-sin-stock]="(eq.stock || 0) <= 0">
-                  {{ eq.descripcion }} {{ (eq.stock || 0) <= 0 ? '(Sin stock)' : '(Stock: ' + eq.stock + ')' }}
-                </option>
-              </select>
+              <div class="autocomplete-wrapper">
+                <input
+                  #inputEquipo
+                  type="text"
+                  class="select-rubro autocomplete-input"
+                  placeholder="-- Buscar Equipo --"
+                  [(ngModel)]="item.busqueda"
+                  (input)="buscarEquipo(item, inputEquipo)"
+                  (focus)="buscarEquipo(item, inputEquipo)"
+                  (blur)="cerrarOpciones(item)"
+                  autocomplete="off"
+                />
+                <ul class="autocomplete-lista" [ngStyle]="item.estiloLista" *ngIf="item.mostrarOpciones && item.opcionesFiltradas?.length">
+                  <li
+                    *ngFor="let eq of item.opcionesFiltradas"
+                    class="autocomplete-item"
+                    [class.autocomplete-item--sin-stock]="(eq.stock || 0) <= 0"
+                    (mousedown)="elegirEquipo(item, eq)">
+                    {{ eq.descripcion }} {{ (eq.stock || 0) <= 0 ? '(Sin stock)' : '(Stock: ' + eq.stock + ')' }}
+                  </li>
+                </ul>
+                <div class="autocomplete-vacio" [ngStyle]="item.estiloLista" *ngIf="item.mostrarOpciones && item.busqueda && !item.opcionesFiltradas?.length">
+                  Sin coincidencias
+                </div>
+              </div>
             </td>
             <td class="text-center">
               <span class="badge-stock" [class.badge-stock--bajo]="(item.stock || 0) <= 0">
@@ -165,7 +179,7 @@
         ➕ Agregar Equipo
       </button>
       <div class="subtotal-chip">
-        Subtotal Equipos: <strong>$ {{ subtotalEquipos | number:'1.2-4' }}</strong>
+        Subtotal Equipos: <strong>$ {{ subtotalEquipos | number:'1.2-2' }}</strong>
       </div>
     </div>
   </section>
@@ -192,12 +206,30 @@
         <tbody>
           <tr *ngFor="let item of manoObraList; let i = index" class="fila-dato">
             <td>
-              <select class="select-rubro" (change)="seleccionarManoObra(item, $event)">
-                <option value="">-- Seleccionar Personal --</option>
-                <option *ngFor="let mo of catalogManoObra" [value]="mo.id" [selected]="mo.id === item.id">
-                  {{ mo.descripcion }}
-                </option>
-              </select>
+              <div class="autocomplete-wrapper">
+                <input
+                  #inputManoObra
+                  type="text"
+                  class="select-rubro autocomplete-input"
+                  placeholder="-- Buscar Personal --"
+                  [(ngModel)]="item.busqueda"
+                  (input)="buscarManoObra(item, inputManoObra)"
+                  (focus)="buscarManoObra(item, inputManoObra)"
+                  (blur)="cerrarOpciones(item)"
+                  autocomplete="off"
+                />
+                <ul class="autocomplete-lista" [ngStyle]="item.estiloLista" *ngIf="item.mostrarOpciones && item.opcionesFiltradas?.length">
+                  <li
+                    *ngFor="let mo of item.opcionesFiltradas"
+                    class="autocomplete-item"
+                    (mousedown)="elegirManoObra(item, mo)">
+                    {{ mo.descripcion }}
+                  </li>
+                </ul>
+                <div class="autocomplete-vacio" [ngStyle]="item.estiloLista" *ngIf="item.mostrarOpciones && item.busqueda && !item.opcionesFiltradas?.length">
+                  Sin coincidencias
+                </div>
+              </div>
             </td>
             <td>
               <input type="number" class="input-numero input-numero--sm" [(ngModel)]="item.cantidad" (ngModelChange)="calcularTodo()" min="1" step="any" />
@@ -237,7 +269,7 @@
         ➕ Agregar Personal
       </button>
       <div class="subtotal-chip">
-        Subtotal Mano de Obra: <strong>$ {{ subtotalManoObra | number:'1.2-4' }}</strong>
+        Subtotal Mano de Obra: <strong>$ {{ subtotalManoObra | number:'1.2-2' }}</strong>
       </div>
     </div>
   </section>
@@ -264,17 +296,31 @@
         <tbody>
           <tr *ngFor="let item of materialesList; let i = index" class="fila-dato">
             <td>
-              <select class="select-rubro" (change)="seleccionarMateriales(item, $event)">
-                <option value="">-- Seleccionar Material --</option>
-                <option 
-                  *ngFor="let mat of catalogoMateriales" 
-                  [value]="mat.id" 
-                  [selected]="mat.id === item.id"
-                  [disabled]="(mat.stock || 0) <= 0"
-                  [class.option-sin-stock]="(mat.stock || 0) <= 0">
-                  {{ mat.descripcion }} {{ (mat.stock || 0) <= 0 ? '(Sin stock)' : '(Stock: ' + mat.stock + ')' }}
-                </option>
-              </select>
+              <div class="autocomplete-wrapper">
+                <input
+                  #inputMaterial
+                  type="text"
+                  class="select-rubro autocomplete-input"
+                  placeholder="-- Buscar Material --"
+                  [(ngModel)]="item.busqueda"
+                  (input)="buscarMaterial(item, inputMaterial)"
+                  (focus)="buscarMaterial(item, inputMaterial)"
+                  (blur)="cerrarOpciones(item)"
+                  autocomplete="off"
+                />
+                <ul class="autocomplete-lista" [ngStyle]="item.estiloLista" *ngIf="item.mostrarOpciones && item.opcionesFiltradas?.length">
+                  <li
+                    *ngFor="let mat of item.opcionesFiltradas"
+                    class="autocomplete-item"
+                    [class.autocomplete-item--sin-stock]="(mat.stock || 0) <= 0"
+                    (mousedown)="elegirMaterial(item, mat)">
+                    {{ mat.descripcion }} {{ (mat.stock || 0) <= 0 ? '(Sin stock)' : '(Stock: ' + mat.stock + ')' }}
+                  </li>
+                </ul>
+                <div class="autocomplete-vacio" [ngStyle]="item.estiloLista" *ngIf="item.mostrarOpciones && item.busqueda && !item.opcionesFiltradas?.length">
+                  Sin coincidencias
+                </div>
+              </div>
             </td>
             <td class="text-center">
               <span class="badge-stock" [class.badge-stock--bajo]="(item.stock || 0) <= 0">
@@ -335,17 +381,31 @@
         <tbody>
           <tr *ngFor="let item of transporteList; let i = index" class="fila-dato">
             <td>
-              <select class="select-rubro" (change)="seleccionarTransporte(item, $event)">
-                <option value="">-- Seleccionar Transporte --</option>
-                <option 
-                  *ngFor="let tr of catalogoTransportes" 
-                  [value]="tr.id" 
-                  [selected]="tr.id === item.id"
-                  [disabled]="(tr.stock || 0) <= 0"
-                  [class.option-sin-stock]="(tr.stock || 0) <= 0">
-                  {{ tr.descripcion }} {{ (tr.stock || 0) <= 0 ? '(Sin stock)' : '(Stock: ' + tr.stock + ')' }}
-                </option>
-              </select>
+              <div class="autocomplete-wrapper">
+                <input
+                  #inputTransporte
+                  type="text"
+                  class="select-rubro autocomplete-input"
+                  placeholder="-- Buscar Transporte --"
+                  [(ngModel)]="item.busqueda"
+                  (input)="buscarTransporte(item, inputTransporte)"
+                  (focus)="buscarTransporte(item, inputTransporte)"
+                  (blur)="cerrarOpciones(item)"
+                  autocomplete="off"
+                />
+                <ul class="autocomplete-lista" [ngStyle]="item.estiloLista" *ngIf="item.mostrarOpciones && item.opcionesFiltradas?.length">
+                  <li
+                    *ngFor="let tr of item.opcionesFiltradas"
+                    class="autocomplete-item"
+                    [class.autocomplete-item--sin-stock]="(tr.stock || 0) <= 0"
+                    (mousedown)="elegirTransporte(item, tr)">
+                    {{ tr.descripcion }} {{ (tr.stock || 0) <= 0 ? '(Sin stock)' : '(Stock: ' + tr.stock + ')' }}
+                  </li>
+                </ul>
+                <div class="autocomplete-vacio" [ngStyle]="item.estiloLista" *ngIf="item.mostrarOpciones && item.busqueda && !item.opcionesFiltradas?.length">
+                  Sin coincidencias
+                </div>
+              </div>
             </td>
             <td class="text-center">{{ item.unidad || '—' }}</td>
             <td>
@@ -357,7 +417,7 @@
               />
             </td>
             <td>
-              <input type="number" class="input-numero input-numero--sm" [(ngModel)]="item.cantidad" (ngModelChange)="calcularTodo()" min="0" step="any" />
+              <input type="number" class="input-numero input-numero--sm" [(ngModel)]="item.cantidad" (ngModelChange)="validarStockTransporte(item)" min="0" step="any" />
             </td>
             <td class="td-valor td-costo">$ {{ (item.costo || 0) | number:'1.2-2' }}</td>
             <td class="text-center">
@@ -389,7 +449,7 @@
           <span class="resumen-fila__letra resumen-fila__letra--m">M</span>
           Equipos y Herramientas
         </div>
-        <span class="resumen-fila__valor">$ {{ subtotalEquipos | number:'1.2-4' }}</span>
+        <span class="resumen-fila__valor">$ {{ subtotalEquipos | number:'1.2-2' }}</span>
       </div>
 
       <div class="resumen-fila">
@@ -397,7 +457,7 @@
           <span class="resumen-fila__letra resumen-fila__letra--n">N</span>
           Mano de Obra
         </div>
-        <span class="resumen-fila__valor">$ {{ subtotalManoObra | number:'1.2-4' }}</span>
+        <span class="resumen-fila__valor">$ {{ subtotalManoObra | number:'1.2-2' }}</span>
       </div>
 
       <div class="resumen-fila">
@@ -420,7 +480,7 @@
 
       <div class="resumen-fila resumen-fila--total">
         <div class="resumen-fila__label">TOTAL COSTO DIRECTO (M + N + O + P)</div>
-        <span class="resumen-fila__valor--total">$ {{ totalDirecto | number:'1.2-4' }}</span>
+        <span class="resumen-fila__valor--total">$ {{ totalDirecto | number:'1.2-2' }}</span>
       </div>
     </div>
 

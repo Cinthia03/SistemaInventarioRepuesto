@@ -53,9 +53,14 @@
                   class="btn-editar-rubro"
                   title="Editar APU"
                   (click)="editarRubro(r, $event)">
-
                   <mat-icon>edit</mat-icon>
-                  Editar
+                </button>
+                <button
+                  type="button"
+                  class="btn-eliminar-rubro"
+                  title="Eliminar rubro"
+                  (click)="eliminarRubro(r, $event)">
+                  <mat-icon>delete</mat-icon>
                 </button>
               </div>
             </div>
@@ -175,6 +180,20 @@
             <div class="rubro-header__right">
               <span class="unidad-badge">Unidad: {{ r.unidad_medida }}</span>
               <span class="costo-total-tag">${{ r.costo_directo_total | number:'1.2-2' }}</span>
+              <button
+                type="button"
+                class="btn-editar-rubro"
+                title="Editar APU"
+                (click)="editarRubro(r, $event)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button
+                type="button"
+                class="btn-eliminar-rubro"
+                title="Eliminar rubro"
+                (click)="eliminarRubro(r, $event)">
+                <mat-icon>delete</mat-icon>
+              </button>
             </div>
           </div>
 

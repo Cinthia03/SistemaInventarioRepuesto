@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -28,6 +28,13 @@ export interface EquipoCalculo {
   rendimiento: number;
   costoHora: number;
   costo: number;
+  busqueda?: string;
+  mostrarOpciones?: boolean;
+  opcionesFiltradas?: any[];
+  estiloLista?: { [propiedad: string]: string };
+  inputRef?: HTMLInputElement;
+  /** Cantidad actualmente descontada del stock del catálogo para esta fila. */
+  cantidadReservada?: number;
 }
 
 export interface ManoObraCalculo {
@@ -41,6 +48,11 @@ export interface ManoObraCalculo {
   rendimiento: number;
   costoHora: number;
   costo: number;
+  busqueda?: string;
+  mostrarOpciones?: boolean;
+  opcionesFiltradas?: any[];
+  estiloLista?: { [propiedad: string]: string };
+  inputRef?: HTMLInputElement;
 }
 
 export interface MaterialesCalculo {
@@ -52,6 +64,13 @@ export interface MaterialesCalculo {
   cantidad: number;
   unitario: number;
   costo: number;
+  busqueda?: string;
+  mostrarOpciones?: boolean;
+  opcionesFiltradas?: any[];
+  estiloLista?: { [propiedad: string]: string };
+  inputRef?: HTMLInputElement;
+  /** Cantidad actualmente descontada del stock del catálogo para esta fila. */
+  cantidadReservada?: number;
 }
 
 /**
@@ -205,16 +224,20 @@ export class CalculoApuComponent implements OnInit {
   }
 
   private detalleAEquipo(d: any): EquipoCalculo {
+    const cantidad = Number(d.cantidad) || 0;
     return {
       id: d.insumo_id,
       descripcion: d.descripcion || '',
       unidad: d.unidad || '',
       stock: 0, // se refresca solo si el usuario vuelve a elegir el insumo en el combo
-      cantidad: Number(d.cantidad) || 0,
+      cantidad,
       tarifa: Number(d.costo_unitario) || 0,
       rendimiento: Number(d.rendimiento) || 0,
-      costoHora: (Number(d.cantidad) || 0) * (Number(d.costo_unitario) || 0),
-      costo: Number(d.subtotal) || 0
+      costoHora: cantidad * (Number(d.costo_unitario) || 0),
+      costo: Number(d.subtotal) || 0,
+      busqueda: d.descripcion || '',
+      // esta cantidad ya fue descontada del stock cuando se guardó el rubro por primera vez
+      cantidadReservada: cantidad
     };
   }
 
@@ -227,19 +250,24 @@ export class CalculoApuComponent implements OnInit {
       tarifa: Number(d.costo_unitario) || 0,
       rendimiento: Number(d.rendimiento) || 0,
       costoHora: (Number(d.cantidad) || 0) * (Number(d.costo_unitario) || 0),
-      costo: Number(d.subtotal) || 0
+      costo: Number(d.subtotal) || 0,
+      busqueda: d.descripcion || ''
     };
   }
 
   private detalleAMaterial(d: any): MaterialesCalculo {
+    const cantidad = Number(d.cantidad) || 0;
     return {
       id: d.insumo_id,
       descripcion: d.descripcion || '',
       unidad: d.unidad || '',
       stock: 0,
-      cantidad: Number(d.cantidad) || 0,
+      cantidad,
       unitario: Number(d.costo_unitario) || 0,
-      costo: Number(d.subtotal) || 0
+      costo: Number(d.subtotal) || 0,
+      busqueda: d.descripcion || '',
+      // esta cantidad ya fue descontada del stock cuando se guardó el rubro por primera vez
+      cantidadReservada: cantidad
     };
   }
 
@@ -339,104 +367,283 @@ export class CalculoApuComponent implements OnInit {
 
   /* ==================== AGREGAR / ELIMINAR FILAS ==================== */
   agregarEquipo(): void {
-    this.equiposList.push({ descripcion: '', stock: 0, cantidad: 1, tarifa: 0, rendimiento: 0, costoHora: 0, costo: 0.00 });
+    this.equiposList.push({ descripcion: '', stock: 0, cantidad: 1, tarifa: 0, rendimiento: 0, costoHora: 0, costo: 0.00, busqueda: '', mostrarOpciones: false, opcionesFiltradas: [] });
   }
 
   agregarManoObra(): void {
-    this.manoObraList.push({ descripcion: '', cantidad: 1, tarifa: 0, rendimiento: 0, costoHora: 0, costo: 0.00 });
+    this.manoObraList.push({ descripcion: '', cantidad: 1, tarifa: 0, rendimiento: 0, costoHora: 0, costo: 0.00, busqueda: '', mostrarOpciones: false, opcionesFiltradas: [] });
   }
 
   agregarMaterial(): void {
-    this.materialesList.push({ descripcion: '', unidad: '', cantidad: 1, stock: 0, unitario: 0, costo: 0.00 });
+    this.materialesList.push({ descripcion: '', unidad: '', cantidad: 1, stock: 0, unitario: 0, costo: 0.00, busqueda: '', mostrarOpciones: false, opcionesFiltradas: [] });
   }
 
   agregarTransporte(): void {
-    this.transporteList.push({ descripcion: '', unidad: '', cantidad: 1, stock: 0, unitario: 0, costo: 0.00 });
+    this.transporteList.push({ descripcion: '', unidad: '', cantidad: 1, stock: 0, unitario: 0, costo: 0.00, busqueda: '', mostrarOpciones: false, opcionesFiltradas: [] });
   }
 
-  eliminarEquipo(index: number): void { this.equiposList.splice(index, 1); this.calcularTodo(); }
+  eliminarEquipo(index: number): void {
+    const item = this.equiposList[index];
+    this.devolverStockEquipo(item.id, item.cantidadReservada);
+    this.equiposList.splice(index, 1);
+    this.calcularTodo();
+  }
+
   eliminarManoObra(index: number): void { this.manoObraList.splice(index, 1); this.calcularTodo(); }
-  eliminarMaterial(index: number): void { this.materialesList.splice(index, 1); this.calcularTodo(); }
-  eliminarTransporte(index: number): void { this.transporteList.splice(index, 1); this.calcularTodo(); }
 
-  /* ==================== MÉTODOS DE SELECCIÓN ==================== */
-  seleccionarEquipo(item: EquipoCalculo, event: Event): void {
-    const id = Number((event.target as HTMLSelectElement).value);
+  eliminarMaterial(index: number): void {
+    const item = this.materialesList[index];
+    this.devolverStockMaterial(item.id, item.cantidadReservada);
+    this.materialesList.splice(index, 1);
+    this.calcularTodo();
+  }
+
+  eliminarTransporte(index: number): void {
+    const item = this.transporteList[index];
+    this.devolverStockEquipo(item.id, item.cantidadReservada);
+    this.transporteList.splice(index, 1);
+    this.calcularTodo();
+  }
+
+  /* ==================== DESCUENTO DE STOCK EN BASE DE DATOS ====================
+     Al elegir un insumo se reserva (descuenta) su cantidad del stock real en Supabase;
+     si luego cambia la cantidad, se elimina la fila o se cancela el cálculo, la reserva
+     se ajusta o se devuelve. Al guardar el cálculo, la reserva queda como consumo definitivo. */
+  private devolverStockEquipo(id: number | undefined, cantidad: number | undefined): void {
+    if (!id || !cantidad) return;
     const eq = this.catalogoEquipos.find(e => e.id === id);
-    if (eq) {
-      Object.assign(item, {
-        id: eq.id,
-        codigo: eq.codigo,
-        descripcion: eq.descripcion,
-        unidad: eq.unidad,
-        tarifa: eq.precio,
-        stock: eq.stock
-      });
-      this.validarStock(item);
+    if (!eq) return;
+    eq.stock = (eq.stock || 0) + cantidad;
+    this.equiposService.actualizarStock(id, eq.stock).subscribe();
+  }
+
+  private devolverStockMaterial(id: number | undefined, cantidad: number | undefined): void {
+    if (!id || !cantidad) return;
+    const mat = this.catalogoMateriales.find(m => m.id === id);
+    if (!mat) return;
+    mat.stock = (mat.stock || 0) + cantidad;
+    this.materialesService.actualizarStock(id, mat.stock).subscribe();
+  }
+
+  /* ==================== AUTOCOMPLETADO (equipo / mano de obra / materiales / transporte) ==================== */
+  private filtrarCatalogo<T extends { descripcion: string }>(texto: string, catalogo: T[]): T[] {
+    const t = (texto || '').toLowerCase().trim();
+    if (!t) return catalogo;
+    return catalogo.filter(o => (o.descripcion || '').toLowerCase().includes(t));
+  }
+
+  /** Cierra la lista de sugerencias con un pequeño retraso para permitir que el (mousedown) de la opción se dispare antes que el blur. */
+  cerrarOpciones(item: { mostrarOpciones?: boolean }): void {
+    setTimeout(() => { item.mostrarOpciones = false; }, 150);
+  }
+
+  /**
+   * Calcula la posición (fixed, relativa al viewport) de la lista de sugerencias, anclada
+   * justo encima del input. Al ser "fixed" no queda recortada por el overflow:hidden de las
+   * tarjetas (.card), que de otro modo cortaban la lista contra el borde de la sección.
+   */
+  private posicionarListaSobre(inputEl: HTMLInputElement): { [propiedad: string]: string } {
+    const rect = inputEl.getBoundingClientRect();
+    return {
+      position: 'fixed',
+      left: rect.left + 'px',
+      width: rect.width + 'px',
+      bottom: (window.innerHeight - rect.top + 4) + 'px'
+    };
+  }
+
+  /**
+   * Al ser "fixed", la lista no se desplaza junto con la página al hacer scroll (se queda
+   * clavada al viewport). Este listener recalcula su posición en cada scroll/resize para que
+   * se mantenga siempre pegada al input que la abrió, como si fuera parte del flujo normal.
+   */
+  @HostListener('window:scroll')
+  @HostListener('window:resize')
+  reposicionarListasAbiertas(): void {
+    const todas: Array<EquipoCalculo | ManoObraCalculo | MaterialesCalculo> = [
+      ...this.equiposList,
+      ...this.manoObraList,
+      ...this.materialesList,
+      ...this.transporteList
+    ];
+    for (const item of todas) {
+      if (item.mostrarOpciones && item.inputRef) {
+        item.estiloLista = this.posicionarListaSobre(item.inputRef);
+      }
     }
   }
 
-  seleccionarManoObra(item: ManoObraCalculo, event: Event): void {
-    const id = Number((event.target as HTMLSelectElement).value);
-    const mo = this.catalogManoObra.find(e => e.id === id);
-    if (mo) {
-      Object.assign(item, {
-        id: mo.id,
-        codigo: mo.codigo,
-        descripcion: mo.descripcion,
-        unidad: mo.unidad,
-        tarifa: mo.precio
-      });
-      this.calcularTodo();
-    }
+  buscarEquipo(item: EquipoCalculo, inputEl: HTMLInputElement): void {
+    item.opcionesFiltradas = this.filtrarCatalogo(item.busqueda || '', this.catalogoEquipos);
+    item.mostrarOpciones = true;
+    item.inputRef = inputEl;
+    item.estiloLista = this.posicionarListaSobre(inputEl);
   }
 
-  seleccionarMateriales(item: MaterialesCalculo, event: Event): void {
-    const id = Number((event.target as HTMLSelectElement).value);
-    const mat = this.catalogoMateriales.find(e => e.id === id);
-    if (mat) {
-      Object.assign(item, {
-        id: mat.id,
-        codigo: mat.codigo,
-        descripcion: mat.descripcion,
-        unidad: mat.unidad,
-        unitario: mat.precio,
-        stock: mat.stock
-      });
-      this.validarStockMat(item);
-    }
+  elegirEquipo(item: EquipoCalculo, eq: equipos): void {
+    if ((eq.stock || 0) <= 0) return;
+    // libera la reserva de la selección anterior de esta fila (si había) antes de tomar la nueva
+    this.devolverStockEquipo(item.id, item.cantidadReservada);
+    Object.assign(item, {
+      id: eq.id,
+      codigo: eq.codigo,
+      descripcion: eq.descripcion,
+      unidad: eq.unidad,
+      tarifa: eq.precio,
+      stock: eq.stock,
+      busqueda: eq.descripcion,
+      mostrarOpciones: false,
+      cantidadReservada: 0
+    });
+    this.validarStock(item);
   }
 
-  seleccionarTransporte(item: MaterialesCalculo, event: Event): void {
-    const id = Number((event.target as HTMLSelectElement).value);
-    const tr = this.catalogoEquipos.find(e => e.id === id);
-    if (tr) {
-      Object.assign(item, {
-        id: tr.id,
-        codigo: tr.codigo,
-        descripcion: tr.descripcion,
-        unidad: tr.unidad,
-        unitario: tr.precio,
-        stock: tr.stock
-      });
-      this.validarStockMat(item);
-    }
+  buscarManoObra(item: ManoObraCalculo, inputEl: HTMLInputElement): void {
+    item.opcionesFiltradas = this.filtrarCatalogo(item.busqueda || '', this.catalogManoObra);
+    item.mostrarOpciones = true;
+    item.inputRef = inputEl;
+    item.estiloLista = this.posicionarListaSobre(inputEl);
+  }
+
+  elegirManoObra(item: ManoObraCalculo, mo: ManoObra): void {
+    Object.assign(item, {
+      id: mo.id,
+      codigo: mo.codigo,
+      descripcion: mo.descripcion,
+      unidad: mo.unidad,
+      tarifa: mo.precio,
+      busqueda: mo.descripcion,
+      mostrarOpciones: false
+    });
+    this.calcularTodo();
+  }
+
+  buscarMaterial(item: MaterialesCalculo, inputEl: HTMLInputElement): void {
+    item.opcionesFiltradas = this.filtrarCatalogo(item.busqueda || '', this.catalogoMateriales);
+    item.mostrarOpciones = true;
+    item.inputRef = inputEl;
+    item.estiloLista = this.posicionarListaSobre(inputEl);
+  }
+
+  elegirMaterial(item: MaterialesCalculo, mat: materiales): void {
+    if ((mat.stock || 0) <= 0) return;
+    // libera la reserva de la selección anterior de esta fila (si había) antes de tomar la nueva
+    this.devolverStockMaterial(item.id, item.cantidadReservada);
+    Object.assign(item, {
+      id: mat.id,
+      codigo: mat.codigo,
+      descripcion: mat.descripcion,
+      unidad: mat.unidad,
+      unitario: mat.precio,
+      stock: mat.stock,
+      busqueda: mat.descripcion,
+      mostrarOpciones: false,
+      cantidadReservada: 0
+    });
+    this.validarStockMat(item);
+  }
+
+  buscarTransporte(item: MaterialesCalculo, inputEl: HTMLInputElement): void {
+    item.opcionesFiltradas = this.filtrarCatalogo(item.busqueda || '', this.catalogoTransportes);
+    item.mostrarOpciones = true;
+    item.inputRef = inputEl;
+    item.estiloLista = this.posicionarListaSobre(inputEl);
+  }
+
+  elegirTransporte(item: MaterialesCalculo, tr: equipos): void {
+    if ((tr.stock || 0) <= 0) return;
+    // el transporte se descuenta del catálogo de equipos, no del de materiales
+    this.devolverStockEquipo(item.id, item.cantidadReservada);
+    Object.assign(item, {
+      id: tr.id,
+      codigo: tr.codigo,
+      descripcion: tr.descripcion,
+      unidad: tr.unidad,
+      unitario: tr.precio,
+      stock: tr.stock,
+      busqueda: tr.descripcion,
+      mostrarOpciones: false,
+      cantidadReservada: 0
+    });
+    this.validarStockTransporte(item);
   }
 
   /* ==================== VALIDACIONES Y CÁLCULOS APU ==================== */
+  /**
+   * Valida que la cantidad no supere el stock disponible y descuenta/devuelve en Supabase
+   * solo la diferencia (delta) respecto a lo ya reservado por esta fila, para que el stock
+   * del catálogo quede siempre reflejando lo realmente consumido.
+   */
   validarStock(item: EquipoCalculo): void {
-    if ((item.stock !== undefined) && (item.cantidad || 0) > item.stock) {
-      this.mostrarError(`Stock insuficiente para ${item.descripcion}. Máximo disponible: (${item.stock})`);
-      item.cantidad = item.stock;
+    const reservadaPrevia = item.cantidadReservada || 0;
+    const eq = this.catalogoEquipos.find(e => e.id === item.id);
+    const disponibleTotal = (eq ? eq.stock : (item.stock || 0)) + reservadaPrevia;
+
+    if ((item.cantidad || 0) > disponibleTotal) {
+      this.mostrarError(`Stock insuficiente para ${item.descripcion}. Máximo disponible: (${disponibleTotal})`);
+      item.cantidad = disponibleTotal;
     }
+
+    if (item.id && eq) {
+      const nuevaCantidad = item.cantidad || 0;
+      const delta = nuevaCantidad - reservadaPrevia;
+      if (delta !== 0) {
+        eq.stock = Math.max(0, (eq.stock || 0) - delta);
+        this.equiposService.actualizarStock(eq.id!, eq.stock).subscribe();
+        item.stock = eq.stock;
+      }
+      item.cantidadReservada = nuevaCantidad;
+    }
+
     this.calcularTodo();
   }
 
   validarStockMat(item: MaterialesCalculo): void {
-    if ((item.stock !== undefined) && (item.cantidad || 0) > item.stock) {
-      this.mostrarError(`Stock insuficiente para ${item.descripcion}. Máximo disponible: (${item.stock})`);
-      item.cantidad = item.stock;
+    const reservadaPrevia = item.cantidadReservada || 0;
+    const mat = this.catalogoMateriales.find(m => m.id === item.id);
+    const disponibleTotal = (mat ? mat.stock : (item.stock || 0)) + reservadaPrevia;
+
+    if ((item.cantidad || 0) > disponibleTotal) {
+      this.mostrarError(`Stock insuficiente para ${item.descripcion}. Máximo disponible: (${disponibleTotal})`);
+      item.cantidad = disponibleTotal;
     }
+
+    if (item.id && mat) {
+      const nuevaCantidad = item.cantidad || 0;
+      const delta = nuevaCantidad - reservadaPrevia;
+      if (delta !== 0) {
+        mat.stock = Math.max(0, (mat.stock || 0) - delta);
+        this.materialesService.actualizarStock(mat.id!, mat.stock).subscribe();
+        item.stock = mat.stock;
+      }
+      item.cantidadReservada = nuevaCantidad;
+    }
+
+    this.calcularTodo();
+  }
+
+  /** Igual que validarStockMat, pero para transporte: el catálogo es el de equipos, no el de materiales. */
+  validarStockTransporte(item: MaterialesCalculo): void {
+    const reservadaPrevia = item.cantidadReservada || 0;
+    const eq = this.catalogoEquipos.find(e => e.id === item.id);
+    const disponibleTotal = (eq ? eq.stock : (item.stock || 0)) + reservadaPrevia;
+
+    if ((item.cantidad || 0) > disponibleTotal) {
+      this.mostrarError(`Stock insuficiente para ${item.descripcion}. Máximo disponible: (${disponibleTotal})`);
+      item.cantidad = disponibleTotal;
+    }
+
+    if (item.id && eq) {
+      const nuevaCantidad = item.cantidad || 0;
+      const delta = nuevaCantidad - reservadaPrevia;
+      if (delta !== 0) {
+        eq.stock = Math.max(0, (eq.stock || 0) - delta);
+        this.equiposService.actualizarStock(eq.id!, eq.stock).subscribe();
+        item.stock = eq.stock;
+      }
+      item.cantidadReservada = nuevaCantidad;
+    }
+
     this.calcularTodo();
   }
 
@@ -476,7 +683,16 @@ export class CalculoApuComponent implements OnInit {
     this.totalDirecto = this.subtotalEquipos + this.subtotalManoObra + this.subtotalMateriales + this.subtotalTransporte;
   }
 
+  /** Botón "Limpiar Cálculo": al cancelar el borrador se devuelve al stock todo lo reservado. */
   limpiarCalculos(): void {
+    this.equiposList.forEach(item => this.devolverStockEquipo(item.id, item.cantidadReservada));
+    this.materialesList.forEach(item => this.devolverStockMaterial(item.id, item.cantidadReservada));
+    this.transporteList.forEach(item => this.devolverStockEquipo(item.id, item.cantidadReservada));
+    this.limpiarFormulario();
+  }
+
+  /** Resetea el formulario sin tocar el stock (la reserva ya quedó guardada como consumo definitivo). */
+  private limpiarFormulario(): void {
     this.modoEdicion = false;
     this.rubroIdEdicion = null;
     this.subcategoriaId = null;
@@ -535,7 +751,8 @@ export class CalculoApuComponent implements OnInit {
           : 'Cálculo APU y Rubro guardados exitosamente en la base de datos.';
 
         // Siempre se limpia el formulario después de guardar, sea creación o edición.
-        this.limpiarCalculos();
+        // Se usa limpiarFormulario() (no limpiarCalculos()) para no devolver el stock recién consumido.
+        this.limpiarFormulario();
 
         this.irAlInicio();
         this.cdr.detectChanges();

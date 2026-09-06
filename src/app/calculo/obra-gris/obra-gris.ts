@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from "@angular/material/icon";
 import { forkJoin } from 'rxjs';
 import { Rubro, RubrosObraGrisService } from '../../core/services/rubros-obra-gris.service';
+import { ApuService } from '../../core/services/apu.service';
 import { Router } from '@angular/router';
 
 interface GrupoSubcategoria {
@@ -27,7 +28,12 @@ export class ObraGris implements OnInit {
   subcategoriaSeleccionada: string = '';
   cargando: boolean = false;
 
-  constructor(private rubrosObraGrisService: RubrosObraGrisService, private router: Router) {}
+  constructor(
+    private rubrosObraGrisService: RubrosObraGrisService,
+    private apuService: ApuService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.cargarDatos();
@@ -50,10 +56,12 @@ export class ObraGris implements OnInit {
         this.rubrosMostrados = [...this.todosLosRubros];
         this.armarGrupos(compararCodigo);
         this.cargando = false;
+        this.cdr.detectChanges(); // fuerza el repintado: los datos de Supabase llegan fuera de la zona de Angular
       },
       error: (err) => {
         console.error('Error al cargar datos de Obra Gris:', err);
         this.cargando = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -90,6 +98,28 @@ export class ObraGris implements OnInit {
     this.router.navigate(['/calculo-apu-component', 'obra-gris'], {
       queryParams: {
         rubroId: rubro.id
+      }
+    });
+  }
+
+  eliminarRubro(rubro: Rubro, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    if (!confirm(`¿Eliminar el rubro "${rubro.codigo} - ${rubro.descripcion}"? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+
+    this.apuService.eliminar(rubro.id, 'rubros').subscribe({
+      next: () => {
+        this.todosLosRubros = this.todosLosRubros.filter(r => r.id !== rubro.id);
+        this.rubrosMostrados = this.rubrosMostrados.filter(r => r.id !== rubro.id);
+        this.armarGrupos((a, b) => a.codigo.localeCompare(b.codigo, undefined, { numeric: true, sensitivity: 'base' }));
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error al eliminar el rubro:', err);
+        this.cdr.detectChanges();
       }
     });
   }

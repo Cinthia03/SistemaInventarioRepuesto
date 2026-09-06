@@ -53,9 +53,14 @@
                   class="btn-editar-rubro"
                   title="Editar APU"
                   (click)="editarRubro(r, $event)">
-
                   <mat-icon>edit</mat-icon>
-                  Editar
+                </button>
+                <button
+                  type="button"
+                  class="btn-eliminar-rubro"
+                  title="Eliminar rubro"
+                  (click)="eliminarRubro(r, $event)">
+                  <mat-icon>delete</mat-icon>
                 </button>
               </div>
             </div>
@@ -180,9 +185,14 @@
                 class="btn-editar-rubro"
                 title="Editar APU"
                 (click)="editarRubro(r, $event)">
-
                 <mat-icon>edit</mat-icon>
-                Editar
+              </button>
+              <button
+                type="button"
+                class="btn-eliminar-rubro"
+                title="Eliminar rubro"
+                (click)="eliminarRubro(r, $event)">
+                <mat-icon>delete</mat-icon>
               </button>
             </div>
           </div>

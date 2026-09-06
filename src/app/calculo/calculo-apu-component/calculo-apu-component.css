@@ -217,6 +217,64 @@
   background-color: #f8fafc;
 }
 
+/* ==========================================================================
+   AUTOCOMPLETADO (equipo / mano de obra / materiales / transporte)
+   ========================================================================== */
+.autocomplete-wrapper {
+  position: relative;
+}
+
+.autocomplete-input {
+  cursor: text;
+}
+
+.autocomplete-lista {
+  position: fixed;
+  z-index: 9999;
+  max-height: 220px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+  background: var(--color-card);
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-sm);
+  box-shadow: var(--sombra-hover);
+}
+
+.autocomplete-item {
+  padding: 8px 14px;
+  font-size: 13.5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.autocomplete-item:hover {
+  background: #eff6ff;
+}
+
+.autocomplete-item--sin-stock {
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.autocomplete-item--sin-stock:hover {
+  background: #f8fafc;
+}
+
+.autocomplete-vacio {
+  position: fixed;
+  z-index: 9999;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--color-texto-suave);
+  font-style: italic;
+  background: var(--color-card);
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-sm);
+  box-shadow: var(--sombra-hover);
+}
+
 /* ENCABEZADO DINÁMICO DEL RUBRO SELECCIONADO */
 .rubro-titulo {
   display: flex;
