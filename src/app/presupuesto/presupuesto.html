@@ -319,7 +319,7 @@
         <span>{{ p.creado_en | date:'dd/MM/yyyy HH:mm' }}</span>
         <span class="text-right font-bold">${{ p.total | number:'1.2-2' }}</span>
         <span class="historial-fila__acciones">
-          <button type="button" class="btn-editar-rubro" (click)="verDetalle(p.id); $event.stopPropagation()">
+          <button type="button" class="btn-ver-presupuesto" (click)="verDetalle(p.id); $event.stopPropagation()">
             <mat-icon>visibility</mat-icon> Ver
           </button>
           <button type="button" class="btn-eliminar-presupuesto" (click)="eliminarPresupuesto(p.id, $event)">

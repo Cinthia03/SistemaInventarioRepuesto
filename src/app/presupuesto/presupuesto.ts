@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -91,6 +91,7 @@ export class Presupuesto implements OnInit {
   private readonly rubrosElectricoService = inject(RubrosInstalacionesElectricasService);
   private readonly presupuestosService = inject(PresupuestosService);
   private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     this.cargarPresupuesto();
@@ -118,10 +119,12 @@ export class Presupuesto implements OnInit {
       next: (detalle: PresupuestoDetalle) => {
         this.presupuestoDetalle = detalle;
         this.cargandoDetalle = false;
+        this.cdr.detectChanges(); // fuerza el repintado: los datos de Supabase llegan fuera de la zona de Angular
       },
       error: (err: any) => {
         console.error('Error al cargar el detalle del presupuesto:', err);
         this.cargandoDetalle = false;
+        this.cdr.detectChanges();
       },
     });
   }
@@ -141,7 +144,10 @@ export class Presupuesto implements OnInit {
 
     this.presupuestosService.eliminarPresupuesto(id).subscribe({
       next: () => this.cargarHistorial(),
-      error: (err: any) => console.error('Error al eliminar el presupuesto:', err),
+      error: (err: any) => {
+        console.error('Error al eliminar el presupuesto:', err);
+        this.cdr.detectChanges();
+      },
     });
   }
 
@@ -210,10 +216,12 @@ export class Presupuesto implements OnInit {
 
         this.recalcularTotalGeneral();
         this.cargando = false;
+        this.cdr.detectChanges(); // fuerza el repintado: los datos de Supabase llegan fuera de la zona de Angular
       },
       error: (err: any) => {
         console.error('Error al cargar el presupuesto general:', err);
         this.cargando = false;
+        this.cdr.detectChanges();
       },
     });
   }
@@ -330,11 +338,13 @@ export class Presupuesto implements OnInit {
           this.guardando = false;
           this.mensajeGuardado = 'Presupuesto guardado correctamente.';
           this.nombrePresupuesto = '';
+          this.cdr.detectChanges(); // fuerza el repintado: los datos de Supabase llegan fuera de la zona de Angular
         },
         error: (err: any) => {
           console.error('Error al guardar el presupuesto:', err);
           this.guardando = false;
           this.mensajeGuardado = 'Ocurrió un error al guardar el presupuesto.';
+          this.cdr.detectChanges();
         },
       });
   }
@@ -350,10 +360,12 @@ export class Presupuesto implements OnInit {
       next: (data: PresupuestoResumen[]) => {
         this.presupuestosGuardados = data;
         this.cargandoHistorial = false;
+        this.cdr.detectChanges(); // fuerza el repintado: los datos de Supabase llegan fuera de la zona de Angular
       },
       error: (err: any) => {
         console.error('Error al listar presupuestos guardados:', err);
         this.cargandoHistorial = false;
+        this.cdr.detectChanges();
       },
     });
   }
