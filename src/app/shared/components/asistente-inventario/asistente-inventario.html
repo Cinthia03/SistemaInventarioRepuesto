@@ -1,0 +1,314 @@
+<!-- BOTÓN FLOTANTE -->
+<button
+  class="lanzador"
+  *ngIf="!abierto"
+  (click)="toggle()"
+  aria-label="Abrir asistente virtual de inventario"
+>
+  <span class="lanzador-avatar">
+    <svg viewBox="0 0 64 64" class="avatar-svg" aria-hidden="true">
+      <circle cx="32" cy="32" r="32" fill="#133b4b" />
+      <path d="M32 10c-9 0-15 6.5-15 15.5 0 4 1.2 7.6 3.3 10.6-1 .6-1.9 1.4-2.6 2.4C15.4 41 14 44.4 14 48v3c0 1.1.9 2 2 2h32c1.1 0 2-.9 2-2v-3c0-3.6-1.4-7-3.7-9.5-.7-1-1.6-1.8-2.6-2.4 2.1-3 3.3-6.6 3.3-10.6C47 16.5 41 10 32 10z" fill="#ffe0c2"/>
+      <path d="M32 8c-10.5 0-17.5 7.2-17.5 17 0 3 .6 5.7 1.7 8-.6-2.7-.3-5.6.9-8.2 1.7-3.6 5-6.3 9.4-6.9 3.6-.5 6 .8 8.6 2 2.7 1.2 5.6 2.5 9.6 1.7 1 2 1.5 4.3 1.5 6.7v-2.3c1.1-2.3 1.7-5 1.7-8C47.9 15.2 42.5 8 32 8z" fill="#3d2b1f"/>
+      <circle cx="25.5" cy="30" r="2" fill="#3d2b1f"/>
+      <circle cx="38.5" cy="30" r="2" fill="#3d2b1f"/>
+      <path d="M26 37c2 2 10 2 12 0" stroke="#8a4a3a" stroke-width="2" stroke-linecap="round" fill="none"/>
+    </svg>
+  </span>
+  <span class="lanzador-punto"></span>
+</button>
+
+<!-- PANEL DEL ASISTENTE -->
+<div class="panel" *ngIf="abierto">
+
+  <!-- ENCABEZADO -->
+  <div class="panel-header">
+    <div class="panel-header__izq">
+      <button
+        class="btn-volver"
+        *ngIf="pantalla !== 'menu'"
+        (click)="irAMenu()"
+        aria-label="Volver al menú"
+      >
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+
+      <span class="panel-avatar">
+        <svg viewBox="0 0 64 64" class="avatar-svg" aria-hidden="true">
+          <circle cx="32" cy="32" r="32" fill="#ffffff33" />
+          <path d="M32 10c-9 0-15 6.5-15 15.5 0 4 1.2 7.6 3.3 10.6-1 .6-1.9 1.4-2.6 2.4C15.4 41 14 44.4 14 48v3c0 1.1.9 2 2 2h32c1.1 0 2-.9 2-2v-3c0-3.6-1.4-7-3.7-9.5-.7-1-1.6-1.8-2.6-2.4 2.1-3 3.3-6.6 3.3-10.6C47 16.5 41 10 32 10z" fill="#ffe0c2"/>
+          <path d="M32 8c-10.5 0-17.5 7.2-17.5 17 0 3 .6 5.7 1.7 8-.6-2.7-.3-5.6.9-8.2 1.7-3.6 5-6.3 9.4-6.9 3.6-.5 6 .8 8.6 2 2.7 1.2 5.6 2.5 9.6 1.7 1 2 1.5 4.3 1.5 6.7v-2.3c1.1-2.3 1.7-5 1.7-8C47.9 15.2 42.5 8 32 8z" fill="#3d2b1f"/>
+          <circle cx="25.5" cy="30" r="2" fill="#3d2b1f"/>
+          <circle cx="38.5" cy="30" r="2" fill="#3d2b1f"/>
+          <path d="M26 37c2 2 10 2 12 0" stroke="#8a4a3a" stroke-width="2" stroke-linecap="round" fill="none"/>
+        </svg>
+      </span>
+
+      <div class="panel-titulos">
+        <strong>{{ nombreAsistente }}</strong>
+        <span>Asistente virtual de Inventario</span>
+      </div>
+    </div>
+
+    <button class="btn-cerrar" (click)="cerrar()" aria-label="Cerrar asistente">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- CUERPO -->
+  <div class="panel-body">
+
+    <!-- ================= MENÚ PRINCIPAL ================= -->
+    <ng-container *ngIf="pantalla === 'menu'">
+      <div class="burbuja">
+        ¡Hola! Soy {{ nombreAsistente }} 👋 Puedo ayudarte a revisar el
+        inventario y a actualizar precios desde una factura XML. ¿Qué
+        necesitas hacer?
+      </div>
+
+      <div class="opciones">
+        <button class="opcion" (click)="irA('stock')">
+          <mat-icon>warning_amber</mat-icon>
+          <span>
+            <strong>Ver stock bajo</strong>
+            <small>Materiales que necesitan reabastecerse</small>
+          </span>
+        </button>
+
+        <button class="opcion" (click)="irA('actividad')">
+          <mat-icon>history</mat-icon>
+          <span>
+            <strong>Actividad reciente</strong>
+            <small>Últimos movimientos del inventario</small>
+          </span>
+        </button>
+
+        <button class="opcion opcion--destacada" (click)="irA('subir')">
+          <mat-icon>description</mat-icon>
+          <span>
+            <strong>Actualizar precios desde XML</strong>
+            <small>Sube una factura electrónica y actualizo los precios</small>
+          </span>
+        </button>
+
+        <button class="opcion" (click)="irA('ayuda')">
+          <mat-icon>help_outline</mat-icon>
+          <span>
+            <strong>¿Qué puedes hacer?</strong>
+            <small>Conoce todas mis funciones</small>
+          </span>
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- ================= STOCK BAJO ================= -->
+    <ng-container *ngIf="pantalla === 'stock'">
+      <div class="burbuja">
+        Tienes <strong>{{ itemsStockBajo }}</strong> material(es) con stock
+        bajo de un total de <strong>{{ totalMateriales }}</strong> registrados.
+      </div>
+
+      <div class="lista-simple" *ngIf="alertasStock.length; else sinAlertas">
+        <div class="fila-simple" *ngFor="let alerta of alertasStock">
+          <mat-icon class="icono-alerta">inventory_2</mat-icon>
+          <div class="fila-simple__texto">
+            <strong>{{ alerta.descripcion || alerta.nombre }}</strong>
+            <small>Código {{ alerta.codigo }} · Stock actual: {{ alerta.stock }}</small>
+          </div>
+        </div>
+      </div>
+      <ng-template #sinAlertas>
+        <div class="burbuja burbuja--suave">
+          🎉 No hay alertas de stock bajo en este momento.
+        </div>
+      </ng-template>
+    </ng-container>
+
+    <!-- ================= ACTIVIDAD RECIENTE ================= -->
+    <ng-container *ngIf="pantalla === 'actividad'">
+      <div class="burbuja">
+        Esto es lo último que se registró en el inventario:
+      </div>
+
+      <div class="lista-simple" *ngIf="actividadReciente.length; else sinActividad">
+        <div class="fila-simple" *ngFor="let act of actividadReciente">
+          <mat-icon class="icono-actividad">bolt</mat-icon>
+          <div class="fila-simple__texto">
+            <strong>{{ act.descripcion }}</strong>
+            <small>{{ act.tipo }} · {{ act.codigo }}</small>
+          </div>
+        </div>
+      </div>
+      <ng-template #sinActividad>
+        <div class="burbuja burbuja--suave">
+          Todavía no hay actividad registrada.
+        </div>
+      </ng-template>
+    </ng-container>
+
+    <!-- ================= AYUDA ================= -->
+    <ng-container *ngIf="pantalla === 'ayuda'">
+      <div class="burbuja">
+        Estas son las cosas en las que te puedo ayudar dentro del módulo de
+        Inventario:
+      </div>
+      <ul class="lista-ayuda">
+        <li>📉 Mostrarte los materiales con stock bajo.</li>
+        <li>🕒 Mostrarte la actividad reciente del inventario.</li>
+        <li>
+          🧾 Leer una <strong>factura electrónica XML</strong> del SRI,
+          buscar cada producto por su descripción entre tus materiales y
+          proponerte el precio nuevo antes de aplicar ningún cambio.
+        </li>
+        <li>✅ Actualizar el precio solo de los productos que tú confirmes.</li>
+      </ul>
+    </ng-container>
+
+    <!-- ================= SUBIR XML ================= -->
+    <ng-container *ngIf="pantalla === 'subir'">
+      <div class="burbuja">
+        Sube una o varias facturas electrónicas en formato
+        <strong>.xml</strong>. Voy a comparar la descripción de cada producto
+        con tu catálogo de materiales para proponerte los precios nuevos.
+      </div>
+
+      <label class="zona-subida">
+        <input
+          type="file"
+          accept=".xml,text/xml,application/xml"
+          multiple
+          hidden
+          (change)="onArchivosSeleccionados($event)"
+        />
+        <mat-icon>upload_file</mat-icon>
+        <span>Seleccionar archivo(s) XML</span>
+      </label>
+
+      <div class="lista-archivos" *ngIf="archivosSeleccionados.length">
+        <div class="archivo-item" *ngFor="let archivo of archivosSeleccionados; let i = index">
+          <mat-icon>description</mat-icon>
+          <span class="archivo-nombre">{{ archivo.name }}</span>
+          <button class="btn-icono-mini" (click)="quitarArchivo(i)" aria-label="Quitar archivo">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="errores" *ngIf="erroresArchivos.length">
+        <div class="error-item" *ngFor="let err of erroresArchivos">
+          ⚠️ {{ err }}
+        </div>
+      </div>
+
+      <button
+        class="btn-primario"
+        [disabled]="archivosSeleccionados.length === 0 || cargando"
+        (click)="procesarArchivos()"
+      >
+        <mat-icon *ngIf="!cargando">search</mat-icon>
+        <span *ngIf="!cargando">Procesar factura(s)</span>
+        <span *ngIf="cargando">Analizando…</span>
+      </button>
+    </ng-container>
+
+    <!-- ================= REVISIÓN DE PROPUESTAS ================= -->
+    <ng-container *ngIf="pantalla === 'revision'">
+
+      <div class="burbuja">
+        Encontré <strong>{{ totalConCoincidencia }}</strong> producto(s) que
+        coinciden con tu inventario
+        <ng-container *ngIf="totalSinCoincidencia > 0">
+          y <strong>{{ totalSinCoincidencia }}</strong> sin coincidencia
+        </ng-container>.
+        Revisa los precios antes de aplicarlos.
+      </div>
+
+      <div class="errores" *ngIf="erroresArchivos.length">
+        <div class="error-item" *ngFor="let err of erroresArchivos">
+          ⚠️ {{ err }}
+        </div>
+      </div>
+
+      <div class="acciones-masivas" *ngIf="totalConCoincidencia > 0">
+        <button class="btn-texto" (click)="marcarTodas(true)">Marcar todas</button>
+        <button class="btn-texto" (click)="marcarTodas(false)">Desmarcar todas</button>
+      </div>
+
+      <div class="lista-propuestas">
+        <div
+          class="propuesta"
+          *ngFor="let p of propuestas"
+          [class.propuesta--sin-match]="p.estado === 'sin-coincidencia'"
+        >
+          <input
+            type="checkbox"
+            [checked]="p.seleccionado"
+            [disabled]="!p.material"
+            (change)="toggleSeleccion(p)"
+          />
+
+          <div class="propuesta__info">
+            <strong>{{ p.item.descripcion }}</strong>
+
+            <ng-container *ngIf="p.material; else sinMatch">
+              <small>
+                Coincide con: {{ p.material.descripcion }} · Código {{ p.material.codigo }}
+              </small>
+              <div class="propuesta__precios">
+                <span class="precio-anterior">$ {{ formatoMoneda(p.precioAnterior) }}</span>
+                <mat-icon>arrow_forward</mat-icon>
+                <span class="precio-nuevo">$ {{ formatoMoneda(p.precioNuevo) }}</span>
+              </div>
+            </ng-container>
+
+            <ng-template #sinMatch>
+              <small>Sin coincidencia en el catálogo de materiales.</small>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+
+      <button
+        class="btn-primario"
+        [disabled]="totalSeleccionadas === 0 || cargando"
+        (click)="aplicarCambios()"
+      >
+        <mat-icon *ngIf="!cargando">check_circle</mat-icon>
+        <span *ngIf="!cargando">Aplicar {{ totalSeleccionadas }} cambio(s)</span>
+        <span *ngIf="cargando">Aplicando…</span>
+      </button>
+    </ng-container>
+
+    <!-- ================= RESULTADO ================= -->
+    <ng-container *ngIf="pantalla === 'resultado'">
+      <div class="burbuja burbuja--exito">
+        ✅ Actualicé <strong>{{ actualizacionesRealizadas.length }}</strong>
+        precio(s) correctamente.
+      </div>
+
+      <div class="lista-simple" *ngIf="actualizacionesRealizadas.length">
+        <div class="fila-simple" *ngFor="let p of actualizacionesRealizadas">
+          <mat-icon class="icono-exito">check</mat-icon>
+          <div class="fila-simple__texto">
+            <strong>{{ p.material?.descripcion }}</strong>
+            <small>
+              $ {{ formatoMoneda(p.precioAnterior) }} → $ {{ formatoMoneda(p.precioNuevo) }}
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="opciones">
+        <button class="opcion" (click)="irA('subir')">
+          <mat-icon>upload_file</mat-icon>
+          <span><strong>Actualizar otra factura</strong></span>
+        </button>
+        <button class="opcion" (click)="irAMenu()">
+          <mat-icon>home</mat-icon>
+          <span><strong>Volver al menú</strong></span>
+        </button>
+      </div>
+    </ng-container>
+
+  </div>
+</div>

@@ -275,4 +275,13 @@
     </div>
   </div>
 
+  <app-asistente-inventario
+           [totalMateriales]="totalMateriales"
+           [itemsStockBajo]="itemsStockBajo"
+           [actualizadosHoy]="actualizadosHoy"
+           [alertasStock]="alertasStock"
+           [actividadReciente]="actividadReciente"
+           (preciosActualizados)="cargarDashboard()"
+         ></app-asistente-inventario>
+
 </div>

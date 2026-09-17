@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { SupabaseService } from '../../core/services/supabase.service';
+import { AsistenteInventarioComponent } from '../../shared/components/asistente-inventario/asistente-inventario';
 
 @Component({
   selector: 'app-categorias-inventario',
@@ -11,7 +12,8 @@ import { SupabaseService } from '../../core/services/supabase.service';
   imports: [
     CommonModule,
     MatCardModule,
-    MatIconModule
+    MatIconModule,
+    AsistenteInventarioComponent
   ],
   templateUrl: './inventario.html',
   styleUrls: ['./inventario.css']
