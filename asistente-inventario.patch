@@ -1,0 +1,1284 @@
+diff --git a/src/app/features/inventario/inventario.html b/src/app/features/inventario/inventario.html
+index c3b9729..5af7006 100644
+--- a/src/app/features/inventario/inventario.html
++++ b/src/app/features/inventario/inventario.html
+@@ -275,4 +275,14 @@
+     </div>
+   </div>
+ 
++  <!-- ASISTENTE VIRTUAL DE INVENTARIO -->
++  <app-asistente-inventario
++    [totalMateriales]="totalMateriales"
++    [itemsStockBajo]="itemsStockBajo"
++    [actualizadosHoy]="actualizadosHoy"
++    [alertasStock]="alertasStock"
++    [actividadReciente]="actividadReciente"
++    (preciosActualizados)="cargarDashboard()"
++  ></app-asistente-inventario>
++
+ </div>
+\ No newline at end of file
+diff --git a/src/app/features/inventario/inventario.ts b/src/app/features/inventario/inventario.ts
+index 5673f4f..b7de75f 100644
+--- a/src/app/features/inventario/inventario.ts
++++ b/src/app/features/inventario/inventario.ts
+@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
+ import { MatCardModule } from '@angular/material/card';
+ import { MatIconModule } from '@angular/material/icon';
+ import { SupabaseService } from '../../core/services/supabase.service';
++import { AsistenteInventarioComponent } from '../../shared/components/asistente-inventario/asistente-inventario';
+ 
+ @Component({
+   selector: 'app-categorias-inventario',
+@@ -11,7 +12,8 @@ import { SupabaseService } from '../../core/services/supabase.service';
+   imports: [
+     CommonModule,
+     MatCardModule,
+-    MatIconModule
++    MatIconModule,
++    AsistenteInventarioComponent
+   ],
+   templateUrl: './inventario.html',
+   styleUrls: ['./inventario.css']
+diff --git a/src/app/shared/components/asistente-inventario/asistente-inventario.css b/src/app/shared/components/asistente-inventario/asistente-inventario.css
+new file mode 100644
+index 0000000..c9995f5
+--- /dev/null
++++ b/src/app/shared/components/asistente-inventario/asistente-inventario.css
+@@ -0,0 +1,463 @@
++:host {
++  --color-primario: #133b4b;
++  --color-primario-suave: #1c5268;
++  --color-acento: #16a34a;
++  --color-borde: #e2e8f0;
++  --color-texto: #0f172a;
++  --color-suave: #64748b;
++  --color-bg: #f8fafc;
++  --sombra: 0 12px 32px rgba(0, 0, 0, 0.18);
++  --radio: 16px;
++  --font-cuerpo: 'Segoe UI', system-ui, sans-serif;
++
++  position: fixed;
++  right: 28px;
++  bottom: 28px;
++  z-index: 1000;
++  font-family: var(--font-cuerpo);
++}
++
++/* ============== BOTÓN FLOTANTE ============== */
++.lanzador {
++  position: relative;
++  width: 62px;
++  height: 62px;
++  border-radius: 50%;
++  border: none;
++  cursor: pointer;
++  background: var(--color-primario);
++  box-shadow: var(--sombra);
++  display: flex;
++  align-items: center;
++  justify-content: center;
++  transition: transform 0.2s ease;
++}
++
++.lanzador:hover {
++  transform: translateY(-3px) scale(1.03);
++}
++
++.lanzador-avatar {
++  width: 46px;
++  height: 46px;
++  display: block;
++}
++
++.avatar-svg {
++  width: 100%;
++  height: 100%;
++  display: block;
++}
++
++.lanzador-punto {
++  position: absolute;
++  top: 2px;
++  right: 4px;
++  width: 12px;
++  height: 12px;
++  border-radius: 50%;
++  background: #22c55e;
++  border: 2px solid #fff;
++}
++
++/* ============== PANEL ============== */
++.panel {
++  width: 360px;
++  max-height: min(560px, 80vh);
++  background: #fff;
++  border-radius: var(--radio);
++  box-shadow: var(--sombra);
++  display: flex;
++  flex-direction: column;
++  overflow: hidden;
++  border: 1px solid var(--color-borde);
++}
++
++.panel-header {
++  background: var(--color-primario);
++  color: #fff;
++  padding: 14px 16px;
++  display: flex;
++  align-items: center;
++  justify-content: space-between;
++  flex-shrink: 0;
++}
++
++.panel-header__izq {
++  display: flex;
++  align-items: center;
++  gap: 10px;
++  min-width: 0;
++}
++
++.panel-avatar {
++  width: 36px;
++  height: 36px;
++  flex-shrink: 0;
++  border-radius: 50%;
++  overflow: hidden;
++  background: rgba(255, 255, 255, 0.15);
++}
++
++.panel-titulos {
++  display: flex;
++  flex-direction: column;
++  line-height: 1.25;
++  min-width: 0;
++}
++
++.panel-titulos strong {
++  font-size: 14px;
++}
++
++.panel-titulos span {
++  font-size: 11px;
++  opacity: 0.85;
++}
++
++.btn-volver,
++.btn-cerrar,
++.btn-icono-mini {
++  background: transparent;
++  border: none;
++  color: #fff;
++  cursor: pointer;
++  display: flex;
++  align-items: center;
++  justify-content: center;
++  padding: 4px;
++  border-radius: 8px;
++  flex-shrink: 0;
++}
++
++.btn-volver:hover,
++.btn-cerrar:hover {
++  background: rgba(255, 255, 255, 0.15);
++}
++
++.btn-icono-mini {
++  color: var(--color-suave);
++}
++
++.btn-icono-mini:hover {
++  background: var(--color-bg);
++}
++
++/* ============== CUERPO ============== */
++.panel-body {
++  padding: 16px;
++  overflow-y: auto;
++  flex: 1;
++  background: var(--color-bg);
++  display: flex;
++  flex-direction: column;
++  gap: 14px;
++}
++
++.burbuja {
++  background: #fff;
++  border: 1px solid var(--color-borde);
++  border-radius: 14px;
++  border-top-left-radius: 4px;
++  padding: 12px 14px;
++  font-size: 13px;
++  line-height: 1.5;
++  color: var(--color-texto);
++}
++
++.burbuja--suave {
++  background: #f1f5f9;
++  color: var(--color-suave);
++  font-style: italic;
++}
++
++.burbuja--exito {
++  background: #f0fdf4;
++  border-color: #bbf7d0;
++  color: #14532d;
++}
++
++/* ============== OPCIONES DE MENÚ ============== */
++.opciones {
++  display: flex;
++  flex-direction: column;
++  gap: 8px;
++}
++
++.opcion {
++  display: flex;
++  align-items: center;
++  gap: 12px;
++  background: #fff;
++  border: 1px solid var(--color-borde);
++  border-radius: 12px;
++  padding: 10px 12px;
++  cursor: pointer;
++  text-align: left;
++  transition: box-shadow 0.2s ease, transform 0.2s ease;
++}
++
++.opcion:hover {
++  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
++  transform: translateY(-1px);
++}
++
++.opcion mat-icon {
++  color: var(--color-primario);
++  flex-shrink: 0;
++}
++
++.opcion span {
++  display: flex;
++  flex-direction: column;
++  gap: 1px;
++}
++
++.opcion strong {
++  font-size: 13px;
++  color: var(--color-texto);
++}
++
++.opcion small {
++  font-size: 11px;
++  color: var(--color-suave);
++}
++
++.opcion--destacada {
++  border-color: var(--color-primario);
++  background: #eef5f8;
++}
++
++/* ============== LISTAS SIMPLES (stock / actividad / resultado) ============== */
++.lista-simple {
++  display: flex;
++  flex-direction: column;
++  gap: 8px;
++  max-height: 260px;
++  overflow-y: auto;
++}
++
++.fila-simple {
++  display: flex;
++  align-items: flex-start;
++  gap: 10px;
++  background: #fff;
++  border: 1px solid var(--color-borde);
++  border-radius: 10px;
++  padding: 8px 10px;
++}
++
++.fila-simple__texto {
++  display: flex;
++  flex-direction: column;
++  gap: 1px;
++}
++
++.fila-simple__texto strong {
++  font-size: 12.5px;
++  color: var(--color-texto);
++}
++
++.fila-simple__texto small {
++  font-size: 11px;
++  color: var(--color-suave);
++}
++
++.icono-alerta { color: #c2410c; }
++.icono-actividad { color: var(--color-primario); }
++.icono-exito { color: var(--color-acento); }
++
++/* ============== AYUDA ============== */
++.lista-ayuda {
++  margin: 0;
++  padding-left: 18px;
++  display: flex;
++  flex-direction: column;
++  gap: 8px;
++  font-size: 12.5px;
++  color: var(--color-texto);
++}
++
++/* ============== SUBIDA DE XML ============== */
++.zona-subida {
++  display: flex;
++  align-items: center;
++  justify-content: center;
++  gap: 8px;
++  border: 2px dashed var(--color-primario);
++  border-radius: 12px;
++  padding: 20px 12px;
++  cursor: pointer;
++  color: var(--color-primario);
++  font-size: 13px;
++  font-weight: 600;
++  background: #fff;
++  transition: background 0.2s ease;
++}
++
++.zona-subida:hover {
++  background: #eef5f8;
++}
++
++.lista-archivos {
++  display: flex;
++  flex-direction: column;
++  gap: 6px;
++}
++
++.archivo-item {
++  display: flex;
++  align-items: center;
++  gap: 8px;
++  background: #fff;
++  border: 1px solid var(--color-borde);
++  border-radius: 8px;
++  padding: 6px 10px;
++  font-size: 12px;
++}
++
++.archivo-item mat-icon {
++  color: var(--color-suave);
++  font-size: 18px;
++  width: 18px;
++  height: 18px;
++}
++
++.archivo-nombre {
++  flex: 1;
++  overflow: hidden;
++  text-overflow: ellipsis;
++  white-space: nowrap;
++}
++
++.errores {
++  display: flex;
++  flex-direction: column;
++  gap: 4px;
++}
++
++.error-item {
++  font-size: 11.5px;
++  color: #b91c1c;
++  background: #fef2f2;
++  border: 1px solid #fecaca;
++  border-radius: 8px;
++  padding: 6px 10px;
++}
++
++/* ============== REVISIÓN DE PROPUESTAS ============== */
++.acciones-masivas {
++  display: flex;
++  gap: 12px;
++}
++
++.btn-texto {
++  background: none;
++  border: none;
++  color: var(--color-primario);
++  font-size: 12px;
++  font-weight: 600;
++  cursor: pointer;
++  padding: 0;
++}
++
++.lista-propuestas {
++  display: flex;
++  flex-direction: column;
++  gap: 8px;
++  max-height: 280px;
++  overflow-y: auto;
++}
++
++.propuesta {
++  display: flex;
++  align-items: flex-start;
++  gap: 10px;
++  background: #fff;
++  border: 1px solid var(--color-borde);
++  border-radius: 10px;
++  padding: 10px;
++}
++
++.propuesta--sin-match {
++  opacity: 0.6;
++}
++
++.propuesta__info {
++  display: flex;
++  flex-direction: column;
++  gap: 3px;
++  min-width: 0;
++}
++
++.propuesta__info strong {
++  font-size: 12.5px;
++  color: var(--color-texto);
++}
++
++.propuesta__info small {
++  font-size: 11px;
++  color: var(--color-suave);
++}
++
++.propuesta__precios {
++  display: flex;
++  align-items: center;
++  gap: 6px;
++  font-size: 12.5px;
++  font-weight: 700;
++  margin-top: 2px;
++}
++
++.propuesta__precios mat-icon {
++  font-size: 14px;
++  width: 14px;
++  height: 14px;
++  color: var(--color-suave);
++}
++
++.precio-anterior {
++  color: var(--color-suave);
++  text-decoration: line-through;
++}
++
++.precio-nuevo {
++  color: var(--color-acento);
++}
++
++/* ============== BOTÓN PRIMARIO ============== */
++.btn-primario {
++  display: flex;
++  align-items: center;
++  justify-content: center;
++  gap: 8px;
++  background: var(--color-primario);
++  color: #fff;
++  border: none;
++  border-radius: 10px;
++  padding: 11px;
++  font-size: 13px;
++  font-weight: 600;
++  cursor: pointer;
++  transition: background 0.2s ease;
++}
++
++.btn-primario:hover:not(:disabled) {
++  background: var(--color-primario-suave);
++}
++
++.btn-primario:disabled {
++  opacity: 0.5;
++  cursor: not-allowed;
++}
++
++/* ============== RESPONSIVE ============== */
++@media (max-width: 480px) {
++  :host {
++    right: 12px;
++    bottom: 12px;
++  }
++  .panel {
++    width: calc(100vw - 24px);
++  }
++}
+diff --git a/src/app/shared/components/asistente-inventario/asistente-inventario.html b/src/app/shared/components/asistente-inventario/asistente-inventario.html
+new file mode 100644
+index 0000000..5f81f03
+--- /dev/null
++++ b/src/app/shared/components/asistente-inventario/asistente-inventario.html
+@@ -0,0 +1,314 @@
++<!-- BOTÓN FLOTANTE -->
++<button
++  class="lanzador"
++  *ngIf="!abierto"
++  (click)="toggle()"
++  aria-label="Abrir asistente virtual de inventario"
++>
++  <span class="lanzador-avatar">
++    <svg viewBox="0 0 64 64" class="avatar-svg" aria-hidden="true">
++      <circle cx="32" cy="32" r="32" fill="#133b4b" />
++      <path d="M32 10c-9 0-15 6.5-15 15.5 0 4 1.2 7.6 3.3 10.6-1 .6-1.9 1.4-2.6 2.4C15.4 41 14 44.4 14 48v3c0 1.1.9 2 2 2h32c1.1 0 2-.9 2-2v-3c0-3.6-1.4-7-3.7-9.5-.7-1-1.6-1.8-2.6-2.4 2.1-3 3.3-6.6 3.3-10.6C47 16.5 41 10 32 10z" fill="#ffe0c2"/>
++      <path d="M32 8c-10.5 0-17.5 7.2-17.5 17 0 3 .6 5.7 1.7 8-.6-2.7-.3-5.6.9-8.2 1.7-3.6 5-6.3 9.4-6.9 3.6-.5 6 .8 8.6 2 2.7 1.2 5.6 2.5 9.6 1.7 1 2 1.5 4.3 1.5 6.7v-2.3c1.1-2.3 1.7-5 1.7-8C47.9 15.2 42.5 8 32 8z" fill="#3d2b1f"/>
++      <circle cx="25.5" cy="30" r="2" fill="#3d2b1f"/>
++      <circle cx="38.5" cy="30" r="2" fill="#3d2b1f"/>
++      <path d="M26 37c2 2 10 2 12 0" stroke="#8a4a3a" stroke-width="2" stroke-linecap="round" fill="none"/>
++    </svg>
++  </span>
++  <span class="lanzador-punto"></span>
++</button>
++
++<!-- PANEL DEL ASISTENTE -->
++<div class="panel" *ngIf="abierto">
++
++  <!-- ENCABEZADO -->
++  <div class="panel-header">
++    <div class="panel-header__izq">
++      <button
++        class="btn-volver"
++        *ngIf="pantalla !== 'menu'"
++        (click)="irAMenu()"
++        aria-label="Volver al menú"
++      >
++        <mat-icon>arrow_back</mat-icon>
++      </button>
++
++      <span class="panel-avatar">
++        <svg viewBox="0 0 64 64" class="avatar-svg" aria-hidden="true">
++          <circle cx="32" cy="32" r="32" fill="#ffffff33" />
++          <path d="M32 10c-9 0-15 6.5-15 15.5 0 4 1.2 7.6 3.3 10.6-1 .6-1.9 1.4-2.6 2.4C15.4 41 14 44.4 14 48v3c0 1.1.9 2 2 2h32c1.1 0 2-.9 2-2v-3c0-3.6-1.4-7-3.7-9.5-.7-1-1.6-1.8-2.6-2.4 2.1-3 3.3-6.6 3.3-10.6C47 16.5 41 10 32 10z" fill="#ffe0c2"/>
++          <path d="M32 8c-10.5 0-17.5 7.2-17.5 17 0 3 .6 5.7 1.7 8-.6-2.7-.3-5.6.9-8.2 1.7-3.6 5-6.3 9.4-6.9 3.6-.5 6 .8 8.6 2 2.7 1.2 5.6 2.5 9.6 1.7 1 2 1.5 4.3 1.5 6.7v-2.3c1.1-2.3 1.7-5 1.7-8C47.9 15.2 42.5 8 32 8z" fill="#3d2b1f"/>
++          <circle cx="25.5" cy="30" r="2" fill="#3d2b1f"/>
++          <circle cx="38.5" cy="30" r="2" fill="#3d2b1f"/>
++          <path d="M26 37c2 2 10 2 12 0" stroke="#8a4a3a" stroke-width="2" stroke-linecap="round" fill="none"/>
++        </svg>
++      </span>
++
++      <div class="panel-titulos">
++        <strong>{{ nombreAsistente }}</strong>
++        <span>Asistente virtual de Inventario</span>
++      </div>
++    </div>
++
++    <button class="btn-cerrar" (click)="cerrar()" aria-label="Cerrar asistente">
++      <mat-icon>close</mat-icon>
++    </button>
++  </div>
++
++  <!-- CUERPO -->
++  <div class="panel-body">
++
++    <!-- ================= MENÚ PRINCIPAL ================= -->
++    <ng-container *ngIf="pantalla === 'menu'">
++      <div class="burbuja">
++        ¡Hola! Soy {{ nombreAsistente }} 👋 Puedo ayudarte a revisar el
++        inventario y a actualizar precios desde una factura XML. ¿Qué
++        necesitas hacer?
++      </div>
++
++      <div class="opciones">
++        <button class="opcion" (click)="irA('stock')">
++          <mat-icon>warning_amber</mat-icon>
++          <span>
++            <strong>Ver stock bajo</strong>
++            <small>Materiales que necesitan reabastecerse</small>
++          </span>
++        </button>
++
++        <button class="opcion" (click)="irA('actividad')">
++          <mat-icon>history</mat-icon>
++          <span>
++            <strong>Actividad reciente</strong>
++            <small>Últimos movimientos del inventario</small>
++          </span>
++        </button>
++
++        <button class="opcion opcion--destacada" (click)="irA('subir')">
++          <mat-icon>description</mat-icon>
++          <span>
++            <strong>Actualizar precios desde XML</strong>
++            <small>Sube una factura electrónica y actualizo los precios</small>
++          </span>
++        </button>
++
++        <button class="opcion" (click)="irA('ayuda')">
++          <mat-icon>help_outline</mat-icon>
++          <span>
++            <strong>¿Qué puedes hacer?</strong>
++            <small>Conoce todas mis funciones</small>
++          </span>
++        </button>
++      </div>
++    </ng-container>
++
++    <!-- ================= STOCK BAJO ================= -->
++    <ng-container *ngIf="pantalla === 'stock'">
++      <div class="burbuja">
++        Tienes <strong>{{ itemsStockBajo }}</strong> material(es) con stock
++        bajo de un total de <strong>{{ totalMateriales }}</strong> registrados.
++      </div>
++
++      <div class="lista-simple" *ngIf="alertasStock.length; else sinAlertas">
++        <div class="fila-simple" *ngFor="let alerta of alertasStock">
++          <mat-icon class="icono-alerta">inventory_2</mat-icon>
++          <div class="fila-simple__texto">
++            <strong>{{ alerta.descripcion || alerta.nombre }}</strong>
++            <small>Código {{ alerta.codigo }} · Stock actual: {{ alerta.stock }}</small>
++          </div>
++        </div>
++      </div>
++      <ng-template #sinAlertas>
++        <div class="burbuja burbuja--suave">
++          🎉 No hay alertas de stock bajo en este momento.
++        </div>
++      </ng-template>
++    </ng-container>
++
++    <!-- ================= ACTIVIDAD RECIENTE ================= -->
++    <ng-container *ngIf="pantalla === 'actividad'">
++      <div class="burbuja">
++        Esto es lo último que se registró en el inventario:
++      </div>
++
++      <div class="lista-simple" *ngIf="actividadReciente.length; else sinActividad">
++        <div class="fila-simple" *ngFor="let act of actividadReciente">
++          <mat-icon class="icono-actividad">bolt</mat-icon>
++          <div class="fila-simple__texto">
++            <strong>{{ act.descripcion }}</strong>
++            <small>{{ act.tipo }} · {{ act.codigo }}</small>
++          </div>
++        </div>
++      </div>
++      <ng-template #sinActividad>
++        <div class="burbuja burbuja--suave">
++          Todavía no hay actividad registrada.
++        </div>
++      </ng-template>
++    </ng-container>
++
++    <!-- ================= AYUDA ================= -->
++    <ng-container *ngIf="pantalla === 'ayuda'">
++      <div class="burbuja">
++        Estas son las cosas en las que te puedo ayudar dentro del módulo de
++        Inventario:
++      </div>
++      <ul class="lista-ayuda">
++        <li>📉 Mostrarte los materiales con stock bajo.</li>
++        <li>🕒 Mostrarte la actividad reciente del inventario.</li>
++        <li>
++          🧾 Leer una <strong>factura electrónica XML</strong> del SRI,
++          buscar cada producto por su descripción entre tus materiales y
++          proponerte el precio nuevo antes de aplicar ningún cambio.
++        </li>
++        <li>✅ Actualizar el precio solo de los productos que tú confirmes.</li>
++      </ul>
++    </ng-container>
++
++    <!-- ================= SUBIR XML ================= -->
++    <ng-container *ngIf="pantalla === 'subir'">
++      <div class="burbuja">
++        Sube una o varias facturas electrónicas en formato
++        <strong>.xml</strong>. Voy a comparar la descripción de cada producto
++        con tu catálogo de materiales para proponerte los precios nuevos.
++      </div>
++
++      <label class="zona-subida">
++        <input
++          type="file"
++          accept=".xml,text/xml,application/xml"
++          multiple
++          hidden
++          (change)="onArchivosSeleccionados($event)"
++        />
++        <mat-icon>upload_file</mat-icon>
++        <span>Seleccionar archivo(s) XML</span>
++      </label>
++
++      <div class="lista-archivos" *ngIf="archivosSeleccionados.length">
++        <div class="archivo-item" *ngFor="let archivo of archivosSeleccionados; let i = index">
++          <mat-icon>description</mat-icon>
++          <span class="archivo-nombre">{{ archivo.name }}</span>
++          <button class="btn-icono-mini" (click)="quitarArchivo(i)" aria-label="Quitar archivo">
++            <mat-icon>close</mat-icon>
++          </button>
++        </div>
++      </div>
++
++      <div class="errores" *ngIf="erroresArchivos.length">
++        <div class="error-item" *ngFor="let err of erroresArchivos">
++          ⚠️ {{ err }}
++        </div>
++      </div>
++
++      <button
++        class="btn-primario"
++        [disabled]="archivosSeleccionados.length === 0 || cargando"
++        (click)="procesarArchivos()"
++      >
++        <mat-icon *ngIf="!cargando">search</mat-icon>
++        <span *ngIf="!cargando">Procesar factura(s)</span>
++        <span *ngIf="cargando">Analizando…</span>
++      </button>
++    </ng-container>
++
++    <!-- ================= REVISIÓN DE PROPUESTAS ================= -->
++    <ng-container *ngIf="pantalla === 'revision'">
++
++      <div class="burbuja">
++        Encontré <strong>{{ totalConCoincidencia }}</strong> producto(s) que
++        coinciden con tu inventario
++        <ng-container *ngIf="totalSinCoincidencia > 0">
++          y <strong>{{ totalSinCoincidencia }}</strong> sin coincidencia
++        </ng-container>.
++        Revisa los precios antes de aplicarlos.
++      </div>
++
++      <div class="errores" *ngIf="erroresArchivos.length">
++        <div class="error-item" *ngFor="let err of erroresArchivos">
++          ⚠️ {{ err }}
++        </div>
++      </div>
++
++      <div class="acciones-masivas" *ngIf="totalConCoincidencia > 0">
++        <button class="btn-texto" (click)="marcarTodas(true)">Marcar todas</button>
++        <button class="btn-texto" (click)="marcarTodas(false)">Desmarcar todas</button>
++      </div>
++
++      <div class="lista-propuestas">
++        <div
++          class="propuesta"
++          *ngFor="let p of propuestas"
++          [class.propuesta--sin-match]="p.estado === 'sin-coincidencia'"
++        >
++          <input
++            type="checkbox"
++            [checked]="p.seleccionado"
++            [disabled]="!p.material"
++            (change)="toggleSeleccion(p)"
++          />
++
++          <div class="propuesta__info">
++            <strong>{{ p.item.descripcion }}</strong>
++
++            <ng-container *ngIf="p.material; else sinMatch">
++              <small>
++                Coincide con: {{ p.material.descripcion }} · Código {{ p.material.codigo }}
++              </small>
++              <div class="propuesta__precios">
++                <span class="precio-anterior">$ {{ formatoMoneda(p.precioAnterior) }}</span>
++                <mat-icon>arrow_forward</mat-icon>
++                <span class="precio-nuevo">$ {{ formatoMoneda(p.precioNuevo) }}</span>
++              </div>
++            </ng-container>
++
++            <ng-template #sinMatch>
++              <small>Sin coincidencia en el catálogo de materiales.</small>
++            </ng-template>
++          </div>
++        </div>
++      </div>
++
++      <button
++        class="btn-primario"
++        [disabled]="totalSeleccionadas === 0 || cargando"
++        (click)="aplicarCambios()"
++      >
++        <mat-icon *ngIf="!cargando">check_circle</mat-icon>
++        <span *ngIf="!cargando">Aplicar {{ totalSeleccionadas }} cambio(s)</span>
++        <span *ngIf="cargando">Aplicando…</span>
++      </button>
++    </ng-container>
++
++    <!-- ================= RESULTADO ================= -->
++    <ng-container *ngIf="pantalla === 'resultado'">
++      <div class="burbuja burbuja--exito">
++        ✅ Actualicé <strong>{{ actualizacionesRealizadas.length }}</strong>
++        precio(s) correctamente.
++      </div>
++
++      <div class="lista-simple" *ngIf="actualizacionesRealizadas.length">
++        <div class="fila-simple" *ngFor="let p of actualizacionesRealizadas">
++          <mat-icon class="icono-exito">check</mat-icon>
++          <div class="fila-simple__texto">
++            <strong>{{ p.material?.descripcion }}</strong>
++            <small>
++              $ {{ formatoMoneda(p.precioAnterior) }} → $ {{ formatoMoneda(p.precioNuevo) }}
++            </small>
++          </div>
++        </div>
++      </div>
++
++      <div class="opciones">
++        <button class="opcion" (click)="irA('subir')">
++          <mat-icon>upload_file</mat-icon>
++          <span><strong>Actualizar otra factura</strong></span>
++        </button>
++        <button class="opcion" (click)="irAMenu()">
++          <mat-icon>home</mat-icon>
++          <span><strong>Volver al menú</strong></span>
++        </button>
++      </div>
++    </ng-container>
++
++  </div>
++</div>
+diff --git a/src/app/shared/components/asistente-inventario/asistente-inventario.ts b/src/app/shared/components/asistente-inventario/asistente-inventario.ts
+new file mode 100644
+index 0000000..9fda6b8
+--- /dev/null
++++ b/src/app/shared/components/asistente-inventario/asistente-inventario.ts
+@@ -0,0 +1,447 @@
++import { Component, EventEmitter, Input, Output } from '@angular/core';
++import { CommonModule } from '@angular/common';
++import { MatIconModule } from '@angular/material/icon';
++import { MaterialeService, materiales } from '../../../core/services/materiales.service';
++
++// ============================================================
++//  MODELOS
++// ============================================================
++
++interface ItemFactura {
++  codigo?: string;
++  descripcion: string;
++  descripcionNormalizada: string;
++  cantidad?: number;
++  precioUnitario: number;
++}
++
++interface InfoFacturaProcesada {
++  archivo: string;
++  razonSocial: string;
++  fechaEmision: string;
++  totalItems: number;
++}
++
++interface PropuestaActualizacion {
++  item: ItemFactura;
++  material?: materiales;
++  precioAnterior?: number;
++  precioNuevo: number;
++  seleccionado: boolean;
++  estado: 'coincidencia' | 'sin-coincidencia';
++}
++
++type PantallaAsistente =
++  | 'menu'
++  | 'stock'
++  | 'actividad'
++  | 'ayuda'
++  | 'subir'
++  | 'revision'
++  | 'resultado';
++
++@Component({
++  selector: 'app-asistente-inventario',
++  standalone: true,
++  imports: [CommonModule, MatIconModule],
++  templateUrl: './asistente-inventario.html',
++  styleUrls: ['./asistente-inventario.css']
++})
++export class AsistenteInventarioComponent {
++
++  // ==========================================================
++  //  DATOS QUE LLEGAN DEL DASHBOARD (para no duplicar consultas)
++  // ==========================================================
++  @Input() totalMateriales = 0;
++  @Input() itemsStockBajo = 0;
++  @Input() actualizadosHoy = 0;
++  @Input() alertasStock: any[] = [];
++  @Input() actividadReciente: any[] = [];
++
++  // Avisa al componente padre que debe refrescar el dashboard
++  @Output() preciosActualizados = new EventEmitter<void>();
++
++  // ==========================================================
++  //  ESTADO DEL WIDGET
++  // ==========================================================
++  abierto = false;
++  pantalla: PantallaAsistente = 'menu';
++  cargando = false;
++  nombreAsistente = 'Sofía';
++
++  // ==========================================================
++  //  ESTADO DE CARGA DE XML
++  // ==========================================================
++  archivosSeleccionados: File[] = [];
++  infoFacturas: InfoFacturaProcesada[] = [];
++  propuestas: PropuestaActualizacion[] = [];
++  erroresArchivos: string[] = [];
++  actualizacionesRealizadas: PropuestaActualizacion[] = [];
++
++  constructor(private service: MaterialeService) {}
++
++  // ==========================================================
++  //  ABRIR / CERRAR
++  // ==========================================================
++
++  toggle(): void {
++    this.abierto = !this.abierto;
++  }
++
++  cerrar(): void {
++    this.abierto = false;
++  }
++
++  irAMenu(): void {
++    this.pantalla = 'menu';
++  }
++
++  irA(pantalla: PantallaAsistente): void {
++    this.pantalla = pantalla;
++    if (pantalla === 'subir') {
++      this.reiniciarCargaXml();
++    }
++  }
++
++  // ==========================================================
++  //  UTILIDADES DE TEXTO
++  // ==========================================================
++
++  private normalizar(texto: string | null | undefined): string {
++    return (texto ?? '')
++      .toString()
++      .normalize('NFD')
++      .replace(/[̀-ͯ]/g, '')
++      .toLowerCase()
++      .replace(/[^a-z0-9\s]/g, ' ')
++      .replace(/\s+/g, ' ')
++      .trim();
++  }
++
++  // ==========================================================
++  //  CARGA DE ARCHIVOS XML
++  // ==========================================================
++
++  reiniciarCargaXml(): void {
++    this.archivosSeleccionados = [];
++    this.infoFacturas = [];
++    this.propuestas = [];
++    this.erroresArchivos = [];
++    this.actualizacionesRealizadas = [];
++  }
++
++  onArchivosSeleccionados(event: Event): void {
++    const input = event.target as HTMLInputElement;
++    if (!input.files || input.files.length === 0) {
++      return;
++    }
++    this.archivosSeleccionados = Array.from(input.files);
++    input.value = '';
++  }
++
++  quitarArchivo(index: number): void {
++    this.archivosSeleccionados.splice(index, 1);
++  }
++
++  private leerArchivoComoTexto(file: File): Promise<string> {
++    return new Promise((resolve, reject) => {
++      const lector = new FileReader();
++      lector.onload = () => resolve(String(lector.result ?? ''));
++      lector.onerror = () => reject(new Error('No se pudo leer el archivo.'));
++      lector.readAsText(file, 'utf-8');
++    });
++  }
++
++  private obtenerMaterialesActuales(): Promise<materiales[]> {
++    return new Promise((resolve) => {
++      this.service.obtenerTodos().subscribe({
++        next: ({ data, error }: any) => {
++          if (error) {
++            console.error('Error obteniendo materiales:', error);
++            resolve([]);
++            return;
++          }
++          resolve(data ?? []);
++        },
++        error: (err: any) => {
++          console.error('Error obteniendo materiales:', err);
++          resolve([]);
++        }
++      });
++    });
++  }
++
++  // ------------------------------------------------------------
++  //  PARSEO DE FACTURA ELECTRÓNICA SRI
++  // ------------------------------------------------------------
++
++  private parsearFacturaXml(xmlTexto: string): {
++    razonSocial: string;
++    fechaEmision: string;
++    items: ItemFactura[];
++  } {
++    const parser = new DOMParser();
++    let documento = parser.parseFromString(xmlTexto, 'application/xml');
++
++    if (documento.querySelector('parsererror')) {
++      throw new Error('El archivo no es un XML válido.');
++    }
++
++    // La autorización del SRI trae la factura real dentro de
++    // <comprobante><![CDATA[ ... ]]></comprobante>
++    let documentoFactura = documento;
++    const nodoComprobante = documento.querySelector('comprobante');
++
++    if (nodoComprobante && nodoComprobante.textContent) {
++      const docInterno = parser.parseFromString(
++        nodoComprobante.textContent,
++        'application/xml'
++      );
++      if (!docInterno.querySelector('parsererror')) {
++        documentoFactura = docInterno;
++      }
++    }
++
++    const detalles = Array.from(
++      documentoFactura.querySelectorAll('detalles > detalle')
++    );
++
++    if (detalles.length === 0) {
++      throw new Error(
++        'No se encontraron productos (detalles) dentro del XML.'
++      );
++    }
++
++    const obtenerTexto = (nodo: Element, etiqueta: string): string =>
++      nodo.querySelector(etiqueta)?.textContent?.trim() ?? '';
++
++    const items: ItemFactura[] = detalles
++      .map((detalle) => {
++        const descripcion = obtenerTexto(detalle, 'descripcion');
++        const precioUnitario = parseFloat(
++          obtenerTexto(detalle, 'precioUnitario').replace(',', '.')
++        );
++        const cantidadTexto = obtenerTexto(detalle, 'cantidad').replace(
++          ',',
++          '.'
++        );
++        const cantidad = cantidadTexto ? parseFloat(cantidadTexto) : undefined;
++        const codigo =
++          obtenerTexto(detalle, 'codigoPrincipal') ||
++          obtenerTexto(detalle, 'codigoAuxiliar');
++
++        return {
++          codigo: codigo || undefined,
++          descripcion,
++          descripcionNormalizada: this.normalizar(descripcion),
++          cantidad,
++          precioUnitario
++        };
++      })
++      .filter((item) => item.descripcion && item.precioUnitario > 0);
++
++    if (items.length === 0) {
++      throw new Error(
++        'Los productos del XML no tienen descripción o precio unitario válidos.'
++      );
++    }
++
++    const razonSocial =
++      obtenerTexto(documentoFactura.documentElement, 'razonSocial') || '';
++    const fechaEmision =
++      obtenerTexto(documentoFactura.documentElement, 'fechaEmision') || '';
++
++    return { razonSocial, fechaEmision, items };
++  }
++
++  // ------------------------------------------------------------
++  //  EMPAREJAMIENTO POR DESCRIPCIÓN
++  // ------------------------------------------------------------
++
++  private buscarCoincidencia(
++    item: ItemFactura,
++    listaMateriales: materiales[]
++  ): materiales | undefined {
++
++    // 1) Coincidencia exacta (normalizada)
++    const exacta = listaMateriales.find(
++      (m) => this.normalizar(m.descripcion) === item.descripcionNormalizada
++    );
++    if (exacta) {
++      return exacta;
++    }
++
++    // 2) Coincidencia aproximada: una descripción contiene a la otra
++    const candidatas = listaMateriales.filter((m) => {
++      const desc = this.normalizar(m.descripcion);
++      return (
++        desc.length > 0 &&
++        (desc.includes(item.descripcionNormalizada) ||
++          item.descripcionNormalizada.includes(desc))
++      );
++    });
++
++    if (candidatas.length === 0) {
++      return undefined;
++    }
++
++    // De las candidatas, se elige la de longitud más parecida
++    candidatas.sort((a, b) => {
++      const difA = Math.abs(
++        this.normalizar(a.descripcion).length -
++          item.descripcionNormalizada.length
++      );
++      const difB = Math.abs(
++        this.normalizar(b.descripcion).length -
++          item.descripcionNormalizada.length
++      );
++      return difA - difB;
++    });
++
++    return candidatas[0];
++  }
++
++  // ------------------------------------------------------------
++  //  PROCESAR LOS ARCHIVOS SELECCIONADOS
++  // ------------------------------------------------------------
++
++  async procesarArchivos(): Promise<void> {
++    if (this.archivosSeleccionados.length === 0) {
++      return;
++    }
++
++    this.cargando = true;
++    this.infoFacturas = [];
++    this.propuestas = [];
++    this.erroresArchivos = [];
++
++    const listaMateriales = await this.obtenerMaterialesActuales();
++
++    for (const archivo of this.archivosSeleccionados) {
++      try {
++        const texto = await this.leerArchivoComoTexto(archivo);
++        const { razonSocial, fechaEmision, items } =
++          this.parsearFacturaXml(texto);
++
++        this.infoFacturas.push({
++          archivo: archivo.name,
++          razonSocial,
++          fechaEmision,
++          totalItems: items.length
++        });
++
++        for (const item of items) {
++          const material = this.buscarCoincidencia(item, listaMateriales);
++          const precioAnterior = material ? Number(material.precio) : undefined;
++          const huboCambio =
++            precioAnterior === undefined ||
++            Math.abs(precioAnterior - item.precioUnitario) > 0.0001;
++
++          this.propuestas.push({
++            item,
++            material,
++            precioAnterior,
++            precioNuevo: item.precioUnitario,
++            seleccionado: !!material && huboCambio,
++            estado: material ? 'coincidencia' : 'sin-coincidencia'
++          });
++        }
++      } catch (error: any) {
++        this.erroresArchivos.push(
++          `${archivo.name}: ${error?.message ?? 'no se pudo procesar el archivo.'}`
++        );
++      }
++    }
++
++    this.cargando = false;
++    this.pantalla = 'revision';
++  }
++
++  // ------------------------------------------------------------
++  //  SELECCIÓN EN LA PANTALLA DE REVISIÓN
++  // ------------------------------------------------------------
++
++  toggleSeleccion(propuesta: PropuestaActualizacion): void {
++    if (!propuesta.material) {
++      return;
++    }
++    propuesta.seleccionado = !propuesta.seleccionado;
++  }
++
++  marcarTodas(marcar: boolean): void {
++    this.propuestas
++      .filter((p) => p.material)
++      .forEach((p) => (p.seleccionado = marcar));
++  }
++
++  get totalSeleccionadas(): number {
++    return this.propuestas.filter((p) => p.seleccionado).length;
++  }
++
++  get totalConCoincidencia(): number {
++    return this.propuestas.filter((p) => p.estado === 'coincidencia').length;
++  }
++
++  get totalSinCoincidencia(): number {
++    return this.propuestas.filter((p) => p.estado === 'sin-coincidencia').length;
++  }
++
++  // ------------------------------------------------------------
++  //  APLICAR LOS CAMBIOS DE PRECIO
++  // ------------------------------------------------------------
++
++  aplicarCambios(): void {
++    const seleccionadas = this.propuestas.filter(
++      (p) => p.seleccionado && p.material
++    );
++
++    if (seleccionadas.length === 0) {
++      return;
++    }
++
++    this.cargando = true;
++    this.actualizacionesRealizadas = [];
++
++    let completados = 0;
++    const total = seleccionadas.length;
++
++    seleccionadas.forEach((propuesta) => {
++      this.service
++        .actualizar(propuesta.material!.codigo, {
++          precio: propuesta.precioNuevo
++        })
++        .subscribe({
++          next: () => {
++            this.actualizacionesRealizadas.push(propuesta);
++            completados++;
++            if (completados === total) {
++              this.finalizarActualizacion();
++            }
++          },
++          error: (err: any) => {
++            console.error('Error actualizando precio:', err);
++            completados++;
++            if (completados === total) {
++              this.finalizarActualizacion();
++            }
++          }
++        });
++    });
++  }
++
++  private finalizarActualizacion(): void {
++    this.cargando = false;
++    this.pantalla = 'resultado';
++    this.preciosActualizados.emit();
++  }
++
++  formatoMoneda(valor: number | undefined): string {
++    if (valor === undefined || valor === null || isNaN(valor)) {
++      return 'N/D';
++    }
++    return valor.toLocaleString('es-EC', {
++      minimumFractionDigits: 2,
++      maximumFractionDigits: 2
++    });
++  }
++}
