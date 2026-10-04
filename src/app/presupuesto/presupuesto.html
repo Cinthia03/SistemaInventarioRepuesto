@@ -1,78 +1,169 @@
-<div class="container apu-wrapper obra-gris presupuesto-general">
+<div class="container presupuesto-general">
 
-  <!-- Header -->
-  <div class="header-interno">
-    <div class="header-interno__izq">
-      <div class="header-interno__badge">
-        <mat-icon>request_quote</mat-icon>
+  <!-- =======================================================
+       HEADER TIPO BANNER (mismo estilo que Cálculos / Inventario)
+  ======================================================== -->
+  <div class="header-banner no-print">
+    <div class="banner-contenido">
+      <div class="header-izq">
+        <button type="button" class="btn-volver" *ngIf="vista === 'formato'" (click)="volverDesdeFormato()"
+                [title]="origenFormato === 'nuevo' ? 'Volver a editar' : 'Volver a guardados'">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div class="header-badge">
+          <mat-icon>request_quote</mat-icon>
+        </div>
+        <div class="banner-textos">
+          <h1 class="titulo">Presupuesto General</h1>
+          <p class="subtitulo" *ngIf="vista === 'nuevo' && !presupuestoEditandoId">Rubros de Obra Gris, Acabados, Hidráulico y Eléctrico, más los personalizados que crees en el momento.</p>
+          <p class="subtitulo" *ngIf="vista === 'nuevo' && presupuestoEditandoId">Editando presupuesto guardado: {{ encabezado.proyecto }}{{ hayCambios ? ' · cambios sin guardar' : '' }}</p>
+          <p class="subtitulo" *ngIf="vista === 'historial'">Presupuestos guardados anteriormente.</p>
+          <p class="subtitulo" *ngIf="vista === 'formato' && formato">{{ formato.encabezado.proyecto }} · {{ fechaFormato(formato.encabezado.fecha) }}</p>
+        </div>
       </div>
-      <div class="header-interno__texto">
-        <h1 class="titulo-interno">Presupuesto General</h1>
-        <p class="subtitulo-interno" *ngIf="vista === 'nuevo'">Elige los rubros de Obra Gris, Acabados, Hidráulico y Eléctrico que necesitas para este proyecto; el costo se calcula con el APU de cada uno.</p>
-        <p class="subtitulo-interno" *ngIf="vista === 'historial'">Presupuestos que ya has guardado anteriormente.</p>
-        <p class="subtitulo-interno" *ngIf="vista === 'detalle' && presupuestoDetalle">{{ presupuestoDetalle.nombre }} · {{ presupuestoDetalle.creado_en | date:'dd MMMM yyyy · HH:mm' }}</p>
-      </div>
-    </div>
 
-    <!-- Navegación entre vistas -->
-    <div class="vista-tabs no-print">
-      <button type="button" class="btn-vista" [class.btn-vista--activo]="vista === 'nuevo'" (click)="mostrarNuevo()">
-        <mat-icon>add_box</mat-icon> Nuevo Presupuesto
-      </button>
-      <button type="button" class="btn-vista" [class.btn-vista--activo]="vista === 'historial' || vista === 'detalle'" (click)="mostrarHistorial()">
-        <mat-icon>history</mat-icon> Presupuestos Guardados
-      </button>
+      <div class="banner-acciones">
+        <button type="button" class="btn-banner"
+                [class.btn-banner--activo]="vista === 'nuevo' || (vista === 'formato' && origenFormato === 'nuevo')"
+                (click)="mostrarNuevo()">
+          <mat-icon>add_box</mat-icon> Nuevo presupuesto
+        </button>
+        <button type="button" class="btn-banner"
+                [class.btn-banner--activo]="vista === 'historial' || (vista === 'formato' && origenFormato === 'guardado')"
+                (click)="mostrarHistorial()">
+          <mat-icon>history</mat-icon> Guardados
+        </button>
+      </div>
     </div>
   </div>
 
   <!-- =======================================================
-       VISTA 1: ARMAR / EDITAR UN PRESUPUESTO NUEVO
+       VISTA 1: ARMAR UN PRESUPUESTO NUEVO
   ======================================================== -->
   <ng-container *ngIf="vista === 'nuevo'">
 
-    <div class="filtro-wrapper no-print">
-      <mat-icon class="filtro-icon">filter_list</mat-icon>
-      <select [(ngModel)]="categoriaSeleccionada" class="select-custom">
-        <option value="">Todos los sistemas</option>
-        <option *ngFor="let cat of gruposPorCategoria" [value]="cat.clave">{{ cat.nombre }}</option>
-      </select>
+    <!-- Aviso de guardado correcto -->
+    <div class="aviso aviso--ok" *ngIf="mensajeExito">
+      <mat-icon>check_circle</mat-icon>
+      <div class="aviso-texto">
+        <strong>{{ mensajeExito }}</strong>
+        <p>Puedes armar un nuevo presupuesto o revisarlo en "Guardados".</p>
+      </div>
+      <button type="button" class="btn-cerrar" (click)="mensajeExito = ''" aria-label="Cerrar aviso"><mat-icon>close</mat-icon></button>
     </div>
 
-    <!-- Resumen general -->
-    <div class="resumen-presupuesto" *ngIf="!cargando">
-      <div
-        class="resumen-presupuesto__chip"
-        *ngFor="let cat of gruposPorCategoria"
-        [ngClass]="'resumen-presupuesto__chip--' + cat.claseColor">
-        <span class="resumen-presupuesto__nombre">{{ cat.nombre }}</span>
-        <span class="resumen-presupuesto__valor">${{ cat.subtotal | number:'1.2-2' }}</span>
-        <span class="resumen-presupuesto__contador">{{ contarSeleccionados(cat) }} rubro(s)</span>
+    <!-- KPIs por sistema + total -->
+    <div class="kpi-row" *ngIf="!cargando">
+      <div class="kpi-item" *ngFor="let cat of gruposPorCategoria" [ngClass]="'kpi-item--' + cat.claseColor">
+        <div class="kpi-icon"><mat-icon>{{ cat.icono }}</mat-icon></div>
+        <div>
+          <div class="kpi-val">${{ cat.subtotal | number:'1.2-2' }}</div>
+          <div class="kpi-label">{{ cat.codigo }} {{ cat.nombre }} · {{ contarSeleccionados(cat) }}/{{ contarRubros(cat) }} rubros</div>
+        </div>
       </div>
-
-      <div class="resumen-presupuesto__total">
-        <span>PRESUPUESTO TOTAL DE LA OBRA</span>
-        <strong>${{ totalGeneral | number:'1.2-2' }}</strong>
+      <div class="kpi-item kpi-item--total">
+        <div class="kpi-icon"><mat-icon>paid</mat-icon></div>
+        <div>
+          <div class="kpi-val">${{ totalGeneral | number:'1.2-2' }}</div>
+          <div class="kpi-label">Directo ${{ costoDirecto | number:'1.2-2' }} + Indirecto {{ porcentajeIndirectoUI | number:'1.0-2' }}% ${{ costoIndirecto | number:'1.2-2' }}</div>
+        </div>
       </div>
     </div>
 
-    <!-- Panel para guardar el presupuesto -->
-    <div class="guardar-panel no-print" *ngIf="!cargando">
-      <input
-        type="text"
-        class="guardar-panel__input"
-        placeholder="Nombre del presupuesto (ej. Vivienda familia Pérez)"
-        [(ngModel)]="nombrePresupuesto" />
+    <!-- Datos del proyecto (cabecera del formato Excel) + acciones -->
+    <div class="panel panel--proyecto">
+      <div class="panel-header">
+        <mat-icon>assignment</mat-icon>
+        <h3 class="panel-header__titulo">Datos del proyecto</h3>
+      </div>
 
-      <button type="button" class="btn-guardar-presupuesto" [disabled]="guardando" (click)="guardarPresupuesto()">
-        <mat-icon>save</mat-icon>
-        {{ guardando ? 'Guardando...' : 'Guardar Presupuesto' }}
-      </button>
+      <div class="panel-body">
+        <div class="form-grid">
+          <div class="campo-grupo campo-grupo--ancho">
+            <div class="campo-label"><mat-icon>home_work</mat-icon> Proyecto de construcción de *</div>
+            <input class="campo-input" type="text" [(ngModel)]="encabezado.proyecto" placeholder="Ej. Vivienda unifamiliar familia Pérez" />
+          </div>
+          <div class="campo-grupo">
+            <div class="campo-label"><mat-icon>tag</mat-icon> Número de trámite</div>
+            <input class="campo-input" type="text" [(ngModel)]="encabezado.numeroTramite" placeholder="Ej. 2026-0153" />
+          </div>
+          <div class="campo-grupo">
+            <div class="campo-label"><mat-icon>event</mat-icon> Fecha</div>
+            <input class="campo-input" type="date" [(ngModel)]="encabezado.fecha" />
+          </div>
+          <div class="campo-grupo">
+            <div class="campo-label"><mat-icon>square_foot</mat-icon> Área de construcción (m²)</div>
+            <input class="campo-input" type="number" min="0" step="0.01" [(ngModel)]="encabezado.areaConstruccion" placeholder="0.00" />
+          </div>
+          <div class="campo-grupo">
+            <div class="campo-label"><mat-icon>percent</mat-icon> Costo indirecto (%)</div>
+            <input class="campo-input" type="number" min="0" step="0.5" [(ngModel)]="porcentajeIndirectoUI" />
+          </div>
+        </div>
 
-      <button type="button" class="btn-imprimir" (click)="imprimir()">
-        <mat-icon>print</mat-icon> Imprimir
-      </button>
+        <div class="botones-form no-print" *ngIf="!cargando">
+          <button type="button" class="btn-principal" (click)="generarPresupuesto()">
+            <mat-icon>table_view</mat-icon> Generar presupuesto
+          </button>
+          <button type="button" class="btn-secundario btn-secundario--personalizado" (click)="abrirFormPersonalizado()">
+            <mat-icon>playlist_add</mat-icon> Rubro personalizado
+          </button>
+          <button type="button" class="btn-secundario" (click)="nuevoPresupuestoEnBlanco()">
+            <mat-icon>restart_alt</mat-icon> Limpiar
+          </button>
+          <span class="mensaje-form" *ngIf="mensajeGuardado">
+            <mat-icon>info</mat-icon> {{ mensajeGuardado }}
+          </span>
+        </div>
+      </div>
+    </div>
 
-      <span class="guardar-panel__mensaje" *ngIf="mensajeGuardado">{{ mensajeGuardado }}</span>
+    <div class="aviso" *ngIf="!cargando && fuentesConError.length > 0">
+      <mat-icon>warning</mat-icon>
+      <div class="aviso-texto">
+        <strong>No se pudieron leer los APU de: {{ fuentesConError.join(', ') }}</strong>
+        <p>Sus rubros se muestran igual, con el costo unitario editable.</p>
+      </div>
+    </div>
+
+    <!-- Stock insuficiente en inventario -->
+    <div class="aviso aviso--stock" *ngIf="!cargando && faltantesStock.length > 0">
+      <mat-icon>inventory_2</mat-icon>
+      <div class="aviso-texto">
+        <strong>Stock insuficiente en inventario para las cantidades indicadas</strong>
+        <ul class="aviso-lista">
+          <li *ngFor="let f of faltantesStock">
+            {{ f.material.codigo }} {{ f.material.descripcion }}: requerido {{ f.requerido | number:'1.0-2' }} {{ f.material.unidad }},
+            disponible {{ f.disponible | number:'1.0-2' }} {{ f.material.unidad }}
+          </li>
+        </ul>
+        <p>Reduce las cantidades de los rubros marcados o repón el material en Inventario.</p>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filter-bar no-print" *ngIf="!cargando">
+      <div class="filter-bar__header">
+        <mat-icon>manage_search</mat-icon>
+        <h3 class="filter-bar__titulo">Filtros de búsqueda</h3>
+      </div>
+      <div class="filter-bar__campos">
+        <div class="filtro-campo">
+          <div class="filtro-label"><mat-icon>filter_list</mat-icon> Sistema</div>
+          <select class="filtro-select" [(ngModel)]="categoriaSeleccionada">
+            <option value="">Todos los sistemas ({{ totalRubros }} rubros)</option>
+            <option *ngFor="let cat of gruposPorCategoria" [value]="cat.clave">{{ cat.codigo }} {{ cat.nombre }}</option>
+          </select>
+        </div>
+        <div class="filtro-campo">
+          <div class="filtro-label"><mat-icon>search</mat-icon> Buscar rubro</div>
+          <input class="filtro-input" type="text" placeholder="Código o descripción..." [(ngModel)]="textoBusqueda" />
+        </div>
+        <label class="filtro-check">
+          <input type="checkbox" [(ngModel)]="soloSeleccionados" />
+          Solo incluidos ({{ totalSeleccionados }})
+        </label>
+      </div>
     </div>
 
     <!-- Estado de Carga -->
@@ -80,7 +171,7 @@
       <p>Cargando los rubros de todos los sistemas...</p>
     </div>
 
-    <!-- Contenido -->
+    <!-- Rubros por sistema -->
     <div class="rubros-contenido" *ngIf="!cargando">
 
       <div
@@ -88,39 +179,55 @@
         class="seccion-categoria-presupuesto"
         [ngClass]="'seccion-categoria-presupuesto--' + categoria.claseColor">
 
-        <!-- Cabecera de la categoría: se puede plegar/expandir -->
         <div class="categoria-header-principal" (click)="toggleCategoria(categoria)">
           <div class="categoria-header-principal__izq">
-            <button type="button" class="btn-toggle-categoria no-print" [attr.aria-label]="categoria.expandido ? 'Contraer' : 'Expandir'">
-              <mat-icon>{{ categoria.expandido ? 'expand_less' : 'expand_more' }}</mat-icon>
-            </button>
-            <h2 class="categoria-title" [ngClass]="'categoria-title--' + categoria.claseColor">
+            <div class="categoria-icono">
               <mat-icon>{{ categoria.icono }}</mat-icon>
-              {{ categoria.nombre }}
-            </h2>
-            <span class="categoria-header-principal__contador">
-              {{ contarSeleccionados(categoria) }} rubro(s) seleccionados
-            </span>
+            </div>
+            <div class="categoria-header-principal__textos">
+              <h2 class="categoria-nombre">
+                <span class="categoria-nombre__codigo">{{ categoria.codigo }}</span>
+                {{ categoria.nombreFormato }}
+              </h2>
+              <span class="categoria-header-principal__contador">
+                {{ contarSeleccionados(categoria) }} de {{ contarRubros(categoria) }} rubros incluidos
+              </span>
+            </div>
           </div>
 
-          <span class="costo-total-tag costo-total-tag--categoria">
-            Subtotal {{ categoria.nombre }}: ${{ categoria.subtotal | number:'1.2-2' }}
-          </span>
+          <div class="categoria-header-principal__der">
+            <button type="button" class="btn-mini no-print" *ngIf="categoria.grupos.length > 0" (click)="seleccionarCategoria(categoria, true, $event)">
+              <mat-icon>done_all</mat-icon> Incluir todos
+            </button>
+            <button type="button" class="btn-mini no-print" *ngIf="contarSeleccionados(categoria) > 0" (click)="seleccionarCategoria(categoria, false, $event)">
+              <mat-icon>remove_done</mat-icon> Quitar todos
+            </button>
+            <button type="button" class="btn-mini btn-mini--accent no-print" (click)="abrirFormPersonalizado(categoria, $event)">
+              <mat-icon>add</mat-icon> Personalizado
+            </button>
+            <span class="costo-total-tag">${{ categoria.subtotal | number:'1.2-2' }}</span>
+            <button type="button" class="btn-expandir btn-expandir--categoria no-print" [attr.aria-label]="categoria.expandido ? 'Contraer' : 'Expandir'">
+              <mat-icon>{{ categoria.expandido ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </button>
+          </div>
         </div>
 
-        <!-- Contenido plegable de la categoría (se oculta con CSS, no con *ngIf, para que
-             la impresión siempre pueda mostrar todo aunque el usuario lo haya contraído) -->
         <div class="categoria-body" [class.categoria-body--colapsada]="!categoria.expandido">
 
           <div *ngIf="categoria.grupos.length === 0" class="sin-apu">
-            No hay rubros registrados todavía para este sistema.
+            <ng-container *ngIf="categoria.clave === 'personalizados'; else sinRubros">
+              Aquí aparecerán los rubros que crees con <strong>"Rubro personalizado"</strong> (por ejemplo, obras que no están en el formato).
+            </ng-container>
+            <ng-template #sinRubros>No hay rubros registrados todavía para este sistema.</ng-template>
           </div>
 
-          <div *ngFor="let grupo of categoria.grupos" class="categoria-seccion">
-            <h3 class="subcategoria-titulo">{{ grupo.subcategoria }}</h3>
+          <div *ngFor="let grupo of gruposVisibles(categoria)" class="categoria-seccion">
+            <h3 class="categoria-title">
+              <span *ngIf="grupo.codigo">{{ grupo.codigo }} · </span>{{ grupo.nombre }}
+              <span class="etiqueta-personalizado" *ngIf="grupo.personalizado">nueva</span>
+            </h3>
 
             <div class="tabla-rubros-scroll">
-              <!-- Encabezado de columnas: mismo grid que cada fila de rubro, para que todo quede alineado -->
               <div class="rubro-columnas">
                 <span class="col-header no-print"></span>
                 <span class="col-header no-print"></span>
@@ -135,9 +242,9 @@
 
               <div class="rubros-acordeon-lista">
                 <div
-                  *ngFor="let r of grupo.rubros"
+                  *ngFor="let r of itemsVisibles(grupo)"
                   class="rubro-card"
-                  [ngClass]="{ 'rubro-card--excluido': !r.seleccionado }">
+                  [ngClass]="{ 'rubro-card--excluido': !r.seleccionado, 'rubro-card--personalizado': r.personalizado, 'rubro-card--sin-stock': sinStock(r) }">
 
                   <div class="rubro-header" (click)="toggleDesplegar(r)">
 
@@ -146,137 +253,142 @@
                         type="checkbox"
                         title="Incluir este rubro en el presupuesto"
                         [(ngModel)]="r.seleccionado"
-                        (ngModelChange)="actualizarSeleccion(categoria)" />
+                        (ngModelChange)="actualizarSeleccion(r)" />
                     </div>
 
-                    <button type="button" class="btn-expandir no-print">
-                      <mat-icon>{{ r.desplegado ? 'expand_less' : 'expand_more' }}</mat-icon>
+                    <button type="button" class="btn-expandir no-print" [disabled]="!r.apu" [title]="r.apu ? 'Ver APU' : 'Sin APU calculado'">
+                      <mat-icon>{{ r.apu ? (r.desplegado ? 'expand_less' : 'expand_more') : 'remove' }}</mat-icon>
                     </button>
 
                     <span class="rubro-codigo">{{ r.codigo }}</span>
-                    <span class="rubro-descripcion">{{ r.descripcion }}</span>
-                    <span class="col-unidad">{{ r.unidad_medida }}</span>
-                    <span class="col-pu">${{ r.costo_directo_total | number:'1.2-2' }}</span>
+                    <span class="rubro-descripcion">
+                      {{ r.descripcion }}
+                      <span class="etiqueta-personalizado" *ngIf="r.personalizado">personalizado</span>
+                      <span class="etiqueta-sin-apu" *ngIf="!r.personalizado && !r.tieneApu">sin APU</span>
+                      <span class="etiqueta-sin-stock" *ngIf="sinStock(r)" [title]="detalleSinStock(r)">sin stock</span>
+                    </span>
+                    <span class="col-unidad">{{ r.unidad }}</span>
+
+                    <!-- P.U.: viene del APU; si no hay APU (o es personalizado) se escribe a mano -->
+                    <span class="col-pu" *ngIf="r.tieneApu && !r.personalizado">${{ r.precioUnitario | number:'1.2-2' }}</span>
+                    <div class="cantidad-wrapper" *ngIf="!r.tieneApu || r.personalizado" (click)="$event.stopPropagation()">
+                      <input
+                        type="number" min="0" step="0.01"
+                        class="cantidad-input cantidad-input--pu"
+                        title="Costo unitario (incluido IVA)"
+                        [(ngModel)]="r.precioUnitario"
+                        (ngModelChange)="actualizarPrecio(r)" />
+                    </div>
 
                     <div class="cantidad-wrapper" (click)="$event.stopPropagation()">
                       <input
-                        type="number"
-                        min="0"
-                        step="0.01"
+                        type="number" min="0" step="0.01"
                         class="cantidad-input"
                         [(ngModel)]="r.cantidad"
-                        (ngModelChange)="actualizarCantidad(r, categoria)" />
+                        (ngModelChange)="actualizarCantidad(r)" />
                     </div>
 
-                    <span class="col-total">${{ r.totalPresupuestado | number:'1.2-2' }}</span>
+                    <span class="col-total">${{ r.total | number:'1.2-2' }}</span>
 
                     <div class="col-acciones no-print" (click)="$event.stopPropagation()">
                       <button
+                        *ngIf="!r.personalizado && categoria.clave !== 'personalizados'"
                         type="button"
                         class="btn-editar-rubro"
-                        title="Editar APU"
+                        [title]="r.rubroId ? 'Editar APU' : 'Calcular APU'"
                         (click)="editarRubro(r, categoria, $event)">
                         <mat-icon>edit</mat-icon>
+                      </button>
+                      <button
+                        *ngIf="r.personalizado"
+                        type="button"
+                        class="btn-eliminar-rubro"
+                        title="Quitar rubro personalizado"
+                        (click)="eliminarPersonalizado(r, grupo, categoria, $event)">
+                        <mat-icon>delete</mat-icon>
                       </button>
                     </div>
                   </div>
 
-                  <div class="rubro-detalles-body" *ngIf="r.desplegado">
+                  <div class="rubro-detalles-body" *ngIf="r.desplegado && r.apu as apu">
 
-                    <div class="tabla-seccion tabla-seccion--equipos" *ngIf="r.equipos.length > 0">
+                    <div class="tabla-seccion tabla-seccion--equipos" *ngIf="apu.equipos.length > 0">
                       <h4 class="tabla-seccion__titulo">1. Equipos y Herramientas</h4>
                       <table class="apu-tabla">
                         <thead>
-                          <tr>
-                            <th>Descripción</th><th>Cantidad</th><th>Costo Unitario ($)</th><th>Rendimiento</th><th>Subtotal ($)</th>
-                          </tr>
+                          <tr><th>Descripción</th><th>Cantidad</th><th>Costo Unitario ($)</th><th>Rendimiento</th><th>Subtotal ($)</th></tr>
                         </thead>
                         <tbody>
-                          <tr *ngFor="let eq of r.equipos">
+                          <tr *ngFor="let eq of apu.equipos">
                             <td>{{ eq.descripcion }}</td><td>{{ eq.cantidad | number:'1.2-4' }}</td><td>${{ eq.costo_unitario | number:'1.2-2' }}</td><td>{{ eq.rendimiento | number:'1.2-4' }}</td><td>${{ eq.subtotal | number:'1.2-2' }}</td>
                           </tr>
                         </tbody>
                         <tfoot>
-                          <tr>
-                            <td colspan="4" class="text-right font-bold">Subtotal Equipos:</td>
-                            <td class="font-bold">${{ r.subtotalEquipos | number:'1.2-2' }}</td>
-                          </tr>
+                          <tr><td colspan="4" class="text-right font-bold">Subtotal Equipos:</td><td class="font-bold">${{ apu.subtotalEquipos | number:'1.2-2' }}</td></tr>
                         </tfoot>
                       </table>
                     </div>
 
-                    <div class="tabla-seccion tabla-seccion--mano-obra" *ngIf="r.manoObra.length > 0">
+                    <div class="tabla-seccion tabla-seccion--mano-obra" *ngIf="apu.manoObra.length > 0">
                       <h4 class="tabla-seccion__titulo">2. Mano de Obra</h4>
                       <table class="apu-tabla">
                         <thead>
-                          <tr>
-                            <th>Descripción</th><th>Cantidad</th><th>Costo Unitario ($)</th><th>Rendimiento</th><th>Subtotal ($)</th>
-                          </tr>
+                          <tr><th>Descripción</th><th>Cantidad</th><th>Costo Unitario ($)</th><th>Rendimiento</th><th>Subtotal ($)</th></tr>
                         </thead>
                         <tbody>
-                          <tr *ngFor="let mo of r.manoObra">
+                          <tr *ngFor="let mo of apu.manoObra">
                             <td>{{ mo.descripcion }}</td><td>{{ mo.cantidad | number:'1.2-4' }}</td><td>${{ mo.costo_unitario | number:'1.2-2' }}</td><td>{{ mo.rendimiento | number:'1.2-4' }}</td><td>${{ mo.subtotal | number:'1.2-2' }}</td>
                           </tr>
                         </tbody>
                         <tfoot>
-                          <tr>
-                            <td colspan="4" class="text-right font-bold">Subtotal Mano de Obra:</td>
-                            <td class="font-bold">${{ r.subtotalManoObra | number:'1.2-2' }}</td>
-                          </tr>
+                          <tr><td colspan="4" class="text-right font-bold">Subtotal Mano de Obra:</td><td class="font-bold">${{ apu.subtotalManoObra | number:'1.2-2' }}</td></tr>
                         </tfoot>
                       </table>
                     </div>
 
-                    <div class="tabla-seccion tabla-seccion--materiales" *ngIf="r.materiales.length > 0">
+                    <div class="tabla-seccion tabla-seccion--materiales" *ngIf="apu.materiales.length > 0">
                       <h4 class="tabla-seccion__titulo">3. Materiales</h4>
                       <table class="apu-tabla">
                         <thead>
-                          <tr>
-                            <th>Descripción</th><th>Unidad</th><th>Cantidad</th><th>Costo Unitario ($)</th><th>Subtotal ($)</th>
-                          </tr>
+                          <tr><th>Descripción</th><th>Unidad</th><th>Cantidad</th><th>Costo Unitario ($)</th><th>Subtotal ($)</th></tr>
                         </thead>
                         <tbody>
-                          <tr *ngFor="let mat of r.materiales">
+                          <tr *ngFor="let mat of apu.materiales">
                             <td>{{ mat.descripcion }}</td><td>{{ mat.unidad }}</td><td>{{ mat.cantidad | number:'1.2-4' }}</td><td>${{ mat.costo_unitario | number:'1.2-2' }}</td><td>${{ mat.subtotal | number:'1.2-2' }}</td>
                           </tr>
                         </tbody>
                         <tfoot>
-                          <tr>
-                            <td colspan="4" class="text-right font-bold">Subtotal Materiales:</td>
-                            <td class="font-bold">${{ r.subtotalMateriales | number:'1.2-2' }}</td>
-                          </tr>
+                          <tr><td colspan="4" class="text-right font-bold">Subtotal Materiales:</td><td class="font-bold">${{ apu.subtotalMateriales | number:'1.2-2' }}</td></tr>
                         </tfoot>
                       </table>
                     </div>
 
-                    <div class="tabla-seccion tabla-seccion--transporte" *ngIf="r.transporte.length > 0">
+                    <div class="tabla-seccion tabla-seccion--transporte" *ngIf="apu.transporte.length > 0">
                       <h4 class="tabla-seccion__titulo">4. Transporte</h4>
                       <table class="apu-tabla">
                         <thead>
-                          <tr>
-                            <th>Descripción</th><th>Unidad</th><th>Cantidad</th><th>Costo Unitario ($)</th><th>Subtotal ($)</th>
-                          </tr>
+                          <tr><th>Descripción</th><th>Unidad</th><th>Cantidad</th><th>Costo Unitario ($)</th><th>Subtotal ($)</th></tr>
                         </thead>
                         <tbody>
-                          <tr *ngFor="let tr of r.transporte">
+                          <tr *ngFor="let tr of apu.transporte">
                             <td>{{ tr.descripcion }}</td><td>{{ tr.unidad }}</td><td>{{ tr.cantidad | number:'1.2-4' }}</td><td>${{ tr.costo_unitario | number:'1.2-2' }}</td><td>${{ tr.subtotal | number:'1.2-2' }}</td>
                           </tr>
                         </tbody>
                       </table>
                     </div>
 
-                    <div *ngIf="r.equipos.length === 0 && r.manoObra.length === 0 && r.materiales.length === 0 && r.transporte.length === 0" class="sin-apu">
+                    <div *ngIf="apu.equipos.length === 0 && apu.manoObra.length === 0 && apu.materiales.length === 0 && apu.transporte.length === 0" class="sin-apu">
                       No hay desglose de APU guardado para este rubro.
                     </div>
 
                     <div class="resumen-directo">
                       <span>COSTO DIRECTO UNITARIO (P.U.):</span>
-                      <strong>${{ r.costo_directo_total | number:'1.2-2' }} / {{ r.unidad_medida }}</strong>
+                      <strong>${{ r.precioUnitario | number:'1.2-2' }} / {{ r.unidad }}</strong>
                     </div>
 
                     <div class="resumen-directo resumen-directo--presupuesto">
-                      <span>TOTAL PRESUPUESTADO DEL RUBRO ({{ r.cantidad | number:'1.2-2' }} {{ r.unidad_medida }}):</span>
-                      <strong>${{ r.totalPresupuestado | number:'1.2-2' }}</strong>
+                      <span>TOTAL PRESUPUESTADO DEL RUBRO ({{ r.cantidad | number:'1.2-2' }} {{ r.unidad }}):</span>
+                      <strong>${{ r.total | number:'1.2-2' }}</strong>
                     </div>
                   </div>
 
@@ -286,107 +398,275 @@
           </div>
         </div>
       </div>
+    </div>
 
+    
+    <!-- Modal: crear rubro personalizado -->
+    <div class="modal-fondo no-print" *ngIf="mostrarFormPersonalizado" (click)="cerrarFormPersonalizado()">
+      <div class="modal-personalizado" (click)="$event.stopPropagation()" role="dialog" aria-label="Nuevo rubro personalizado">
+        <div class="panel-header panel-header--personalizado">
+          <mat-icon>playlist_add</mat-icon>
+          <h3 class="panel-header__titulo">Nuevo rubro personalizado</h3>
+          <button type="button" class="btn-cerrar" (click)="cerrarFormPersonalizado()" aria-label="Cerrar"><mat-icon>close</mat-icon></button>
+        </div>
+
+        <div class="panel-body">
+          <p class="modal-personalizado__ayuda">Se agrega solo a este presupuesto; no modifica el catálogo de rubros ni los APU.</p>
+
+          <div class="form-grid form-grid--2">
+            <div class="campo-grupo">
+              <div class="campo-label"><mat-icon>category</mat-icon> Sistema</div>
+              <select class="campo-select" [(ngModel)]="nuevoRubro.categoriaClave" (ngModelChange)="cambiarCategoriaForm()">
+                <option *ngFor="let c of gruposPorCategoria" [value]="c.clave">{{ c.codigo }} {{ c.nombre }}</option>
+              </select>
+            </div>
+
+            <div class="campo-grupo">
+              <div class="campo-label"><mat-icon>folder</mat-icon> Subcategoría</div>
+              <select class="campo-select" [(ngModel)]="nuevoRubro.subcategoria">
+                <option *ngFor="let g of gruposCategoriaForm" [value]="claveGrupo(g)">{{ g.codigo ? g.codigo + ' ' : '' }}{{ g.nombre }}</option>
+                <option [value]="NUEVA_SUBCATEGORIA">+ Nueva subcategoría…</option>
+              </select>
+            </div>
+
+            <div class="campo-grupo campo-grupo--ancho" *ngIf="nuevoRubro.subcategoria === NUEVA_SUBCATEGORIA">
+              <div class="campo-label"><mat-icon>create_new_folder</mat-icon> Nombre de la nueva subcategoría</div>
+              <input class="campo-input" type="text" [(ngModel)]="nuevoRubro.nombreSubcategoria" placeholder="Ej. OBRAS EXTERIORES" />
+            </div>
+
+            <div class="campo-grupo">
+              <div class="campo-label"><mat-icon>pin</mat-icon> Código (autogenerado)</div>
+              <input class="campo-input" type="text" [value]="codigoPreview" readonly />
+            </div>
+
+            <div class="campo-grupo">
+              <div class="campo-label"><mat-icon>straighten</mat-icon> Unidad *</div>
+              <input class="campo-input" type="text" list="unidades-presupuesto" [(ngModel)]="nuevoRubro.unidad" placeholder="m², ml, u..." />
+              <datalist id="unidades-presupuesto">
+                <option *ngFor="let u of unidadesSugeridas" [value]="u"></option>
+              </datalist>
+            </div>
+
+            <div class="campo-grupo campo-grupo--ancho">
+              <div class="campo-label"><mat-icon>construction</mat-icon> Descripción del rubro *</div>
+              <input class="campo-input" type="text" [(ngModel)]="nuevoRubro.descripcion" placeholder="Ej. Jardinería y césped en área posterior" />
+            </div>
+
+            <div class="campo-grupo">
+              <div class="campo-label"><mat-icon>attach_money</mat-icon> Costo unitario incl. IVA *</div>
+              <input class="campo-input" type="number" min="0" step="0.01" [(ngModel)]="nuevoRubro.precioUnitario" placeholder="0.00" />
+            </div>
+
+            <div class="campo-grupo">
+              <div class="campo-label"><mat-icon>numbers</mat-icon> Cantidad *</div>
+              <input class="campo-input" type="number" min="0" step="0.01" [(ngModel)]="nuevoRubro.cantidad" />
+            </div>
+          </div>
+
+          <div class="resumen-directo">
+            <span>TOTAL DEL RUBRO</span>
+            <strong>${{ totalNuevoRubro | number:'1.2-2' }}</strong>
+          </div>
+
+          <span class="mensaje-form mensaje-form--error" *ngIf="mensajePersonalizado">
+            <mat-icon>error_outline</mat-icon> {{ mensajePersonalizado }}
+          </span>
+
+          <div class="botones-form">
+            <button type="button" class="btn-principal btn-principal--personalizado" (click)="agregarRubroPersonalizado()">
+              <mat-icon>add</mat-icon> Agregar al presupuesto
+            </button>
+            <button type="button" class="btn-secundario" (click)="cerrarFormPersonalizado()">
+              <mat-icon>close</mat-icon> Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </ng-container>
 
   <!-- =======================================================
-       VISTA 2: LISTA DE PRESUPUESTOS GUARDADOS
+       VISTA 2: PRESUPUESTO GENERADO EN EL FORMATO EXCEL
+       (sirve para uno nuevo y para uno guardado)
+  ======================================================== -->
+  <ng-container *ngIf="vista === 'formato'">
+
+    <div class="aviso aviso--ambar no-print" *ngIf="origenFormato === 'nuevo' && rubrosSinPrecio > 0">
+      <mat-icon>info</mat-icon>
+      <div class="aviso-texto">
+        <strong>{{ rubrosSinPrecio }} rubro(s) incluidos tienen costo unitario $0.00</strong>
+        <p>No tienen APU calculado ni precio escrito a mano. Vuelve a editar si quieres completarlos.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header panel-header--acciones no-print">
+        <mat-icon>table_view</mat-icon>
+        <h3 class="panel-header__titulo">Formato para presupuesto</h3>
+
+        <div class="panel-header__acciones">
+          <button type="button" class="btn-secundario" (click)="volverDesdeFormato()">
+            <mat-icon>arrow_back</mat-icon> {{ origenFormato === 'nuevo' ? 'Volver a editar' : 'Volver a guardados' }}
+          </button>
+          <button type="button" class="btn-principal btn-guardar-verde" *ngIf="origenFormato === 'nuevo'"
+                  [disabled]="guardando || (!!presupuestoEditandoId && !hayCambios)" (click)="guardarPresupuesto()">
+            <mat-icon>{{ presupuestoEditandoId && !hayCambios ? 'check' : (presupuestoEditandoId ? 'sync' : 'save') }}</mat-icon>
+            {{ guardando ? 'Guardando...' : (presupuestoEditandoId ? (hayCambios ? 'Actualizar' : 'Guardado') : 'Guardar') }}
+          </button>
+          <button type="button" class="btn-secundario btn-secundario--editar" *ngIf="origenFormato === 'guardado'"
+                  [disabled]="!formato" (click)="editarPresupuesto(presupuestoVistoId)">
+            <mat-icon>edit</mat-icon> Editar
+          </button>
+          <button type="button" class="btn-excel" [disabled]="!formato" (click)="descargarExcel()">
+            <mat-icon>download</mat-icon> Excel
+          </button>
+          <button type="button" class="btn-secundario" [disabled]="!formato" (click)="imprimir()">
+            <mat-icon>print</mat-icon> Imprimir / PDF
+          </button>
+        </div>
+      </div>
+
+      <div class="mensaje-barra no-print" *ngIf="mensajeGuardado && origenFormato === 'nuevo'"
+           [class.mensaje-barra--ok]="!!presupuestoEditandoId && !hayCambios">
+        <mat-icon>{{ presupuestoEditandoId && !hayCambios ? 'check_circle' : 'info' }}</mat-icon> {{ mensajeGuardado }}
+      </div>
+
+      <div *ngIf="cargandoDetalle" class="cargando-wrapper">
+        <p>Cargando presupuesto...</p>
+      </div>
+
+      <!-- Hoja con el mismo formato del Excel "PRESUPUESTO" -->
+      <div class="hoja-formato-scroll" *ngIf="!cargandoDetalle && formato as f">
+        <table class="hoja-formato">
+        <colgroup>
+          <col class="hf-c-rubro" /><col class="hf-c-detalle" /><col class="hf-c-unidad" /><col class="hf-c-cant" />
+          <col class="hf-c-pu" /><col class="hf-c-sub" /><col class="hf-c-total" /><col class="hf-c-pct" />
+        </colgroup>
+        <thead>
+          <tr><th colspan="8" class="hf-titulo">FORMATO PARA PRESUPUESTO</th></tr>
+          <tr class="hf-enc"><th colspan="2">PROYECTO DE CONSTRUCCIÓN DE:</th><td colspan="6">{{ f.encabezado.proyecto }}</td></tr>
+          <tr class="hf-enc"><th colspan="2">NÚMERO DE TRÁMITE:</th><td colspan="6">{{ f.encabezado.numeroTramite }}</td></tr>
+          <tr class="hf-enc"><th colspan="2">FECHA:</th><td colspan="6">{{ fechaFormato(f.encabezado.fecha) }}</td></tr>
+          <tr class="hf-enc"><th colspan="2">AREA DE CONSTRUCCIÓN: m²</th><td colspan="6">{{ f.encabezado.areaConstruccion !== null ? (f.encabezado.areaConstruccion | number:'1.2-2') : '' }}</td></tr>
+          <tr class="hf-cols">
+            <th>RUBRO</th><th>DETALLE</th><th>UNIDAD</th><th>CANTIDAD</th>
+            <th>COSTO UNITARIO (incluido iva)</th><th>SUBTOTAL</th><th>TOTAL</th><th>%</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let cat of f.categorias">
+            <tr class="hf-espacio"><td colspan="8"></td></tr>
+            <tr class="hf-cat">
+              <td class="hf-centro">{{ cat.codigo }}</td>
+              <td colspan="5">{{ cat.nombre }}</td>
+              <td class="hf-total">$ {{ cat.total | number:'1.2-2' }}</td>
+              <td class="hf-num">{{ cat.porcentaje | percent:'1.2-2' }}</td>
+            </tr>
+            <ng-container *ngFor="let sub of cat.subcategorias">
+              <tr class="hf-espacio"><td colspan="8"></td></tr>
+              <tr class="hf-sub" *ngIf="mostrarFilaSubcategoria(cat, sub)">
+                <td class="hf-centro">{{ sub.codigo }}</td>
+                <td colspan="5">{{ sub.nombre }}</td>
+                <td class="hf-total">$ {{ sub.total | number:'1.2-2' }}</td>
+                <td class="hf-num">{{ sub.porcentaje | percent:'1.2-2' }}</td>
+              </tr>
+              <tr class="hf-item" *ngFor="let it of sub.items" [class.hf-item--personalizado]="it.personalizado">
+                <td class="hf-centro">{{ it.codigo }}</td>
+                <td>{{ it.descripcion }}</td>
+                <td class="hf-centro">{{ it.unidad }}</td>
+                <td class="hf-num">{{ it.cantidad | number:'1.2-2' }}</td>
+                <td class="hf-num">{{ it.precioUnitario | number:'1.2-2' }}</td>
+                <td class="hf-num">{{ it.subtotal | number:'1.2-2' }}</td>
+                <td></td><td></td>
+              </tr>
+            </ng-container>
+          </ng-container>
+          <tr class="hf-espacio"><td colspan="8"></td></tr>
+        </tbody>
+        <tfoot>
+          <tr class="hf-pie">
+            <td></td><th>COSTO DIRECTO DE OBRA:</th><td></td><td></td><td></td>
+            <td class="hf-num hf-negrita">{{ f.costoDirecto | number:'1.2-2' }}</td><td colspan="2" class="hf-sin-borde"></td>
+          </tr>
+          <tr class="hf-pie">
+            <td></td><th>COSTO INDIRECTO DE OBRA:</th><td></td><td></td>
+            <td class="hf-centro hf-negrita">{{ f.encabezado.porcentajeIndirecto | percent:'1.2-2' }}</td>
+            <td class="hf-num">{{ f.costoIndirecto | number:'1.2-2' }}</td><td colspan="2" class="hf-sin-borde"></td>
+          </tr>
+          <tr class="hf-pie">
+            <td></td><th>TOTAL COSTOS DIRECTOS + INDIRECTOS</th><td></td><td></td><td></td>
+            <td class="hf-num hf-negrita">{{ f.total | number:'1.2-2' }}</td><td colspan="2" class="hf-sin-borde"></td>
+          </tr>
+        </tfoot>
+      </table>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- =======================================================
+       VISTA 3: LISTA DE PRESUPUESTOS GUARDADOS
   ======================================================== -->
   <ng-container *ngIf="vista === 'historial'">
 
-    <div *ngIf="cargandoHistorial" class="cargando-wrapper">
-      <p>Cargando presupuestos guardados...</p>
-    </div>
-
-    <div *ngIf="!cargandoHistorial && presupuestosGuardados.length === 0" class="sin-apu">
-      Todavía no has guardado ningún presupuesto.
-    </div>
-
-    <div class="historial-lista" *ngIf="!cargandoHistorial && presupuestosGuardados.length > 0">
-      <div class="historial-fila historial-fila--titulos">
-        <span>Nombre</span>
-        <span>Fecha</span>
-        <span class="text-right">Total</span>
-        <span></span>
+    <div class="panel">
+      <div class="panel-header">
+        <mat-icon>folder_open</mat-icon>
+        <h3 class="panel-header__titulo">Presupuestos guardados</h3>
+        <span class="panel-header__contador" *ngIf="!cargandoHistorial">{{ presupuestosGuardados.length }} registro(s)</span>
       </div>
 
-      <div
-        class="historial-fila"
-        *ngFor="let p of presupuestosGuardados"
-        (click)="verDetalle(p.id)">
-        <span class="historial-fila__nombre">{{ p.nombre }}</span>
-        <span>{{ p.creado_en | date:'dd/MM/yyyy HH:mm' }}</span>
-        <span class="text-right font-bold">${{ p.total | number:'1.2-2' }}</span>
-        <span class="historial-fila__acciones">
-          <button type="button" class="btn-ver-presupuesto" (click)="verDetalle(p.id); $event.stopPropagation()">
-            <mat-icon>visibility</mat-icon> Ver
-          </button>
-          <button type="button" class="btn-eliminar-presupuesto" (click)="eliminarPresupuesto(p.id, $event)">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </span>
-      </div>
-    </div>
-  </ng-container>
-
-  <!-- =======================================================
-       VISTA 3: DETALLE DE UN PRESUPUESTO GUARDADO (imprimible)
-  ======================================================== -->
-  <ng-container *ngIf="vista === 'detalle'">
-
-    <div class="detalle-toolbar no-print">
-      <button type="button" class="btn-vista" (click)="volverAHistorial()">
-        <mat-icon>arrow_back</mat-icon> Volver al historial
-      </button>
-      <button type="button" class="btn-imprimir" (click)="imprimir()">
-        <mat-icon>print</mat-icon> Imprimir
-      </button>
-    </div>
-
-    <div *ngIf="cargandoDetalle" class="cargando-wrapper">
-      <p>Cargando presupuesto...</p>
-    </div>
-
-    <div *ngIf="!cargandoDetalle && presupuestoDetalle">
-
-      <div class="detalle-encabezado">
-        <h2>{{ presupuestoDetalle.nombre }}</h2>
-        <span>Guardado el {{ presupuestoDetalle.creado_en | date:'dd MMMM yyyy · HH:mm' }}</span>
+      <div *ngIf="cargandoHistorial" class="cargando-wrapper">
+        <p>Cargando presupuestos guardados...</p>
       </div>
 
-      <div class="detalle-tabla-wrapper">
-        <table class="apu-tabla detalle-tabla">
+      <div *ngIf="!cargandoHistorial && errorHistorial" class="aviso aviso--stock aviso--en-panel">
+        <mat-icon>error_outline</mat-icon>
+        <div class="aviso-texto">
+          <strong>No se pudieron cargar los presupuestos guardados</strong>
+          <p>{{ errorHistorial }}</p>
+        </div>
+        <button type="button" class="btn-secundario" (click)="reintentarHistorial()">
+          <mat-icon>refresh</mat-icon> Reintentar
+        </button>
+      </div>
+
+      <div *ngIf="!cargandoHistorial && !errorHistorial && presupuestosGuardados.length === 0" class="sin-datos">
+        <mat-icon>inventory_2</mat-icon>
+        Todavía no has guardado ningún presupuesto.
+      </div>
+
+      <div class="tabla-scroll" *ngIf="!cargandoHistorial && presupuestosGuardados.length > 0">
+        <table class="tabla-presupuestos">
           <thead>
             <tr>
-              <th>Sistema</th>
-              <th>Subcategoría</th>
-              <th>Código</th>
-              <th>Descripción</th>
-              <th>Unidad</th>
-              <th class="text-right">P.U. ($)</th>
-              <th class="text-right">Cantidad</th>
-              <th class="text-right">Total ($)</th>
+              <th>Proyecto</th>
+              <th>Nº trámite</th>
+              <th>Fecha</th>
+              <th class="text-right">Costo directo</th>
+              <th class="text-right">Total</th>
+              <th class="text-center">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let item of presupuestoDetalle.items">
-              <td>{{ item.categoria_nombre }}</td>
-              <td>{{ item.subcategoria_nombre }}</td>
-              <td>{{ item.rubro_codigo }}</td>
-              <td>{{ item.rubro_descripcion }}</td>
-              <td>{{ item.unidad_medida }}</td>
-              <td class="text-right">${{ item.costo_unitario | number:'1.2-2' }}</td>
-              <td class="text-right">{{ item.cantidad | number:'1.2-2' }}</td>
-              <td class="text-right font-bold">${{ item.total | number:'1.2-2' }}</td>
+            <tr *ngFor="let p of presupuestosGuardados" (click)="verDetalle(p.id)">
+              <td class="col-proyecto">{{ p.nombre }}</td>
+              <td>{{ p.numero_tramite || '—' }}</td>
+              <td>{{ p.fecha_presupuesto ? fechaFormato(p.fecha_presupuesto) : (p.creado_en | date:'dd/MM/yyyy') }}</td>
+              <td class="text-right">${{ (p.costo_directo ?? p.total) | number:'1.2-2' }}</td>
+              <td class="text-right font-bold">${{ p.total | number:'1.2-2' }}</td>
+              <td class="col-acciones-tabla">
+                <button type="button" class="btn-ver-rubro" title="Ver formato" (click)="verDetalle(p.id); $event.stopPropagation()">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button type="button" class="btn-editar-rubro" title="Editar / actualizar" (click)="editarPresupuesto(p.id, $event)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button type="button" class="btn-eliminar-rubro" title="Eliminar (devuelve el stock al inventario)" (click)="eliminarPresupuesto(p.id, $event)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
             </tr>
           </tbody>
-          <tfoot>
-            <tr>
-              <td colspan="7" class="text-right font-bold">TOTAL DEL PRESUPUESTO:</td>
-              <td class="text-right font-bold">${{ presupuestoDetalle.total | number:'1.2-2' }}</td>
-            </tr>
-          </tfoot>
         </table>
       </div>
     </div>

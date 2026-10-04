@@ -1,24 +1,31 @@
-<div class="container apu-wrapper obra-gris">
-  <!-- Header -->
-  <div class="header-interno">
-    <div class="header-interno__izq">
-      <div class="header-interno__badge_acabados">
-        <mat-icon>format_paint</mat-icon>
+<div class="container apu-wrapper obra-gris tema--acabados">
+  <!-- HEADER TIPO BANNER (mismo estilo que Cálculos / Inventario) -->
+  <div class="header-banner banner--acabados">
+    <div class="banner-contenido">
+      <div class="header-izq">
+        <div class="header-badge">
+          <mat-icon>format_paint</mat-icon>
+        </div>
+        <div class="banner-textos">
+          <h1 class="titulo">Obra de Acabados</h1>
+          <p class="subtitulo">Gestión de rubros para revestimientos, cielos rasos, carpintería y obras adicionales.</p>
+        </div>
       </div>
-      <div class="header-interno__texto">
-        <h1 class="titulo-interno">Obra de Acabados</h1>
-        <p class="subtitulo-interno">Gestión de rubros para revestimientos, cielos rasos, carpintería y obras adicionales.</p>
-      </div>
-    </div>
 
-    <div class="filtro-wrapper">
-      <mat-icon class="filtro-icon">filter_list</mat-icon>
-      <select [(ngModel)]="subcategoriaSeleccionada" (change)="filtrarPorCategoria()" class="select-custom">
-        <option value="">Todas las subcategorías</option>
-        <option *ngFor="let sub of subcategorias" [value]="sub">
-          {{ sub }}
-        </option>
-      </select>
+      <div class="banner-derecha">
+        <span class="banner-chip">
+          <mat-icon>tag</mat-icon> Sistema 2.0
+        </span>
+        <div class="banner-filtro">
+          <mat-icon class="banner-filtro__icon">filter_list</mat-icon>
+          <select [(ngModel)]="subcategoriaSeleccionada" (change)="filtrarPorCategoria()" class="select-custom banner-filtro__select">
+            <option value="">Todas las subcategorías</option>
+            <option *ngFor="let sub of subcategorias" [value]="sub">
+              {{ sub }}
+            </option>
+          </select>
+        </div>
+      </div>
     </div>
   </div>
 

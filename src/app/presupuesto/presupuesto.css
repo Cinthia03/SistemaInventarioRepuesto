@@ -1,213 +1,596 @@
-/* PRESUPUESTO GENERAL — extiende el diseño de rubros.css (obra-gris, acabados, hidráulico, eléctrico) */
+/* =====================================================================
+   PRESUPUESTO GENERAL
+   Usa la misma línea visual que Cálculos e Inventario:
+   banner de color, paneles con cabecera gris, campos con ícono,
+   barra de filtros y botones delineados. Las tarjetas de rubros y las
+   tablas de APU vienen de ../calculo/rubros.css.
+   ===================================================================== */
 
-.contenedor {
-  height: 90vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  padding: 10px;
-  box-sizing: border-box;
-  background: #F1F5F9;
-  font-family: 'Roboto', sans-serif;
+:host {
+  --color-primario:          #133b4b;
+  --color-personalizado:     #7c3aed;
+  --color-personalizado-suave: #7c3aed1f;
+  --color-fila:              #f8fafc;
+  --color-guardar:           #16a34a;
+  --color-guardar-suave:     #f5fff5;
+  --color-nuevo:             #1d4ed8;
+  --color-nuevo-suave:       #eff6ff;
+  --color-excel:             #1d6f42;
+  --sombra:                  0 2px 8px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.06);
 }
 
-/* ── Tabs para cambiar entre "Nuevo" / "Guardados" ───────────────────── */
-.vista-tabs {
+/* ══════════════════════════════════════
+   CONTENEDOR
+══════════════════════════════════════ */
+.container {
+  padding: 40px 40px 64px;
+  font-family: var(--font-cuerpo);
+  background: var(--color-card);
+  color: var(--color-texto);
+  box-sizing: border-box;
+}
+
+/* ══════════════════════════════════════
+   BANNER (igual que Cálculos / Inventario)
+══════════════════════════════════════ */
+.header-banner {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--color-primario);
+  border-radius: var(--radio);
+  padding: 32px 0;
+  margin-bottom: 28px;
+  box-shadow: 0 10px 25px rgba(26, 47, 110, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.banner-contenido {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 0 24px;
+}
+
+.header-izq {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-badge {
+  width: 64px;
+  height: 64px;
+  border-radius: calc(var(--radio) * 0.8);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.header-badge mat-icon { font-size: 32px; width: 32px; height: 32px; }
+
+.titulo {
+  font-family: var(--font-titulo);
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 8px;
+}
+
+.subtitulo {
+  font-size: 14px;
+  color: #fff;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.btn-volver {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--trans);
+}
+.btn-volver:hover { background: rgba(255,255,255,0.18); }
+.btn-volver mat-icon { font-size: 20px; width: 20px; height: 20px; }
+
+.banner-acciones {
+  display: flex;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
-.btn-vista {
-  display: inline-flex;
+.btn-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 99px;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.10);
+  color: #fff;
+  font-family: var(--font-cuerpo);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--trans), color var(--trans);
+}
+.btn-banner:hover { background: rgba(255,255,255,0.22); }
+.btn-banner mat-icon { font-size: 18px; width: 18px; height: 18px; }
+.btn-banner--activo,
+.btn-banner--activo:hover {
+  background: #fff;
+  color: var(--color-primario);
+  border-color: #fff;
+}
+
+/* ══════════════════════════════════════
+   KPIs POR SISTEMA (estilo Modelos Predictivos)
+══════════════════════════════════════ */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.kpi-item {
+  --kpi: var(--color-obraGris);
+  background: var(--color-card);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: var(--sombra);
+}
+
+.kpi-item--acabados      { --kpi: var(--color-acabados); }
+.kpi-item--hidraulico    { --kpi: var(--color-hidraulico); }
+.kpi-item--electrico     { --kpi: var(--color-electrico); }
+.kpi-item--personalizado { --kpi: var(--color-personalizado); }
+
+.kpi-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radio-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--kpi);
+  color: #fff;
+}
+.kpi-icon mat-icon { font-size: 22px; width: 22px; height: 22px; }
+
+.kpi-val {
+  font-family: var(--font-titulo);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--kpi);
+  line-height: 1.1;
+}
+
+.kpi-label {
+  font-size: 11.5px;
+  color: var(--color-suave);
+  margin-top: 3px;
+  font-weight: 500;
+}
+
+.kpi-item--total {
+  background: var(--color-primario);
+  border-color: var(--color-primario);
+}
+.kpi-item--total .kpi-icon { background: rgba(255,255,255,0.15); }
+.kpi-item--total .kpi-val { color: #fff; font-size: 22px; }
+.kpi-item--total .kpi-label { color: rgba(255,255,255,0.8); }
+
+/* ══════════════════════════════════════
+   PANELES (cabecera gris + cuerpo)
+══════════════════════════════════════ */
+.panel {
+  background: var(--color-card);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  background: var(--color-fila);
+  border-bottom: 1px solid var(--color-borde);
+}
+.panel-header mat-icon { font-size: 18px; width: 18px; height: 18px; color: var(--color-primario); }
+
+.panel-header__titulo {
+  font-family: var(--font-titulo);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--color-primario);
+  margin: 0;
+}
+
+.panel-header__contador {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-suave);
+}
+
+.panel-header--acciones { flex-wrap: wrap; }
+.panel-header__acciones {
+  margin-left: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.panel-header--personalizado mat-icon,
+.panel-header--personalizado .panel-header__titulo { color: var(--color-personalizado); }
+
+.panel-body { padding: 20px; }
+
+/* ══════════════════════════════════════
+   CAMPOS (estilo formularios de Inventario)
+══════════════════════════════════════ */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px 16px;
+}
+.form-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.campo-grupo { min-width: 0; }
+.campo-grupo--ancho { grid-column: span 2; }
+
+.campo-label {
+  display: flex;
   align-items: center;
   gap: 6px;
-  padding: 9px 16px;
-  border: 1px solid var(--color-borde);
-  background: var(--color-card);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
   color: var(--color-texto);
+  margin-bottom: 6px;
+}
+.campo-label mat-icon { font-size: 15px; width: 15px; height: 15px; color: var(--color-suave); }
+
+.campo-input,
+.campo-select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-sm);
+  font-size: 14px;
+  font-family: var(--font-cuerpo);
+  color: var(--color-texto);
+  background: var(--color-bg);
+  outline: none;
+  transition: border-color var(--trans), box-shadow var(--trans);
+}
+
+.campo-input:focus,
+.campo-select:focus {
+  border-color: var(--color-primario);
+  box-shadow: 0 0 0 3px rgba(19, 59, 75, 0.10);
+}
+
+.campo-input[readonly] {
+  color: var(--color-suave);
+  font-family: monospace;
+  font-weight: 700;
+  cursor: not-allowed;
+}
+
+.campo-select,
+
+/* ══════════════════════════════════════
+   BOTONES
+══════════════════════════════════════ */
+.botones-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-borde);
+}
+
+.btn-principal,
+.btn-secundario,
+.btn-excel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
   border-radius: var(--radio-sm);
   font-family: var(--font-cuerpo);
   font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--trans);
+}
+.btn-principal mat-icon,
+.btn-secundario mat-icon,
+.btn-excel mat-icon { font-size: 17px; width: 17px; height: 17px; }
+
+.btn-principal {
+  border: 1.5px solid var(--color-primario);
+  background: var(--color-primario);
+  color: #fff;
+}
+.btn-principal:hover:not([disabled]) { filter: brightness(.88); transform: translateY(-1px); }
+
+.btn-principal--personalizado { border-color: var(--color-personalizado); background: var(--color-personalizado); }
+
+.btn-secundario {
+  border: 1.5px solid var(--color-borde);
+  background: var(--color-card);
+  color: var(--color-suave);
+}
+.btn-secundario:hover:not([disabled]) {
+  border-color: var(--color-nuevo);
+  color: var(--color-nuevo);
+  background: var(--color-nuevo-suave);
+  transform: translateY(-1px);
+}
+.btn-secundario--personalizado { border-color: var(--color-personalizado); color: var(--color-personalizado); }
+.btn-secundario--personalizado:hover:not([disabled]) {
+  border-color: var(--color-personalizado);
+  color: var(--color-personalizado);
+  background: var(--color-personalizado-suave);
+}
+
+.btn-excel {
+  border: 1.5px solid var(--color-excel);
+  background: var(--color-card);
+  color: var(--color-excel);
+}
+.btn-excel:hover:not([disabled]) { background: var(--color-excel); color: #fff; transform: translateY(-1px); }
+
+.btn-principal[disabled],
+.btn-secundario[disabled],
+.btn-excel[disabled] { opacity: .55; cursor: not-allowed; }
+
+.btn-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: 1.5px solid var(--color-borde);
+  border-radius: 99px;
+  background: var(--color-card);
+  color: var(--color-suave);
+  font-family: var(--font-cuerpo);
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all var(--trans);
 }
+.btn-mini:hover { border-color: var(--cat); color: var(--cat); }
+.btn-mini mat-icon { font-size: 15px; width: 15px; height: 15px; }
+.btn-mini--accent { border-color: var(--color-personalizado); color: var(--color-personalizado); }
+.btn-mini--accent:hover { background: var(--color-personalizado-suave); border-color: var(--color-personalizado); color: var(--color-personalizado); }
 
-.btn-vista:hover { background: var(--color-bg); }
-
-.btn-vista--activo {
-  background: var(--color-obraGris);
-  border-color: var(--color-obraGris);
-  color: #fff;
-}
-
-/* Grid compartido por el encabezado de columnas y cada fila de rubro,
-   para que código / descripción / unidad / P.U. / cantidad / total queden alineados. */
-.rubro-columnas,
-.rubro-header {
-  display: grid;
-  grid-template-columns: 26px 28px 86px minmax(180px, 1fr) 74px 100px 92px 112px 60px;
+.btn-ver-rubro {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-}
-
-.tabla-rubros-scroll {
-  overflow-x: auto;
-}
-
-.rubro-columnas,
-.rubros-acordeon-lista {
-  min-width: 780px;
-}
-
-/* ── RESUMEN GENERAL (chips por sistema + total de la obra) ─────────── */
-.resumen-presupuesto {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: stretch;
-  gap: 14px;
-  margin-bottom: 20px;
-}
-
-.resumen-presupuesto__chip {
-  flex: 1 1 160px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 12px 16px;
-  border-radius: var(--radio-sm);
-  border: 1px solid var(--color-borde);
-  background: var(--color-bg);
-}
-
-.resumen-presupuesto__nombre {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  color: var(--color-suave);
-}
-
-.resumen-presupuesto__valor {
-  font-family: var(--font-titulo);
-  font-size: 18px;
-  font-weight: 800;
-}
-
-.resumen-presupuesto__contador {
-  font-size: 11px;
-  color: var(--color-suave);
-}
-
-.resumen-presupuesto__chip--obraGris   .resumen-presupuesto__valor { color: var(--color-obraGris); }
-.resumen-presupuesto__chip--acabados   .resumen-presupuesto__valor { color: var(--color-acabados); }
-.resumen-presupuesto__chip--hidraulico .resumen-presupuesto__valor { color: var(--color-hidraulico); }
-.resumen-presupuesto__chip--electrico  .resumen-presupuesto__valor { color: var(--color-electrico); }
-
-.resumen-presupuesto__total {
-  flex: 1 1 220px;
-  display: flex;
-  flex-direction: column;
   justify-content: center;
-  gap: 4px;
-  padding: 12px 20px;
-  border-radius: var(--radio-sm);
-  background: var(--color-texto);
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1.5px solid var(--color-nuevo);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--color-nuevo);
+  cursor: pointer;
+  transition: all var(--trans);
 }
+.btn-ver-rubro:hover { background: var(--color-nuevo); color: #fff; transform: translateY(-1px); }
+.btn-ver-rubro mat-icon { font-size: 18px; width: 18px; height: 18px; }
 
-.resumen-presupuesto__total span {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  color: var(--color-card);
-  opacity: 0.8;
-}
-
-.resumen-presupuesto__total strong {
-  font-family: var(--font-titulo);
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--color-card);
-}
-
-/* ── Panel para guardar el presupuesto ────────────────────────────────── */
-.guardar-panel {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  padding: 14px 16px;
-  margin-bottom: 28px;
-  background: var(--color-bg);
-  border: 1px solid var(--color-borde);
-  border-radius: var(--radio-sm);
-}
-
-.guardar-panel__input {
-  flex: 1 1 280px;
-  padding: 9px 12px;
-  border: 1px solid var(--color-borde);
-  border-radius: var(--radio-sm);
-  font-family: var(--font-cuerpo);
-  font-size: 13px;
-}
-
-.guardar-panel__input:focus {
-  outline: none;
-  border-color: var(--color-obraGris);
-}
-
-.btn-guardar-presupuesto,
-.btn-imprimir {
+/* ══════════════════════════════════════
+   MENSAJES / AVISOS
+══════════════════════════════════════ */
+.mensaje-form {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 9px 16px;
-  border-radius: var(--radio-sm);
-  font-family: var(--font-cuerpo);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-primario);
+}
+.mensaje-form mat-icon { font-size: 16px; width: 16px; height: 16px; }
+.mensaje-form--error { color: #b91c1c; margin-top: 12px; }
+
+.mensaje-barra {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
   font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  border: none;
-  white-space: nowrap;
+  font-weight: 600;
+  background: #eff6ff;
+  color: var(--color-nuevo);
+  border-bottom: 1px solid var(--color-borde);
 }
+.mensaje-barra--ok { background: #dcfce7; color: #15803d; }
+.mensaje-barra mat-icon { font-size: 18px; width: 18px; height: 18px; }
 
-.btn-guardar-presupuesto {
-  background: var(--color-obraGris);
-  color: #fff;
+.aviso {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: var(--radio);
+  padding: 14px 20px;
+  margin-bottom: 24px;
 }
+.aviso mat-icon { color: #b45309; flex-shrink: 0; }
+.aviso-texto strong { display: block; font-size: 13.5px; color: var(--color-texto); margin-bottom: 2px; }
+.aviso-texto p { margin: 0; font-size: 12.5px; color: var(--color-suave); }
 
-.btn-guardar-presupuesto:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.sin-datos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 48px 20px;
+  color: var(--color-suave);
+  font-size: 14px;
 }
+.sin-datos mat-icon { font-size: 36px; width: 36px; height: 36px; opacity: .5; }
 
-.btn-imprimir {
+/* ══════════════════════════════════════
+   FILTROS (igual que Inventario)
+══════════════════════════════════════ */
+.filter-bar {
   background: var(--color-card);
   border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.filter-bar__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: var(--color-fila);
+  border-bottom: 1px solid var(--color-borde);
+}
+.filter-bar__header mat-icon { font-size: 16px; width: 16px; height: 16px; color: var(--color-texto); }
+
+.filter-bar__titulo {
+  font-family: var(--font-titulo);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin: 0;
   color: var(--color-texto);
 }
 
-.btn-imprimir:hover { background: var(--color-bg); }
-
-.guardar-panel__mensaje {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--color-obraGris);
-  flex-basis: 100%;
+.filter-bar__campos {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  padding: 16px 20px;
+  flex-wrap: wrap;
 }
 
-/* ── SECCIÓN POR SISTEMA (obra gris / acabados / hidráulico / eléctrico) ─── */
+.filtro-campo {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.filtro-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--color-suave);
+}
+.filtro-label mat-icon { font-size: 13px; width: 13px; height: 13px; }
+
+.filtro-input,
+.filtro-select {
+  padding: 9px 14px;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-sm);
+  font-size: 13.5px;
+  font-family: var(--font-cuerpo);
+  color: var(--color-texto);
+  background: var(--color-bg);
+  outline: none;
+  transition: border-color var(--trans), box-shadow var(--trans);
+}
+.filtro-input:focus,
+.filtro-select:focus {
+  border-color: var(--color-primario);
+  box-shadow: 0 0 0 3px rgba(19, 59, 75, 0.10);
+}
+.filtro-select {
+  appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+.filtro-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-sm);
+  background: var(--color-bg);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-texto);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.filtro-check input { width: 16px; height: 16px; accent-color: var(--color-primario); }
+
+/* ══════════════════════════════════════
+   SECCIÓN POR SISTEMA
+══════════════════════════════════════ */
 .seccion-categoria-presupuesto {
-  margin-bottom: 28px;
+  --cat: var(--color-obraGris);
+  --cat-suave: var(--color-obraGris-suave);
+  margin-bottom: 24px;
   border: 1px solid var(--color-borde);
   border-radius: var(--radio);
+  box-shadow: var(--sombra);
   overflow: hidden;
+  background: var(--color-card);
 }
+.seccion-categoria-presupuesto--acabados      { --cat: var(--color-acabados);      --cat-suave: var(--color-acabados-suave); }
+.seccion-categoria-presupuesto--hidraulico    { --cat: var(--color-hidraulico);    --cat-suave: var(--color-hidraulico-suave); }
+.seccion-categoria-presupuesto--electrico     { --cat: var(--color-electrico);     --cat-suave: var(--color-electrico-suave); }
+.seccion-categoria-presupuesto--personalizado { --cat: var(--color-personalizado); --cat-suave: var(--color-personalizado-suave); }
 
 .categoria-header-principal {
   display: flex;
@@ -215,8 +598,10 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
-  padding: 16px 20px;
-  background: var(--color-bg);
+  padding: 14px 20px;
+  background: var(--color-fila);
+  border-bottom: 1px solid var(--color-borde);
+  border-top: 4px solid var(--cat);
   cursor: pointer;
 }
 
@@ -224,8 +609,32 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  flex-wrap: wrap;
+  min-width: 0;
 }
+
+.categoria-icono {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radio-sm);
+  background: var(--cat);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.categoria-icono mat-icon { font-size: 24px; width: 24px; height: 24px; }
+
+.categoria-nombre {
+  font-family: var(--font-titulo);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--cat);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin: 0;
+}
+.categoria-nombre__codigo { opacity: .7; margin-right: 4px; }
 
 .categoria-header-principal__contador {
   font-size: 12px;
@@ -233,66 +642,46 @@
   color: var(--color-suave);
 }
 
-.btn-toggle-categoria {
-  border: 1px solid var(--color-borde);
-  background: var(--color-card);
-  color: var(--color-texto);
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
+.categoria-header-principal__der {
   display: flex;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-.categoria-body {
-  padding: 20px;
+.btn-expandir--categoria { color: var(--cat); background: var(--color-card); border: 1px solid var(--color-borde); width: 32px; height: 32px; }
+
+.categoria-body { padding: 20px; }
+.categoria-body--colapsada { display: none; }
+
+.categoria-seccion { margin-bottom: 26px; }
+.categoria-seccion:last-child { margin-bottom: 0; }
+
+/* Subcategoría: mismo título con borde que en Obra Gris / Acabados... */
+.categoria-seccion .categoria-title {
+  font-size: 15px;
+  border-left-color: var(--cat);
+  margin-bottom: 12px;
 }
 
-.categoria-body--colapsada {
-  display: none;
-}
+/* ══════════════════════════════════════
+   FILAS DE RUBROS (grid alineado)
+══════════════════════════════════════ */
+.tabla-rubros-scroll { overflow-x: auto; }
 
-.categoria-title {
-  display: flex;
+.rubro-columnas,
+.rubro-header {
+  display: grid;
+  grid-template-columns: 26px 28px 86px minmax(180px, 1fr) 70px 104px 96px 112px 76px;
   align-items: center;
   gap: 10px;
-  border-left: 4px solid var(--color-obraGris);
-  margin: 0;
 }
 
-.categoria-title--acabados   { border-left-color: var(--color-acabados);   color: var(--color-acabados); }
-.categoria-title--hidraulico { border-left-color: var(--color-hidraulico); color: var(--color-hidraulico); }
-.categoria-title--electrico  { border-left-color: var(--color-electrico);  color: var(--color-electrico); }
+.rubro-columnas,
+.rubros-acordeon-lista { min-width: 800px; }
 
-.costo-total-tag--categoria {
-  font-size: 14px;
-}
-
-.subcategoria-titulo {
-  font-family: var(--font-cuerpo);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--color-suave);
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  margin: 0 0 8px 4px;
-}
-
-.categoria-seccion {
-  margin-bottom: 26px;
-}
-
-.categoria-seccion:last-child {
-  margin-bottom: 0;
-}
-
-/* ── Encabezado de columnas (Código / Descripción / Unidad / P.U. / Cantidad / Total) ── */
-.rubro-columnas {
-  padding: 0 20px 6px;
-}
+.rubro-columnas { padding: 0 20px 8px; }
+.rubro-header { padding: 12px 20px; }
 
 .col-header {
   font-size: 10.5px;
@@ -301,40 +690,29 @@
   letter-spacing: 0.4px;
   color: var(--color-suave);
 }
+.col-header--right { text-align: right; }
 
-.col-header--right {
-  text-align: right;
-}
-
-/* ── Columnas dentro de cada fila de rubro ───────────────────────────── */
-.rubro-header {
-  padding: 12px 20px;
-}
-
-.rubro-header__check {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
+.rubro-header__check { display: flex; align-items: center; justify-content: center; }
 .rubro-header__check input[type="checkbox"] {
   width: 17px;
   height: 17px;
   cursor: pointer;
-  accent-color: var(--color-obraGris);
+  accent-color: var(--cat);
 }
 
-.col-unidad {
-  font-size: 12px;
-  color: var(--color-suave);
-  text-align: right;
-}
+.rubro-codigo { color: var(--cat); font-size: 13px; }
+.rubro-descripcion { font-size: 13.5px; }
+.btn-expandir { color: var(--cat); }
+.btn-expandir:hover { background: var(--cat-suave); }
+.btn-expandir:disabled { opacity: .35; cursor: default; }
+
+.col-unidad { font-size: 12px; color: var(--color-suave); text-align: right; }
 
 .col-pu {
   font-family: var(--font-titulo);
   font-weight: 700;
   font-size: 13px;
-  color: var(--color-obraGris);
+  color: var(--cat);
   text-align: right;
 }
 
@@ -346,240 +724,260 @@
   text-align: right;
 }
 
-.col-acciones {
-  display: flex;
-  justify-content: flex-end;
-}
+.col-acciones { display: flex; justify-content: flex-end; gap: 6px; }
 
-.col-acciones .btn-editar-rubro {
-  padding: 6px;
-}
-
-.col-acciones .btn-editar-rubro mat-icon {
-  margin: 0;
-}
-
-/* Un rubro NO seleccionado no forma parte del presupuesto: se ve atenuado
-   y se excluye por completo al imprimir. */
-.rubro-card--excluido {
-  opacity: 0.5;
-}
-
-.rubro-card--excluido:hover {
-  opacity: 0.8;
-}
-
-/* ── Cálculo por rubro: cantidad presupuestada ───────────────────────── */
 .cantidad-input {
   width: 100%;
-  padding: 5px 8px;
-  border: 1px solid var(--color-borde);
+  box-sizing: border-box;
+  padding: 6px 8px;
+  border: 1.5px solid var(--color-borde);
   border-radius: var(--radio-sm);
+  background: var(--color-bg);
   font-family: var(--font-cuerpo);
   font-size: 12.5px;
   font-weight: 600;
   color: var(--color-texto);
   text-align: right;
-}
-
-.cantidad-input:focus {
   outline: none;
-  border-color: var(--color-obraGris);
+  transition: border-color var(--trans), box-shadow var(--trans);
 }
+.cantidad-input:focus { border-color: var(--cat); box-shadow: 0 0 0 3px var(--cat-suave); background: #fff; }
+.cantidad-input--pu { border-style: dashed; }
 
-.resumen-directo--presupuesto {
-  margin-top: -6px;
-  background: var(--color-obraGris);
-}
+/* Rubro no incluido: atenuado (y no se imprime) */
+.rubro-card--excluido { opacity: 0.55; }
+.rubro-card--excluido:hover { opacity: 0.85; }
+.rubro-card--personalizado { border-left: 3px solid var(--color-personalizado); }
 
-/* Colorea acordeones, códigos y botones según el sistema al que pertenecen */
-.seccion-categoria-presupuesto--acabados .rubro-codigo,
-.seccion-categoria-presupuesto--acabados .col-pu {
-  color: var(--color-acabados);
-}
-.seccion-categoria-presupuesto--acabados .rubro-header__check input[type="checkbox"] { accent-color: var(--color-acabados); }
-.seccion-categoria-presupuesto--acabados .btn-expandir { color: var(--color-acabados); }
-.seccion-categoria-presupuesto--acabados .btn-expandir:hover { background: var(--color-acabados-suave); }
-.seccion-categoria-presupuesto--acabados .btn-editar-rubro { border-color: var(--color-acabados); color: var(--color-acabados); }
-.seccion-categoria-presupuesto--acabados .btn-editar-rubro:hover { background: var(--color-acabados); color: #fff; }
-.seccion-categoria-presupuesto--acabados .resumen-directo--presupuesto { background: var(--color-acabados); }
+.resumen-directo--presupuesto { margin-top: -6px; background: var(--cat); }
 
-.seccion-categoria-presupuesto--hidraulico .rubro-codigo,
-.seccion-categoria-presupuesto--hidraulico .col-pu {
-  color: var(--color-hidraulico);
-}
-.seccion-categoria-presupuesto--hidraulico .rubro-header__check input[type="checkbox"] { accent-color: var(--color-hidraulico); }
-.seccion-categoria-presupuesto--hidraulico .btn-expandir { color: var(--color-hidraulico); }
-.seccion-categoria-presupuesto--hidraulico .btn-expandir:hover { background: var(--color-hidraulico-suave); }
-.seccion-categoria-presupuesto--hidraulico .btn-editar-rubro { border-color: var(--color-hidraulico); color: var(--color-hidraulico); }
-.seccion-categoria-presupuesto--hidraulico .btn-editar-rubro:hover { background: var(--color-hidraulico); color: #fff; }
-.seccion-categoria-presupuesto--hidraulico .resumen-directo--presupuesto { background: var(--color-hidraulico); }
-
-.seccion-categoria-presupuesto--electrico .rubro-codigo,
-.seccion-categoria-presupuesto--electrico .col-pu {
-  color: var(--color-electrico);
-}
-.seccion-categoria-presupuesto--electrico .rubro-header__check input[type="checkbox"] { accent-color: var(--color-electrico); }
-.seccion-categoria-presupuesto--electrico .btn-expandir { color: var(--color-electrico); }
-.seccion-categoria-presupuesto--electrico .btn-expandir:hover { background: var(--color-electrico-suave); }
-.seccion-categoria-presupuesto--electrico .btn-editar-rubro { border-color: var(--color-electrico); color: var(--color-electrico); }
-.seccion-categoria-presupuesto--electrico .btn-editar-rubro:hover { background: var(--color-electrico); color: #fff; }
-.seccion-categoria-presupuesto--electrico .resumen-directo--presupuesto { background: var(--color-electrico); }
-
-/* ── VISTA: HISTORIAL DE PRESUPUESTOS GUARDADOS ──────────────────────── */
-.historial-lista {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.historial-fila {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 160px;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 18px;
-  border: 1px solid var(--color-borde);
-  border-radius: var(--radio-sm);
-  cursor: pointer;
-  transition: box-shadow var(--trans);
-}
-
-.historial-fila:hover {
-  box-shadow: var(--sombra);
-}
-
-.historial-fila--titulos {
-  cursor: default;
-  font-size: 11px;
+.etiqueta-personalizado,
+.etiqueta-sin-apu {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
-  color: var(--color-suave);
+  vertical-align: middle;
+}
+.etiqueta-personalizado { background: var(--color-personalizado-suave); color: var(--color-personalizado); }
+.etiqueta-sin-apu { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+
+/* ══════════════════════════════════════
+   MODAL RUBRO PERSONALIZADO
+══════════════════════════════════════ */
+.modal-fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(15, 23, 42, .5);
+}
+
+.modal-personalizado {
+  width: min(680px, 100%);
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  background: var(--color-card);
+  border-radius: var(--radio);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, .25);
+}
+
+.modal-personalizado .panel-header { border-top: 4px solid var(--color-personalizado); }
+
+.btn-cerrar {
+  margin-left: auto;
   border: none;
-}
-
-.historial-fila--titulos:hover {
-  box-shadow: none;
-}
-
-.historial-fila__nombre {
-  font-weight: 700;
-  color: var(--color-texto);
-}
-
-.historial-fila__acciones {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.btn-ver-presupuesto {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  border: 1px solid var(--color-primario);
-  background: white;
-  color: var(--color-primario);
-  padding: 6px 11px;
-  border-radius: 6px;
-  font-family: var(--font-cuerpo);
-  font-size: 11px;
-  font-weight: 700;
+  background: transparent;
+  color: var(--color-suave);
   cursor: pointer;
-  transition: all 0.22s ease;
-}
-
-.btn-ver-presupuesto mat-icon {
-  font-size: 17px;
-  width: 17px;
-  height: 17px;
-}
-
-.btn-ver-presupuesto:hover {
-  background: var(--color-primario);
-  color: white;
-}
-
-.btn-eliminar-presupuesto {
-  border: 1px solid #b91c1c;
-  background: #fff;
-  color: #b91c1c;
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
 }
 
-.btn-eliminar-presupuesto:hover {
-  background: #b91c1c;
-  color: #fff;
-}
-
-/* ── VISTA: DETALLE DE UN PRESUPUESTO GUARDADO (imprimible) ──────────── */
-.detalle-toolbar {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.detalle-encabezado {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-bottom: 20px;
-}
-
-.detalle-encabezado h2 {
-  font-family: var(--font-titulo);
-  margin: 0;
-  font-size: 22px;
-}
-
-.detalle-encabezado span {
+.modal-personalizado__ayuda {
+  margin: 0 0 16px;
   font-size: 13px;
   color: var(--color-suave);
 }
 
-.detalle-tabla-wrapper {
-  overflow-x: auto;
+.modal-personalizado .resumen-directo { margin-top: 18px; background: var(--color-personalizado); }
+
+/* ══════════════════════════════════════
+   TABLA DE PRESUPUESTOS GUARDADOS
+══════════════════════════════════════ */
+.tabla-scroll { overflow-x: auto; }
+
+.tabla-presupuestos {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
 }
 
-.detalle-tabla th,
-.detalle-tabla td {
+.tabla-presupuestos thead th {
+  text-align: left;
+  padding: 10px 16px;
+  background: var(--color-fila);
+  color: var(--color-suave);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.tabla-presupuestos tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-borde);
+  color: var(--color-texto);
   white-space: nowrap;
 }
 
-/* ── IMPRESIÓN ────────────────────────────────────────────────────────── */
+.tabla-presupuestos tbody tr { cursor: pointer; }
+.tabla-presupuestos tbody tr:hover { background: var(--color-fila); }
+.tabla-presupuestos tbody tr:last-child td { border-bottom: none; }
+
+.tabla-presupuestos .col-proyecto { font-weight: 700; color: var(--color-primario); white-space: normal; min-width: 200px; }
+.tabla-presupuestos .text-right { text-align: right; }
+.tabla-presupuestos .text-center { text-align: center; }
+.tabla-presupuestos .font-bold { font-weight: 700; }
+
+.col-acciones-tabla {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+
+/* ── Stock insuficiente ─────────────────────────────────────────────── */
+.aviso--stock { background: #fef2f2; border-color: #fecaca; }
+.aviso--stock mat-icon { color: #b91c1c; }
+.aviso-lista { margin: 4px 0 6px; padding-left: 18px; font-size: 12.5px; color: #7f1d1d; }
+.rubro-card--sin-stock { border-color: #fca5a5; background: #fff7f7; }
+.rubro-card--sin-stock .cantidad-input { border-color: #ef4444; }
+.etiqueta-sin-stock { display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 700; text-transform: uppercase; vertical-align: middle; background: #fee2e2; color: #b91c1c; cursor: help; }
+.btn-secundario--editar { border-color: #ea580c; color: #ea580c; }
+
+.aviso--en-panel { margin: 16px 20px; align-items: center; }
+.aviso--en-panel .btn-secundario { margin-left: auto; }
+.aviso--ok { background: #dcfce7; border-color: #86efac; align-items: center; }
+.aviso--ok mat-icon { color: #15803d; }
+
+/* Botón Guardar / Actualizar: verde claro, más verde al pasar el mouse */
+.btn-principal.btn-guardar-verde {
+  border-color: #86efac;
+  background: #dcfce7;
+  color: #15803d;
+}
+.btn-principal.btn-guardar-verde:hover:not([disabled]) {
+  filter: none;
+  border-color: #16a34a;
+  background: #16a34a;
+  color: #fff;
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════ */
+@media (max-width: 760px) {
+  .container { padding: 20px 16px 40px; }
+  .banner-contenido { padding: 0 16px; }
+  .titulo { font-size: 22px; }
+  .campo-grupo--ancho { grid-column: auto; }
+  .form-grid--2 { grid-template-columns: 1fr; }
+  .panel-header__acciones { margin-left: 0; width: 100%; }
+}
+
+/* ── Hoja con el formato Excel "PRESUPUESTO" ─────────────────────────── */
+.hoja-formato-scroll {
+  overflow-x: auto;
+  padding: 24px;
+  background: #fff;
+}
+
+.hoja-formato {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-family: Aptos, Calibri, Arial, sans-serif;
+  font-size: 12px;
+  color: #000;
+}
+
+.hoja-formato .hf-c-rubro  { width: 7%; }
+.hoja-formato .hf-c-detalle{ width: 38%; }
+.hoja-formato .hf-c-unidad { width: 7%; }
+.hoja-formato .hf-c-cant   { width: 9%; }
+.hoja-formato .hf-c-pu     { width: 12%; }
+.hoja-formato .hf-c-sub    { width: 10%; }
+.hoja-formato .hf-c-total  { width: 11%; }
+.hoja-formato .hf-c-pct    { width: 6%; }
+
+.hoja-formato td,
+.hoja-formato th { padding: 3px 6px; vertical-align: middle; }
+
+.hf-titulo { text-align: center; font-weight: 700; padding-bottom: 6px !important; }
+
+.hf-enc th,
+.hf-enc td { border: 1px solid #000; font-weight: 700; }
+.hf-enc th { text-align: left; }
+.hf-enc td { text-align: center; }
+
+.hf-cols th {
+  border: 2px solid #000;
+  border-left-width: 1px;
+  border-right-width: 1px;
+  text-align: center;
+  font-weight: 700;
+  padding: 8px 4px;
+}
+.hf-cols th:first-child { border-left-width: 2px; }
+.hf-cols th:nth-last-child(-n+2) { border-right-width: 2px; }
+
+.hf-espacio td { height: 8px; padding: 0; }
+
+.hf-cat td {
+  background: #bfbfbf;
+  font-weight: 700;
+  border-top: 2px solid #000;
+  border-bottom: 2px solid #000;
+}
+.hf-cat td:first-child { border-left: 2px solid #000; }
+.hf-cat td:last-child { border-right: 2px solid #000; }
+
+.hf-sub td { font-weight: 700; }
+
+.hf-total {
+  text-align: right;
+  white-space: nowrap;
+  border: 2px solid #000;
+}
+.hf-sub .hf-total { font-weight: 400; }
+
+.hf-num { text-align: right; white-space: nowrap; }
+.hf-centro { text-align: center; white-space: nowrap; }
+.hf-negrita { font-weight: 700; }
+
+.hf-item--personalizado td:nth-child(2)::after {
+  content: ' *';
+  color: var(--color-personalizado);
+}
+
+.hf-pie th,
+.hf-pie td { border: 1px solid #000; }
+.hf-pie th { text-align: left; font-weight: 700; }
+.hf-pie td:first-child,
+.hf-pie .hf-sin-borde { border: none; }
+
+/* ══════════════════════════════════════
+   IMPRESIÓN: el botón "Imprimir / PDF" imprime solo la hoja del formato
+   en un documento aparte (ver imprimirHojaFormato en formato-presupuesto.ts).
+══════════════════════════════════════ */
 @media print {
-  .no-print {
-    display: none !important;
-  }
-
-  /* Al imprimir se muestra todo el contenido, aunque el usuario haya
-     contraído alguna categoría en pantalla. */
-  .categoria-body--colapsada {
-    display: block !important;
-  }
-
-  /* Los rubros no seleccionados no forman parte del presupuesto: no se imprimen. */
-  .rubro-card--excluido {
-    display: none !important;
-  }
-
-  .cantidad-input {
-    border: none;
-    background: transparent;
-    padding: 0;
-  }
-
-  .seccion-categoria-presupuesto {
-    border: none;
-    break-inside: avoid;
-  }
+  .no-print { display: none !important; }
 }

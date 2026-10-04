@@ -7,6 +7,11 @@
     </div>
   </div>
 
-  <button class="logout-btn" (click)="irLogin()">Cerrar sesión</button>
+  <div class="header-der">
+    @if (soloLectura) {
+      <span class="badge-lectura" title="Este usuario solo puede ver la información">👁 Solo lectura</span>
+    }
+    <button class="logout-btn" (click)="irLogin()">Cerrar sesión</button>
+  </div>
 </header>
 

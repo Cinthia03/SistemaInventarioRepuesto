@@ -93,7 +93,7 @@
       </div>
       <div class="card-stats">
         <div class="card-stat">
-          <span class="card-stat__val">$ {{ valorTotalMateriales | number:'1.0-0' }}</span>
+          <span class="card-stat__val">$ {{ valorTotalMateriales | number:'1.2-2' }}</span>
           <span class="card-stat__label">Valor total</span>
         </div>
         <div class="card-stat">
@@ -187,6 +187,50 @@
         <div class="card-stat">
           <span class="card-stat__val">{{ equiposMantenimiento }}</span>
           <span class="card-stat__label">En mantenimiento</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span>Ver módulo</span>
+        <mat-icon>arrow_forward</mat-icon>
+      </div>
+    </div>
+
+    <!-- MODELOS PREDICTIVOS -->
+    <div class="card predictivo" (click)="abrirModelosPredictivos()">
+      <div class="card-header">
+        <div class="card-header__left">
+          <div class="card-header__icono">
+            <mat-icon>insights</mat-icon>
+          </div>
+          <h2 class="card-header__titulo">Modelos Predictivos</h2>
+        </div>
+        <div class="card-header__contador">
+          <span class="card-header__numero">{{ itemsStockBajo }}</span>
+          <span class="card-header__label">en riesgo</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="card-body__desc">
+          Proyecta el agotamiento de stock y la tendencia de precios a partir del historial del inventario.
+        </p>
+        <div>
+          <div class="stock-bar-labels">
+            <span>Cobertura del modelo</span>
+            <span>{{ porcentajeOptimo }}%</span>
+          </div>
+          <div class="stock-bar-track">
+            <div class="stock-bar-fill" [style.width]="porcentajeOptimo + '%'"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card-stats">
+        <div class="card-stat">
+          <span class="card-stat__val">Materiales · Equipos</span>
+          <span class="card-stat__label">Catálogos analizados</span>
+        </div>
+        <div class="card-stat">
+          <span class="card-stat__val">30 días</span>
+          <span class="card-stat__label">Horizonte de proyección</span>
         </div>
       </div>
       <div class="card-footer">

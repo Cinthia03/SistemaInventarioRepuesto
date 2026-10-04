@@ -7,6 +7,8 @@
   --color-mano-suave:        #572a5538;
   --color-equipos:           #126d59;
   --color-equipos-suave:     #126d5946;
+  --color-predictivo:        #3730a3;
+  --color-predictivo-suave:  #3730a324;
 
   --color-bg:                #f1f5f9;
   --color-card:              #ffffff;
@@ -194,7 +196,7 @@
 /* GRID DE MÓDULOS */
 .cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 24px;
   margin-bottom: 28px;
 }
@@ -407,6 +409,10 @@
 .equipos .card-header    { background: var(--color-equipos); }
 .equipos .stock-bar-fill { background: var(--color-equipos); }
 .equipos .card-footer    { color: var(--color-equipos); background: var(--color-equipos-suave); }
+
+.predictivo .card-header    { background: var(--color-predictivo); }
+.predictivo .stock-bar-fill { background: var(--color-predictivo); }
+.predictivo .card-footer    { color: var(--color-predictivo); background: var(--color-predictivo-suave); }
 
 /* FILA INFERIOR */
 .bottom-row {

@@ -2,8 +2,8 @@
 :host {
   --color-primario:          #133b4b;
 
-  --color-gris:              #475569;
-  --color-gris-suave:        #47556920;
+  --color-gris:              #5e584f;
+  --color-gris-suave:        #5e584f20;
 
   --color-acabados:          #92400e;
   --color-acabados-suave:    #92400e20;
@@ -564,4 +564,4 @@
   .container    { padding: 20px 16px 40px; }
   .cards        { grid-template-columns: 1fr; }
   .header-fecha { display: none; }
-}
+}

@@ -440,3 +440,114 @@
   color: white;
   transform: translateY(-1px);
 }
+/* =====================================================================
+   BANNER DE CABECERA (mismo estilo que Cálculos, Inventario y Materiales)
+   Cada sistema usa su color: Obra Gris, Acabados, Hidráulico, Eléctrico.
+   ===================================================================== */
+.obra-gris            { --tema: var(--color-obraGris);   --tema-suave: var(--color-obraGris-suave); }
+.tema--acabados       { --tema: var(--color-acabados);   --tema-suave: var(--color-acabados-suave); }
+.tema--hidraulico     { --tema: var(--color-hidraulico); --tema-suave: var(--color-hidraulico-suave); }
+.tema--electrico      { --tema: var(--color-electrico);  --tema-suave: var(--color-electrico-suave); }
+
+.header-banner {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--tema, var(--color-primario));
+  border-radius: var(--radio);
+  padding: 32px 0;
+  margin-bottom: 32px;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
+  position: relative;
+  overflow: hidden;
+}
+
+.banner-contenido {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 0 24px;
+}
+
+.header-izq {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-width: 0;
+}
+
+.header-badge {
+  width: 64px;
+  height: 64px;
+  border-radius: calc(var(--radio) * 0.8);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.header-badge mat-icon { font-size: 32px; width: 32px; height: 32px; }
+
+.titulo {
+  font-family: var(--font-titulo);
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 8px;
+}
+
+.subtitulo {
+  font-size: 14px;
+  color: #fff;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.banner-derecha {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.banner-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 99px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+}
+.banner-chip mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+.banner-filtro {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 99px;
+  padding: 2px 14px;
+}
+.banner-filtro__icon { color: var(--tema); font-size: 18px; width: 18px; height: 18px; margin-right: 6px; }
+.banner-filtro__select { padding: 8px 6px 8px 0; color: var(--color-texto); }
+
+/* Detalles de la lista con el color de cada sistema */
+.obra-gris .categoria-title { border-left-color: var(--tema); }
+.obra-gris .rubro-codigo { color: var(--tema); }
+.obra-gris .btn-expandir { color: var(--tema); }
+.obra-gris .btn-expandir:hover { background: var(--tema-suave); }
+
+@media (max-width: 760px) {
+  .obra-gris { padding: 20px 16px; }
+  .banner-contenido { padding: 0 16px; }
+  .titulo { font-size: 22px; }
+}

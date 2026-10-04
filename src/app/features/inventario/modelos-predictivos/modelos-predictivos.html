@@ -1,0 +1,185 @@
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header-banner">
+    <div class="banner-contenido">
+      <div class="header-izq">
+        <button class="btn-volver" (click)="volverAInventario()" title="Volver a Inventario">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div class="header-badge">
+          <mat-icon>insights</mat-icon>
+        </div>
+        <div class="banner-textos">
+          <h1 class="titulo">Modelos Predictivos</h1>
+          <p class="subtitulo">Proyección de stock y precios a partir del historial del inventario</p>
+        </div>
+      </div>
+
+      <button class="btn-snapshot" [disabled]="generandoSnapshot" (click)="generarSnapshotYRecalcular()">
+        <mat-icon>cloud_sync</mat-icon>
+        {{ generandoSnapshot ? 'Registrando...' : 'Registrar punto de hoy' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- SELECTOR DE CATALOGO -->
+  <div class="selector-tipo">
+    <button
+      class="chip"
+      [class.chip--activo]="tipoActual === 'materiales'"
+      (click)="cambiarTipo('materiales')"
+    >
+      <mat-icon>inventory</mat-icon> Materiales
+    </button>
+    <button
+      class="chip"
+      [class.chip--activo]="tipoActual === 'equipos'"
+      (click)="cambiarTipo('equipos')"
+    >
+      <mat-icon>precision_manufacturing</mat-icon> Equipos
+    </button>
+    <button
+      class="chip"
+      [class.chip--activo]="tipoActual === 'mano_obra'"
+      (click)="cambiarTipo('mano_obra')"
+    >
+      <mat-icon>groups</mat-icon> Mano de Obra
+    </button>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi-item">
+      <div class="kpi-icon kpi-icon--indigo">
+        <mat-icon>analytics</mat-icon>
+      </div>
+      <div>
+        <div class="kpi-val">{{ totalAnalizados }}</div>
+        <div class="kpi-label">Ítems analizados</div>
+      </div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-icon kpi-icon--red">
+        <mat-icon>report</mat-icon>
+      </div>
+      <div>
+        <div class="kpi-val">{{ totalCritico }}</div>
+        <div class="kpi-label">Riesgo crítico de quiebre</div>
+      </div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-icon kpi-icon--amber">
+        <mat-icon>{{ tendenciaPrecioPromedio >= 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
+      </div>
+      <div>
+        <div class="kpi-val">{{ tendenciaPrecioPromedio | number:'1.1-1' }}%</div>
+        <div class="kpi-label">Tendencia de precio (30 días)</div>
+      </div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-icon kpi-icon--green">
+        <mat-icon>event_available</mat-icon>
+      </div>
+      <div>
+        <div class="kpi-val">{{ diasHistorialDisponibles }}</div>
+        <div class="kpi-label">Fechas con historial registrado</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AVISO DATOS INSUFICIENTES -->
+  <div class="aviso" *ngIf="diasHistorialDisponibles < 2">
+    <mat-icon>info</mat-icon>
+    <div class="aviso-texto">
+      <strong>El modelo todavía no tiene suficiente historial para proyectar tendencias.</strong>
+      <p>
+        Cada vez que presionas <em>"Registrar punto de hoy"</em> se guarda una fotografía del stock y los
+        precios actuales de {{ etiquetaTipo(tipoActual).toLowerCase() }}. Con al menos 2 fotografías en
+        fechas distintas, el sistema calcula una regresión lineal y proyecta 30 días hacia adelante.
+        Mientras tanto, los ítems se clasifican solo por su stock actual.
+      </p>
+    </div>
+  </div>
+
+  <!-- TABLA DE PREDICCIONES -->
+  <div class="panel tabla-panel" *ngIf="!cargando">
+    <div class="panel-header">
+      <mat-icon>table_chart</mat-icon>
+      <h3 class="panel-header__titulo">Proyección por ítem · {{ etiquetaTipo(tipoActual) }}</h3>
+    </div>
+
+    <div class="tabla-scroll">
+      <table class="tabla-predicciones">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Descripción</th>
+            <th *ngIf="manejaStock()">Stock actual</th>
+            <th *ngIf="manejaStock()">Stock proyectado (30d)</th>
+            <th *ngIf="manejaStock()">Días hasta agotarse</th>
+            <th>Precio actual</th>
+            <th>Precio proyectado (30d)</th>
+            <th>Tendencia</th>
+            <th>Riesgo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of predicciones" [attr.data-codigo]="p.codigo">
+            <td class="col-codigo">{{ p.codigo }}</td>
+            <td class="col-desc">{{ p.descripcion }}</td>
+
+            <td *ngIf="manejaStock()">{{ p.stockActual != null ? (p.stockActual | number:'1.0-2') : '—' }}</td>
+            <td *ngIf="manejaStock()">{{ p.stockProyectado30 != null ? (p.stockProyectado30 | number:'1.0-2') : '—' }}</td>
+            <td *ngIf="manejaStock()">
+              <span *ngIf="p.diasHastaAgotamiento !== null">{{ p.diasHastaAgotamiento }} días</span>
+              <span *ngIf="p.diasHastaAgotamiento === null">—</span>
+            </td>
+
+            <td>$ {{ p.precioActual | number:'1.2-2' }}</td>
+            <td>$ {{ p.precioProyectado30 | number:'1.2-2' }}</td>
+
+            <td>
+              <span
+                *ngIf="p.tendenciaPrecioPorcentaje !== null"
+                class="tendencia"
+                [class.tendencia--sube]="p.tendenciaPrecioPorcentaje > 0.05"
+                [class.tendencia--baja]="p.tendenciaPrecioPorcentaje < -0.05"
+              >
+                <ng-container *ngIf="p.tendenciaPrecioPorcentaje > 0.05">▲</ng-container>
+                <ng-container *ngIf="p.tendenciaPrecioPorcentaje < -0.05">▼</ng-container>
+                {{ p.tendenciaPrecioPorcentaje | number:'1.1-1' }}%
+              </span>
+              <span *ngIf="p.tendenciaPrecioPorcentaje === null">—</span>
+            </td>
+
+            <td>
+              <span
+                class="badge-riesgo"
+                [class.badge-riesgo--critico]="p.riesgo === 'critico'"
+                [class.badge-riesgo--alto]="p.riesgo === 'alto'"
+                [class.badge-riesgo--medio]="p.riesgo === 'medio'"
+                [class.badge-riesgo--bajo]="p.riesgo === 'bajo'"
+                [class.badge-riesgo--sindatos]="p.riesgo === 'sin-datos'"
+              >
+                {{ etiquetaRiesgo(p.riesgo) }}
+              </span>
+            </td>
+          </tr>
+
+          <tr *ngIf="predicciones.length === 0">
+            <td [attr.colspan]="manejaStock() ? 8 : 5" class="sin-datos-fila">
+              No hay registros en este catálogo todavía.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div *ngIf="cargando" class="loading">
+    <p>Calculando predicciones...</p>
+  </div>
+
+</div>

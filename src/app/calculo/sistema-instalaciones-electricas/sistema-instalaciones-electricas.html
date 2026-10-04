@@ -1,24 +1,31 @@
-<div class="container apu-wrapper obra-gris">
-  <!-- Header -->
-  <div class="header-interno">
-    <div class="header-interno__izq">
-      <div class="header-interno__badge_electrico">
-        <mat-icon>bolt</mat-icon>
+<div class="container apu-wrapper obra-gris tema--electrico">
+  <!-- HEADER TIPO BANNER (mismo estilo que Cálculos / Inventario) -->
+  <div class="header-banner banner--electrico">
+    <div class="banner-contenido">
+      <div class="header-izq">
+        <div class="header-badge">
+          <mat-icon>bolt</mat-icon>
+        </div>
+        <div class="banner-textos">
+          <h1 class="titulo">Sistema de Instalaciones Eléctricas</h1>
+          <p class="subtitulo">Administre los rubros de instalaciones eléctricas para la elaboración del presupuesto y cálculo del APU.</p>
+        </div>
       </div>
-      <div class="header-interno__texto">
-        <h1 class="titulo-interno">Sistema de Instalaciones Eléctricas</h1>
-        <p class="subtitulo-interno">Administre los rubros de instalaciones eléctricas para la elaboración del presupuesto y cálculo del APU.</p>
-      </div>
-    </div>
 
-    <div class="filtro-wrapper">
-      <mat-icon class="filtro-icon">filter_list</mat-icon>
-      <select [(ngModel)]="subcategoriaSeleccionada" (change)="filtrarPorCategoria()" class="select-custom">
-        <option value="">Todas las subcategorías</option>
-        <option *ngFor="let sub of subcategorias" [value]="sub">
-          {{ sub }}
-        </option>
-      </select>
+      <div class="banner-derecha">
+        <span class="banner-chip">
+          <mat-icon>tag</mat-icon> Sistema 4.0
+        </span>
+        <div class="banner-filtro">
+          <mat-icon class="banner-filtro__icon">filter_list</mat-icon>
+          <select [(ngModel)]="subcategoriaSeleccionada" (change)="filtrarPorCategoria()" class="select-custom banner-filtro__select">
+            <option value="">Todas las subcategorías</option>
+            <option *ngFor="let sub of subcategorias" [value]="sub">
+              {{ sub }}
+            </option>
+          </select>
+        </div>
+      </div>
     </div>
   </div>
 

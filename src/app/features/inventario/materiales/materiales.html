@@ -208,7 +208,7 @@
                   <span class="stock-indicador"
                     [class.stock-critico]="e.stock <= 2"
                     [class.stock-bajo]="e.stock > 2 && e.stock <= 5">
-                    {{e.stock}}
+                    {{ e.stock | number:'1.0-2' }}
                   </span>
                 </td>
               </ng-container>
@@ -240,4 +240,4 @@
       </div>
     </div>
   </div>
-</div>
+</div>

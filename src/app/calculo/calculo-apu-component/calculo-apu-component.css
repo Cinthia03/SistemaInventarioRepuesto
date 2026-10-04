@@ -2,7 +2,7 @@
    VARIABLES DE DISEÑO Y CONFIGURACIÓN GLOBAL
    ========================================================================== */
 :host {
-  --color-primario:       #1a486e;
+  --color-primario:       #133b4b;
   --color-primario-light: #2a47a8;
   --color-acento:         green;
   --color-acento-light:   #f5fff5;
@@ -738,3 +738,9 @@
     justify-content: center;
   }
 }
+/* Banner con el color del sistema que se está calculando
+   (mismo color que su pantalla de rubros y que el módulo Cálculos) */
+.header-banner.banner--obra-gris                        { background: #5e584f; }
+.header-banner.banner--obra-de-acabados                 { background: #92400e; }
+.header-banner.banner--sistema-hidraulico-sanitario     { background: #297771; }
+.header-banner.banner--sistema-instalaciones-electricas { background: #15376b; }

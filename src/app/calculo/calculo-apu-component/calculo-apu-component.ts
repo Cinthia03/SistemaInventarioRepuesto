@@ -405,25 +405,14 @@ export class CalculoApuComponent implements OnInit {
     this.calcularTodo();
   }
 
-  /* ==================== DESCUENTO DE STOCK EN BASE DE DATOS ====================
-     Al elegir un insumo se reserva (descuenta) su cantidad del stock real en Supabase;
-     si luego cambia la cantidad, se elimina la fila o se cancela el cálculo, la reserva
-     se ajusta o se devuelve. Al guardar el cálculo, la reserva queda como consumo definitivo. */
-  private devolverStockEquipo(id: number | undefined, cantidad: number | undefined): void {
-    if (!id || !cantidad) return;
-    const eq = this.catalogoEquipos.find(e => e.id === id);
-    if (!eq) return;
-    eq.stock = (eq.stock || 0) + cantidad;
-    this.equiposService.actualizarStock(id, eq.stock).subscribe();
-  }
+  /* ==================== STOCK ====================
+     El cálculo de APU (crear / editar rubros) YA NO toca el stock del inventario:
+     el stock solo se descuenta al armar y guardar un PRESUPUESTO (módulo Presupuesto),
+     según las cantidades de cada rubro. Aquí el stock se muestra solo como referencia.
+     Estos métodos se dejan sin efecto para no cambiar el resto del flujo. */
+  private devolverStockEquipo(_id: number | undefined, _cantidad: number | undefined): void {}
 
-  private devolverStockMaterial(id: number | undefined, cantidad: number | undefined): void {
-    if (!id || !cantidad) return;
-    const mat = this.catalogoMateriales.find(m => m.id === id);
-    if (!mat) return;
-    mat.stock = (mat.stock || 0) + cantidad;
-    this.materialesService.actualizarStock(id, mat.stock).subscribe();
-  }
+  private devolverStockMaterial(_id: number | undefined, _cantidad: number | undefined): void {}
 
   /* ==================== AUTOCOMPLETADO (equipo / mano de obra / materiales / transporte) ==================== */
   private filtrarCatalogo<T extends { descripcion: string }>(texto: string, catalogo: T[]): T[] {
@@ -481,7 +470,6 @@ export class CalculoApuComponent implements OnInit {
   }
 
   elegirEquipo(item: EquipoCalculo, eq: equipos): void {
-    if ((eq.stock || 0) <= 0) return;
     // libera la reserva de la selección anterior de esta fila (si había) antes de tomar la nueva
     this.devolverStockEquipo(item.id, item.cantidadReservada);
     Object.assign(item, {
@@ -526,7 +514,6 @@ export class CalculoApuComponent implements OnInit {
   }
 
   elegirMaterial(item: MaterialesCalculo, mat: materiales): void {
-    if ((mat.stock || 0) <= 0) return;
     // libera la reserva de la selección anterior de esta fila (si había) antes de tomar la nueva
     this.devolverStockMaterial(item.id, item.cantidadReservada);
     Object.assign(item, {
@@ -551,7 +538,6 @@ export class CalculoApuComponent implements OnInit {
   }
 
   elegirTransporte(item: MaterialesCalculo, tr: equipos): void {
-    if ((tr.stock || 0) <= 0) return;
     // el transporte se descuenta del catálogo de equipos, no del de materiales
     this.devolverStockEquipo(item.id, item.cantidadReservada);
     Object.assign(item, {
@@ -570,81 +556,28 @@ export class CalculoApuComponent implements OnInit {
 
   /* ==================== VALIDACIONES Y CÁLCULOS APU ==================== */
   /**
-   * Valida que la cantidad no supere el stock disponible y descuenta/devuelve en Supabase
-   * solo la diferencia (delta) respecto a lo ya reservado por esta fila, para que el stock
-   * del catálogo quede siempre reflejando lo realmente consumido.
+   * Al crear / editar un rubro NO se valida ni se descuenta stock: la cantidad del APU es
+   * por unidad de rubro. El stock se valida y descuenta en el módulo Presupuesto, cuando
+   * se indica cuántas unidades del rubro lleva la obra.
    */
   validarStock(item: EquipoCalculo): void {
-    const reservadaPrevia = item.cantidadReservada || 0;
-    const eq = this.catalogoEquipos.find(e => e.id === item.id);
-    const disponibleTotal = (eq ? eq.stock : (item.stock || 0)) + reservadaPrevia;
-
-    if ((item.cantidad || 0) > disponibleTotal) {
-      this.mostrarError(`Stock insuficiente para ${item.descripcion}. Máximo disponible: (${disponibleTotal})`);
-      item.cantidad = disponibleTotal;
-    }
-
-    if (item.id && eq) {
-      const nuevaCantidad = item.cantidad || 0;
-      const delta = nuevaCantidad - reservadaPrevia;
-      if (delta !== 0) {
-        eq.stock = Math.max(0, (eq.stock || 0) - delta);
-        this.equiposService.actualizarStock(eq.id!, eq.stock).subscribe();
-        item.stock = eq.stock;
-      }
-      item.cantidadReservada = nuevaCantidad;
-    }
-
+    this.normalizarCantidad(item);
     this.calcularTodo();
   }
 
   validarStockMat(item: MaterialesCalculo): void {
-    const reservadaPrevia = item.cantidadReservada || 0;
-    const mat = this.catalogoMateriales.find(m => m.id === item.id);
-    const disponibleTotal = (mat ? mat.stock : (item.stock || 0)) + reservadaPrevia;
-
-    if ((item.cantidad || 0) > disponibleTotal) {
-      this.mostrarError(`Stock insuficiente para ${item.descripcion}. Máximo disponible: (${disponibleTotal})`);
-      item.cantidad = disponibleTotal;
-    }
-
-    if (item.id && mat) {
-      const nuevaCantidad = item.cantidad || 0;
-      const delta = nuevaCantidad - reservadaPrevia;
-      if (delta !== 0) {
-        mat.stock = Math.max(0, (mat.stock || 0) - delta);
-        this.materialesService.actualizarStock(mat.id!, mat.stock).subscribe();
-        item.stock = mat.stock;
-      }
-      item.cantidadReservada = nuevaCantidad;
-    }
-
+    this.normalizarCantidad(item);
     this.calcularTodo();
   }
 
-  /** Igual que validarStockMat, pero para transporte: el catálogo es el de equipos, no el de materiales. */
   validarStockTransporte(item: MaterialesCalculo): void {
-    const reservadaPrevia = item.cantidadReservada || 0;
-    const eq = this.catalogoEquipos.find(e => e.id === item.id);
-    const disponibleTotal = (eq ? eq.stock : (item.stock || 0)) + reservadaPrevia;
-
-    if ((item.cantidad || 0) > disponibleTotal) {
-      this.mostrarError(`Stock insuficiente para ${item.descripcion}. Máximo disponible: (${disponibleTotal})`);
-      item.cantidad = disponibleTotal;
-    }
-
-    if (item.id && eq) {
-      const nuevaCantidad = item.cantidad || 0;
-      const delta = nuevaCantidad - reservadaPrevia;
-      if (delta !== 0) {
-        eq.stock = Math.max(0, (eq.stock || 0) - delta);
-        this.equiposService.actualizarStock(eq.id!, eq.stock).subscribe();
-        item.stock = eq.stock;
-      }
-      item.cantidadReservada = nuevaCantidad;
-    }
-
+    this.normalizarCantidad(item);
     this.calcularTodo();
+  }
+
+  private normalizarCantidad(item: { cantidad: number }): void {
+    const c = Number(item.cantidad);
+    if (isNaN(c) || c < 0) item.cantidad = 0;
   }
 
   private mostrarError(msj: string): void {
@@ -657,33 +590,44 @@ export class CalculoApuComponent implements OnInit {
     }, 3500);
   }
 
-  calcularTodo(): void {
-    this.subtotalEquipos = this.equiposList.reduce((acc, e) => {
-      e.costoHora = (e.cantidad || 0) * (e.tarifa || 0);
-      e.costo = e.costoHora * (e.rendimiento || 0);
-      return acc + e.costo;
-    }, 0);
-
-    this.subtotalManoObra = this.manoObraList.reduce((acc, mo) => {
-      mo.costoHora = (mo.cantidad || 0) * (mo.tarifa || 0);
-      mo.costo = mo.costoHora * (mo.rendimiento || 0);
-      return acc + mo.costo;
-    }, 0);
-
-    this.subtotalMateriales = this.materialesList.reduce((acc, m) => {
-      m.costo = (m.cantidad || 0) * (m.unitario || 0);
-      return acc + m.costo;
-    }, 0);
-
-    this.subtotalTransporte = this.transporteList.reduce((acc, t) => {
-      t.costo = (t.cantidad || 0) * (t.unitario || 0);
-      return acc + t.costo;
-    }, 0);
-
-    this.totalDirecto = this.subtotalEquipos + this.subtotalManoObra + this.subtotalMateriales + this.subtotalTransporte;
+  /** Redondea un valor monetario a 2 decimales (evita arrastrar errores de punto flotante). */
+  private redondearDinero(valor: number): number {
+    return Math.round((valor || 0) * 100) / 100;
   }
 
-  /** Botón "Limpiar Cálculo": al cancelar el borrador se devuelve al stock todo lo reservado. */
+  calcularTodo(): void {
+    this.subtotalEquipos = this.equiposList.reduce((acc, e) => {
+      e.costoHora = this.redondearDinero((e.cantidad || 0) * (e.tarifa || 0));
+      e.costo = this.redondearDinero(e.costoHora * (e.rendimiento || 0));
+      return acc + e.costo;
+    }, 0);
+    this.subtotalEquipos = this.redondearDinero(this.subtotalEquipos);
+
+    this.subtotalManoObra = this.manoObraList.reduce((acc, mo) => {
+      mo.costoHora = this.redondearDinero((mo.cantidad || 0) * (mo.tarifa || 0));
+      mo.costo = this.redondearDinero(mo.costoHora * (mo.rendimiento || 0));
+      return acc + mo.costo;
+    }, 0);
+    this.subtotalManoObra = this.redondearDinero(this.subtotalManoObra);
+
+    this.subtotalMateriales = this.materialesList.reduce((acc, m) => {
+      m.costo = this.redondearDinero((m.cantidad || 0) * (m.unitario || 0));
+      return acc + m.costo;
+    }, 0);
+    this.subtotalMateriales = this.redondearDinero(this.subtotalMateriales);
+
+    this.subtotalTransporte = this.transporteList.reduce((acc, t) => {
+      t.costo = this.redondearDinero((t.cantidad || 0) * (t.unitario || 0));
+      return acc + t.costo;
+    }, 0);
+    this.subtotalTransporte = this.redondearDinero(this.subtotalTransporte);
+
+    this.totalDirecto = this.redondearDinero(
+      this.subtotalEquipos + this.subtotalManoObra + this.subtotalMateriales + this.subtotalTransporte
+    );
+  }
+
+  /** Botón "Limpiar Cálculo": limpia el borrador (el stock no se toca en el cálculo de APU). */
   limpiarCalculos(): void {
     this.equiposList.forEach(item => this.devolverStockEquipo(item.id, item.cantidadReservada));
     this.materialesList.forEach(item => this.devolverStockMaterial(item.id, item.cantidadReservada));

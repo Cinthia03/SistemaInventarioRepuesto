@@ -683,7 +683,8 @@ export class AsistenteInventarioComponent {
     propuesta.precioAnterior = Number(material.precio);
     propuesta.divisor = divisor;
     propuesta.presentacion = presentacion;
-    propuesta.precioNuevo = this.redondear(propuesta.precioFactura / divisor);
+    // Los precios del catálogo manejan máximo 2 decimales.
+    propuesta.precioNuevo = this.redondear(propuesta.precioFactura / divisor, 2);
   }
 
   private hayCambioDePrecio(propuesta: PropuestaActualizacion): boolean {
@@ -890,7 +891,7 @@ export class AsistenteInventarioComponent {
     }
     return valor.toLocaleString('es-EC', {
       minimumFractionDigits: 2,
-      maximumFractionDigits: 4 // precios por kg o por metro necesitan más de 2 decimales
+      maximumFractionDigits: 2 // los precios del catálogo manejan solo 2 decimales
     });
   }
 }

@@ -43,6 +43,12 @@ export const routes: Routes = [
         .then(m => m.Equipos)
   },
   {
+    path: 'modelos-predictivos',
+    loadComponent: () =>
+      import('./features/inventario/modelos-predictivos/modelos-predictivos')
+        .then(m => m.ModelosPredictivos)
+  },
+  {
     path: 'materiales/editar/:id',
     loadComponent: () =>
       import('./features/inventario/materiales/materiales')

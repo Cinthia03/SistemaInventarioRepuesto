@@ -204,7 +204,7 @@
                   <span class="stock-indicador"
                         [class.stock-critico]="e.stock <= 2"
                         [class.stock-bajo]="e.stock > 2 && e.stock <= 5">
-                    {{e.stock}}
+                    {{ e.stock | number:'1.0-2' }}
                   </span>
                 </td>
               </ng-container>
@@ -222,7 +222,7 @@
               <!-- PRECIO -->
               <ng-container matColumnDef="precio">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> Precio </th>
-                <td mat-cell *matCellDef="let e" class="td-precio"> ${{e.precio}} </td>
+                <td mat-cell *matCellDef="let e" class="td-precio"> ${{ e.precio | number:'1.2-2' }} </td>
               </ng-container>
 
               <!-- ACCIONES -->
@@ -267,4 +267,4 @@
       </div>
     </div>
   </div>
-</div>
+</div>

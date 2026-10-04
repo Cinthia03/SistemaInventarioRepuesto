@@ -111,11 +111,6 @@ export class InventarioComponent implements OnInit {
       // KPIs MATERIALES
       // ======================
 
-      this.stockMateriales = listaMateriales.reduce(
-        (sum, m) => sum + Number(m.stock || 0),
-        0
-      );
-
       this.valorTotalMateriales = listaMateriales.reduce(
         (sum, m) =>
           sum +
@@ -126,6 +121,17 @@ export class InventarioComponent implements OnInit {
       this.stockBajoMateriales = listaMateriales.filter(
         m => Number(m.stock || 0) < 10
       ).length;
+
+      // % de materiales con stock en nivel saludable (no es una suma de
+      // cantidades: antes mostraba valores como "36082%", algo sin sentido
+      // como porcentaje).
+      this.stockMateriales = this.totalMateriales > 0
+        ? Math.round(
+            ((this.totalMateriales - this.stockBajoMateriales) /
+              this.totalMateriales) *
+              100
+          )
+        : 0;
 
       // ======================
       // KPIs MANO DE OBRA
@@ -188,19 +194,28 @@ export class InventarioComponent implements OnInit {
 
       this.actividadReciente = [
         ...listaMateriales.slice(0, 5).map(m => ({
-          tipo: 'Material',
-          descripcion: m.descripcion,
-          codigo: m.codigo
+          modulo: 'materiales',
+          moduloLabel: 'Materiales',
+          nombre: m.descripcion,
+          codigo: m.codigo,
+          accion: 'Registrado',
+          tiempo: 'Reciente'
         })),
         ...listaManoObra.slice(0, 5).map(m => ({
-          tipo: 'Mano de Obra',
-          descripcion: m.descripcion,
-          codigo: m.codigo
+          modulo: 'mano',
+          moduloLabel: 'Mano de Obra',
+          nombre: m.descripcion,
+          codigo: m.codigo,
+          accion: 'Registrado',
+          tiempo: 'Reciente'
         })),
         ...listaEquipos.slice(0, 5).map(e => ({
-          tipo: 'Equipo',
-          descripcion: e.descripcion,
-          codigo: e.codigo
+          modulo: 'equipos',
+          moduloLabel: 'Equipos',
+          nombre: e.descripcion,
+          codigo: e.codigo,
+          accion: 'Registrado',
+          tiempo: 'Reciente'
         }))
       ];
 
@@ -212,8 +227,11 @@ export class InventarioComponent implements OnInit {
         .filter(m => Number(m.stock || 0) < 10)
         .map(m => ({
           codigo: m.codigo,
-          descripcion: m.descripcion,
-          stock: m.stock
+          nombre: m.descripcion,
+          modulo: 'Materiales',
+          stock: m.stock,
+          icono: Number(m.stock || 0) < 5 ? 'error' : 'warning_amber',
+          nivel: Number(m.stock || 0) < 5 ? 'critico' : 'bajo'
         }));
 
     } catch (err) {
@@ -305,6 +323,13 @@ export class InventarioComponent implements OnInit {
 
   abrirCategoriaEquipos() {
     this.router.navigate(['/equipos'])
+      .catch(err =>
+        console.error('Error navegación:', err)
+      );
+  }
+
+  abrirModelosPredictivos() {
+    this.router.navigate(['/modelos-predictivos'])
       .catch(err =>
         console.error('Error navegación:', err)
       );

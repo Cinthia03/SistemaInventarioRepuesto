@@ -1,1 +1,64 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* ══════════════════════════════════════
+   FOOTER SIEMPRE ABAJO (sticky footer)
+   El contenido ocupa el alto disponible y el footer queda pegado al
+   final de la pantalla, aunque la página tenga poco contenido.
+══════════════════════════════════════ */
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: #ffffff;   /* fondo blanco en todas las pantallas */
+}
+
+app-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #ffffff;
+}
+
+app-header,
+app-footer {
+  display: block;
+  flex-shrink: 0;
+}
+
+app-footer {
+  margin-top: auto;
+}
+
+/* ══════════════════════════════════════
+   USUARIO DE SOLO CONSULTA (rol "consulta")
+   Se ocultan los controles que crean, editan o eliminan información.
+   Además, SupabaseService bloquea cualquier escritura de este usuario.
+══════════════════════════════════════ */
+/* Inventario: formularios de registro y columna de acciones (Materiales, Mano de obra, Equipos) */
+body.modo-solo-lectura .form-panel,
+body.modo-solo-lectura .td-acciones,
+body.modo-solo-lectura .mat-column-acciones,
+/* Modelos predictivos: "Registrar punto de hoy" */
+body.modo-solo-lectura .btn-snapshot,
+/* Asistente: aplicar actualizaciones de precios */
+body.modo-solo-lectura .opcion--destacada,
+/* Cálculos: crear / calcular APU */
+body.modo-solo-lectura .btn-calc,
+/* Rubros (Obra Gris, Acabados, Hidráulico, Eléctrico) y presupuestos: editar / eliminar */
+body.modo-solo-lectura .btn-editar-rubro,
+body.modo-solo-lectura .btn-eliminar-rubro,
+/* Cálculo de APU: guardar, agregar o quitar filas */
+body.modo-solo-lectura .btn-guardar,
+body.modo-solo-lectura .btn-reiniciar,
+body.modo-solo-lectura .btn-agregar,
+body.modo-solo-lectura .btn-eliminar,
+/* Presupuesto: guardar / actualizar / editar */
+body.modo-solo-lectura .btn-guardar-verde,
+body.modo-solo-lectura .btn-secundario--editar {
+  display: none !important;
+}
+
+/* Sin el formulario, la tabla de Inventario ocupa todo el ancho */
+body.modo-solo-lectura .layout-grid {
+  grid-template-columns: 1fr !important;
+}
