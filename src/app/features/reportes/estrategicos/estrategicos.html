@@ -1,0 +1,152 @@
+<div class="pagina">
+
+  <header class="encabezado">
+    <div class="encabezado__izq">
+      <div class="encabezado__icono"><mat-icon>insights</mat-icon></div>
+      <div>
+        <span class="miga">Reportes</span>
+        <h1>Reportes estratégicos</h1>
+        <p>Indicadores generales para la toma de decisiones · {{ fechaReporte | date:'dd/MM/yyyy HH:mm' }}</p>
+      </div>
+    </div>
+    <div class="encabezado__acciones">
+      <button type="button" class="btn btn--fantasma" (click)="exportar()"><mat-icon>download</mat-icon> Exportar CSV</button>
+      <button type="button" class="btn btn--fantasma" (click)="imprimir()"><mat-icon>print</mat-icon> Imprimir</button>
+    </div>
+  </header>
+
+  @if (cargando) {
+    <div class="cargando">Calculando indicadores…</div>
+  } @else {
+
+    <!-- INDICADORES -->
+    <div class="kpis">
+      <div class="kpi">
+        <div class="kpi__icono kpi__icono--acento"><mat-icon>warehouse</mat-icon></div>
+        <div>
+          <div class="kpi__valor">$ {{ valorInventario | number:'1.0-0' }}</div>
+          <div class="kpi__label">Valor del inventario (materiales + equipos)</div>
+        </div>
+      </div>
+      <div class="kpi">
+        <div class="kpi__icono"><mat-icon>request_quote</mat-icon></div>
+        <div>
+          <div class="kpi__valor">$ {{ montoPresupuestos | number:'1.0-0' }}</div>
+          <div class="kpi__label">Monto presupuestado · {{ numPresupuestos }} presupuesto(s)</div>
+        </div>
+      </div>
+      <div class="kpi">
+        <div class="kpi__icono kpi__icono--info"><mat-icon>functions</mat-icon></div>
+        <div>
+          <div class="kpi__valor">$ {{ promedioPresupuesto | number:'1.0-0' }}</div>
+          <div class="kpi__label">Promedio por presupuesto</div>
+        </div>
+      </div>
+      <div class="kpi">
+        <div class="kpi__icono kpi__icono--ok"><mat-icon>verified</mat-icon></div>
+        <div>
+          <div class="kpi__valor">{{ pctStockSaludable }}%</div>
+          <div class="kpi__label">Materiales con stock saludable · {{ rubrosConApu }} rubros con APU</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grilla">
+
+      <!-- PRESUPUESTADO POR MES -->
+      <section class="panel panel--ancho">
+        <div class="panel__cabecera">
+          <h2 class="panel__titulo"><mat-icon>calendar_month</mat-icon> Monto presupuestado por mes (últimos 12 meses)</h2>
+        </div>
+        <div class="panel__cuerpo">
+          <div class="columnas" role="img" aria-label="Monto presupuestado por mes">
+            @for (b of presupuestosPorMes; track b.etiqueta) {
+              <div class="columna" tabindex="0">
+                <div class="columna__pista">
+                  <div class="columna__relleno" [style.height.%]="ancho(b, presupuestosPorMes)"></div>
+                </div>
+                <span class="columna__etiqueta">{{ b.etiqueta }}</span>
+                <span class="tooltip">
+                  <strong>{{ b.etiqueta }}</strong>
+                  $ {{ b.valor | number:'1.2-2' }}<br />{{ b.detalle }}
+                </span>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- INVENTARIO POR CATEGORÍA -->
+      <section class="panel">
+        <div class="panel__cabecera">
+          <h2 class="panel__titulo"><mat-icon>category</mat-icon> Valor de materiales por categoría</h2>
+        </div>
+        <div class="panel__cuerpo">
+          @if (inventarioPorCategoria.length === 0) {
+            <div class="vacio">Sin datos de materiales.</div>
+          } @else {
+            <div class="barras">
+              @for (b of inventarioPorCategoria; track b.etiqueta) {
+                <div class="barra-fila" [title]="b.etiqueta + ': $ ' + (b.valor | number:'1.2-2')">
+                  <span class="barra-fila__label">{{ b.etiqueta }}</span>
+                  <span class="barra-fila__pista"><span class="barra-fila__relleno" [style.width.%]="ancho(b, inventarioPorCategoria)"></span></span>
+                  <span class="barra-fila__valor">$ {{ b.valor | number:'1.0-0' }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </section>
+
+      <!-- APU POR SISTEMA -->
+      <section class="panel">
+        <div class="panel__cabecera">
+          <h2 class="panel__titulo"><mat-icon>calculate</mat-icon> Costo directo promedio por rubro (APU)</h2>
+        </div>
+        <div class="panel__cuerpo">
+          <div class="barras">
+            @for (b of apuPorSistema; track b.etiqueta) {
+              <div class="barra-fila" [title]="b.detalle">
+                <span class="barra-fila__label">{{ b.etiqueta }}</span>
+                <span class="barra-fila__pista"><span class="barra-fila__relleno barra-fila__relleno--grafito" [style.width.%]="ancho(b, apuPorSistema)"></span></span>
+                <span class="barra-fila__valor">$ {{ b.valor | number:'1.2-2' }}</span>
+              </div>
+            }
+          </div>
+          <p class="nota">Promedio del costo directo de los rubros con APU calculado en cada sistema.</p>
+        </div>
+      </section>
+
+      <!-- TOP MATERIALES -->
+      <section class="panel panel--ancho">
+        <div class="panel__cabecera">
+          <h2 class="panel__titulo"><mat-icon>leaderboard</mat-icon> Los 10 materiales con mayor valor en inventario</h2>
+        </div>
+        @if (topMateriales.length === 0) {
+          <div class="vacio">Sin datos de materiales.</div>
+        } @else {
+          <div class="tabla-scroll">
+            <table class="tabla">
+              <thead>
+                <tr><th class="centro">#</th><th>Material</th><th>Stock × precio</th><th class="col-barra">Participación</th><th class="num">Valor</th></tr>
+              </thead>
+              <tbody>
+                @for (b of topMateriales; track $index) {
+                  <tr>
+                    <td class="centro fuerte">{{ $index + 1 }}</td>
+                    <td>{{ b.etiqueta }}</td>
+                    <td class="codigo">{{ b.detalle }}</td>
+                    <td class="col-barra">
+                      <span class="barra-fila__pista"><span class="barra-fila__relleno" [style.width.%]="ancho(b, topMateriales)"></span></span>
+                    </td>
+                    <td class="num fuerte">$ {{ b.valor | number:'1.2-2' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+    </div>
+  }
+</div>

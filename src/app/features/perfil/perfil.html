@@ -1,0 +1,140 @@
+<div class="pagina">
+
+  <!-- TARJETA DE IDENTIDAD -->
+  <header class="identidad">
+    <div class="identidad__avatar">{{ iniciales }}</div>
+    <div class="identidad__datos">
+      <span class="miga">Mi perfil</span>
+      <h1>{{ perfil?.nombre || usuario }}</h1>
+      <div class="identidad__chips">
+        <span><mat-icon>person</mat-icon>{{ usuario }}</span>
+        <span><mat-icon>badge</mat-icon>{{ rol?.nombre || codigoRol || 'Sin rol' }}</span>
+        <span><mat-icon>{{ soloLectura ? 'visibility' : 'edit' }}</mat-icon>{{ soloLectura ? 'Solo lectura' : 'Acceso completo' }}</span>
+        @if (perfil?.created_at) {
+          <span><mat-icon>event</mat-icon>Registrado el {{ perfil?.created_at | date:'dd/MM/yyyy' }}</span>
+        }
+      </div>
+    </div>
+  </header>
+
+  @if (mensaje) {
+    <div class="mensaje" [class.mensaje--ok]="mensaje.tipo === 'ok'" [class.mensaje--error]="mensaje.tipo === 'error'">
+      <mat-icon>{{ mensaje.tipo === 'ok' ? 'check_circle' : 'error_outline' }}</mat-icon>
+      {{ mensaje.texto }}
+    </div>
+  }
+
+  @if (cargando) {
+    <div class="cargando">Cargando perfil…</div>
+  } @else {
+    <div class="grilla">
+
+      <!-- DATOS PERSONALES -->
+      <section class="panel">
+        <div class="panel__cabecera">
+          <h2 class="panel__titulo"><mat-icon>person</mat-icon> Datos de la cuenta</h2>
+        </div>
+        <form class="panel__cuerpo form" (ngSubmit)="guardarDatos()">
+          <label class="campo">
+            <span>Usuario</span>
+            <input class="control" [value]="usuario" disabled />
+          </label>
+          <label class="campo">
+            <span>Nombre completo</span>
+            <input class="control" name="nombre" [(ngModel)]="nombre" maxlength="120" />
+          </label>
+          <label class="campo">
+            <span>Rol</span>
+            <input class="control" [value]="rol?.nombre || codigoRol" disabled />
+          </label>
+          @if (rol?.descripcion) { <p class="ayuda">{{ rol?.descripcion }}</p> }
+          <div class="form__acciones">
+            <button type="submit" class="btn btn--primario" [disabled]="guardandoDatos">
+              <mat-icon>save</mat-icon> {{ guardandoDatos ? 'Guardando…' : 'Guardar datos' }}
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- CONTRASEÑA -->
+      <section class="panel">
+        <div class="panel__cabecera">
+          <h2 class="panel__titulo"><mat-icon>lock</mat-icon> Cambiar contraseña</h2>
+          <button type="button" class="btn-icono" [title]="verPass ? 'Ocultar' : 'Mostrar'" (click)="verPass = !verPass">
+            <mat-icon>{{ verPass ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+        </div>
+        <form class="panel__cuerpo form" (ngSubmit)="cambiarPassword()" autocomplete="off">
+          <label class="campo">
+            <span>Contraseña actual</span>
+            <input class="control" [type]="verPass ? 'text' : 'password'" name="actual" [(ngModel)]="pass.actual" autocomplete="current-password" />
+          </label>
+          <label class="campo">
+            <span>Nueva contraseña</span>
+            <input class="control" [type]="verPass ? 'text' : 'password'" name="nueva" [(ngModel)]="pass.nueva" autocomplete="new-password" />
+          </label>
+          @if (pass.nueva) {
+            <div class="fuerza" [attr.data-nivel]="fuerza">
+              <span class="fuerza__barras"><i></i><i></i><i></i><i></i></span>
+              <span class="fuerza__texto">{{ textoFuerza }}</span>
+            </div>
+          }
+          <label class="campo">
+            <span>Confirmar nueva contraseña</span>
+            <input class="control" [type]="verPass ? 'text' : 'password'" name="confirmar" [(ngModel)]="pass.confirmar" autocomplete="new-password" />
+          </label>
+          <p class="ayuda">Mínimo 6 caracteres. Se recomienda combinar mayúsculas, números y símbolos.</p>
+          <div class="form__acciones">
+            <button type="submit" class="btn btn--acento" [disabled]="guardandoPass">
+              <mat-icon>key</mat-icon> {{ guardandoPass ? 'Actualizando…' : 'Cambiar contraseña' }}
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ACCESOS -->
+      <section class="panel">
+        <div class="panel__cabecera">
+          <h2 class="panel__titulo"><mat-icon>verified_user</mat-icon> Mis accesos</h2>
+        </div>
+        <div class="panel__cuerpo accesos">
+          @for (m of accesos; track m.codigo) {
+            <div class="acceso-grupo">
+              <span class="acceso-grupo__titulo"><mat-icon>{{ m.icono }}</mat-icon>{{ m.nombre }}</span>
+              <div class="acceso-grupo__opciones">
+                @for (o of m.opciones; track o.codigo) {
+                  <a class="chip chip--acento" [routerLink]="o.ruta">{{ o.nombre }}</a>
+                }
+              </div>
+            </div>
+          } @empty {
+            <p class="ayuda">Su rol no tiene opciones asignadas además de Inicio.</p>
+          }
+        </div>
+      </section>
+
+      <!-- ACTIVIDAD RECIENTE -->
+      <section class="panel">
+        <div class="panel__cabecera">
+          <h2 class="panel__titulo"><mat-icon>history</mat-icon> Mi actividad reciente</h2>
+        </div>
+        @if (actividad.length === 0) {
+          <div class="vacio"><mat-icon>history</mat-icon>Sin actividad registrada.</div>
+        } @else {
+          <ul class="linea">
+            @for (a of actividad; track a.id) {
+              <li class="linea__item">
+                <span class="linea__punto"></span>
+                <span class="linea__textos">
+                  <span class="linea__accion">{{ a.accion }} · {{ a.modulo }}</span>
+                  <span class="linea__detalle">{{ a.detalle }}</span>
+                </span>
+                <span class="linea__fecha">{{ a.fecha | date:'dd/MM HH:mm' }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    </div>
+  }
+</div>

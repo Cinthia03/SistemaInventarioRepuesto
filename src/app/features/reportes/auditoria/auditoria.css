@@ -1,0 +1,9 @@
+.filtros .campo { min-width: 140px; flex: 1; }
+
+.filtros__botones { display: flex; gap: 8px; }
+
+.chip__icono { font-size: 14px; width: 14px; height: 14px; }
+
+.fecha { white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--jk-suave); }
+
+.detalle { color: var(--jk-suave); min-width: 260px; }

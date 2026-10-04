@@ -1,78 +1,188 @@
 .login-container {
-  position: fixed;  
-  top: 0;
-  left: 0;
-  height: 100vh;
-  width: 100vw;
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 80vh;
-  background: linear-gradient(
-      rgba(0, 0, 0, 0.6),
-      rgba(0, 0, 0, 0.6)
-    ),
-    url('/imagenes/inicio.jpg')
-      no-repeat center/cover;
+  padding: 16px;
+  box-sizing: border-box;
+  font-family: var(--jk-font);
+  background:
+    linear-gradient(rgba(28, 31, 34, 0.78), rgba(28, 31, 34, 0.86)),
+    url('/imagenes/inicio.jpg') no-repeat center/cover;
 }
 
 .login-card {
-  width: 350px;
-  padding: 35px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-  text-align: center;
-  color: white;
+  width: 100%;
+  max-width: 380px;
+  padding: 36px 32px 28px;
+  border-radius: var(--jk-radio);
+  background: var(--jk-card);
+  border-top: 4px solid var(--jk-acento);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  color: var(--jk-texto);
+  box-sizing: border-box;
 }
 
+/* LOGO */
 .logo-section {
-  margin-bottom: 20px;
+  text-align: center;
+  margin-bottom: 28px;
 }
 
 .logo-icon {
-  font-size: 45px;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 14px;
+  border-radius: var(--jk-radio);
+  background: var(--jk-carbon);
+  color: var(--jk-acento);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-icon mat-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
 }
 
 .logo-section h2 {
-  margin: 10px 0;
+  margin: 0;
+  font-family: var(--jk-font-titulo);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--jk-primario);
 }
 
 .logo-section p {
-  font-size: 14px;
-  color: #ddd;
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--jk-suave);
+}
+
+/* FORMULARIO */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.campo__label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--jk-suave);
+}
+
+.campo__control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border: 1px solid var(--jk-borde-fuerte);
+  border-radius: var(--jk-radio-sm);
+  background: var(--jk-fila);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.campo__control mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: var(--jk-tenue);
+}
+
+.campo__control:focus-within {
+  border-color: var(--jk-acento);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(184, 134, 47, 0.18);
 }
 
 .input {
-  width: 93%;
-  padding: 12px;
-  margin: 10px 0;
-  border-radius: 8px;
+  flex: 1;
+  min-width: 0;
+  padding: 12px 0;
   border: none;
   outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--jk-texto);
+}
+
+.input::placeholder {
+  color: var(--jk-tenue);
 }
 
 .login-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   width: 100%;
   padding: 12px;
-  margin-top: 10px;
+  margin-top: 6px;
   border: none;
-  border-radius: 10px;
-  background: green;
-  color: white;
-  font-size: 16px;
+  border-radius: var(--jk-radio-sm);
+  background: var(--jk-primario);
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
   cursor: pointer;
+  transition: background 0.2s ease;
+}
 
-  transition: 0.3s;
+.login-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  transition: transform 0.2s ease;
 }
 
 .login-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 206, 201, 0.5);
+  background: var(--jk-carbon);
+}
+
+.login-btn:hover mat-icon {
+  transform: translateX(3px);
 }
 
 .error {
-  color: #ff7675;
-  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--jk-radio-sm);
+  background: var(--jk-peligro-suave);
+  color: var(--jk-peligro-oscuro);
+  font-size: 13px;
+}
+
+.error mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.login-pie {
+  margin: 24px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--jk-borde);
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--jk-tenue);
 }

@@ -1,17 +1,7 @@
 import { Routes } from '@angular/router'
+import { accesoGuard } from './core/guards/acceso.guard'
 
-export const routes: Routes = [
-  {
-    path: '',
-    redirectTo: 'login',
-    pathMatch: 'full'
-  },
-  {
-    path: 'login',
-    loadComponent: () =>
-      import('./features/login/login')
-        .then(m => m.Login)
-  },
+const rutasSistema: Routes = [
   {
     path: 'inicio',
     loadComponent: () =>
@@ -95,5 +85,93 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./presupuesto/presupuesto')
         .then(m => m.Presupuesto)
+  },
+
+  // ── MANTENIMIENTO ──────────────────────────────
+  {
+    path: 'mantenimiento/usuarios',
+    loadComponent: () =>
+      import('./features/mantenimiento/usuarios/usuarios')
+        .then(m => m.UsuariosComponent)
+  },
+  {
+    path: 'mantenimiento/roles',
+    loadComponent: () =>
+      import('./features/mantenimiento/roles/roles')
+        .then(m => m.RolesComponent)
+  },
+  {
+    path: 'mantenimiento/opciones',
+    loadComponent: () =>
+      import('./features/mantenimiento/opciones/opciones')
+        .then(m => m.OpcionesComponent)
+  },
+
+  // ── MI PERFIL (disponible para todo usuario con sesión) ──
+  {
+    path: 'perfil',
+    loadComponent: () =>
+      import('./features/perfil/perfil')
+        .then(m => m.PerfilComponent)
+  },
+
+  // ── PARAMETRIZACIÓN ────────────────────────────
+  {
+    path: 'parametrizacion/opciones-rol',
+    loadComponent: () =>
+      import('./features/parametrizacion/opciones-rol/opciones-rol')
+        .then(m => m.OpcionesRolComponent)
+  },
+  {
+    path: 'parametrizacion/usuarios-rol',
+    loadComponent: () =>
+      import('./features/parametrizacion/usuarios-rol/usuarios-rol')
+        .then(m => m.UsuariosRolComponent)
+  },
+
+  // ── REPORTES ───────────────────────────────────
+  {
+    path: 'reportes/operacionales',
+    loadComponent: () =>
+      import('./features/reportes/operacionales/operacionales')
+        .then(m => m.ReportesOperacionalesComponent)
+  },
+  {
+    path: 'reportes/estrategicos',
+    loadComponent: () =>
+      import('./features/reportes/estrategicos/estrategicos')
+        .then(m => m.ReportesEstrategicosComponent)
+  },
+  {
+    path: 'reportes/auditoria',
+    loadComponent: () =>
+      import('./features/reportes/auditoria/auditoria')
+        .then(m => m.ReportesAuditoriaComponent)
+  }
+]
+
+export const routes: Routes = [
+  {
+    path: '',
+    redirectTo: 'login',
+    pathMatch: 'full'
+  },
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./features/login/login')
+        .then(m => m.Login)
+  },
+
+  // Todas las pantallas del sistema exigen sesión y permiso (Opciones x Rol)
+  ...rutasSistema.map(r => ({ ...r, canActivate: [accesoGuard] })),
+
+  // Cualquier otra dirección: página "no encontrada"
+  {
+    path: '**',
+    data: { sinMarco: true },   // se muestra sin menú ni pie de página
+    loadComponent: () =>
+      import('./features/no-encontrado/no-encontrado')
+        .then(m => m.NoEncontradoComponent)
   }
 ]

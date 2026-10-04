@@ -1,14 +1,14 @@
 :host {
-  --color-primario: #133b4b;
-  --color-primario-suave: #1c5268;
-  --color-acento: #16a34a;
-  --color-borde: #e2e8f0;
-  --color-texto: #0f172a;
-  --color-suave: #64748b;
-  --color-bg: #f8fafc;
-  --sombra: 0 12px 32px rgba(0, 0, 0, 0.18);
-  --radio: 16px;
-  --font-cuerpo: 'Segoe UI', system-ui, sans-serif;
+  --color-primario: var(--jk-primario);
+  --color-primario-suave: var(--jk-primario-2);
+  --color-acento: var(--jk-acento);
+  --color-borde: var(--jk-borde);
+  --color-texto: var(--jk-texto);
+  --color-suave: var(--jk-suave);
+  --color-bg: var(--jk-bg);
+  --sombra: var(--jk-sombra);
+  --radio: var(--jk-radio);
+  --font-cuerpo: var(--jk-font);
 
   position: fixed;
   right: 28px;
@@ -56,7 +56,7 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #22c55e;
+  background: #6a8d63;
   border: 2px solid #fff;
 }
 
@@ -166,15 +166,15 @@
 }
 
 .burbuja--suave {
-  background: #f1f5f9;
+  background: var(--jk-bg);
   color: var(--color-suave);
   font-style: italic;
 }
 
 .burbuja--exito {
-  background: #f0fdf4;
-  border-color: #bbf7d0;
-  color: #14532d;
+  background: #f2f6ef;
+  border-color: #cddcc6;
+  color: #2f472b;
 }
 
 /* ============== OPCIONES DE MENÚ ============== */
@@ -225,7 +225,7 @@
 
 .opcion--destacada {
   border-color: var(--color-primario);
-  background: #eef5f8;
+  background: #efece7;
 }
 
 /* ============== LISTAS SIMPLES (stock / actividad / resultado) ============== */
@@ -263,7 +263,7 @@
   color: var(--color-suave);
 }
 
-.icono-alerta { color: #c2410c; }
+.icono-alerta { color: var(--jk-alerta); }
 .icono-actividad { color: var(--color-primario); }
 .icono-exito { color: var(--color-acento); }
 
@@ -296,7 +296,7 @@
 }
 
 .zona-subida:hover {
-  background: #eef5f8;
+  background: #efece7;
 }
 
 .lista-archivos {
@@ -338,9 +338,9 @@
 
 .error-item {
   font-size: 11.5px;
-  color: #b91c1c;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  color: var(--jk-peligro);
+  background: #faf0ed;
+  border: 1px solid #e9c8bf;
   border-radius: 8px;
   padding: 6px 10px;
 }

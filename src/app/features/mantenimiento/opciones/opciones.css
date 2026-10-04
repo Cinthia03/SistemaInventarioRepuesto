@@ -1,0 +1,56 @@
+.fila-2 { display: grid; grid-template-columns: 1fr 100px; gap: 12px; }
+
+.nota-sistema {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: var(--jk-radio-sm);
+  background: var(--jk-info-suave);
+  color: var(--jk-info);
+  font-size: 12px;
+}
+
+.nota-sistema mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+.icono-campo { display: flex; align-items: center; gap: 8px; }
+
+.icono-vista {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: var(--jk-radio-sm);
+  background: var(--jk-acento-suave);
+  color: var(--jk-acento-oscuro);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icono-vista--chico { width: 32px; height: 32px; }
+.icono-vista mat-icon { font-size: 19px; width: 19px; height: 19px; }
+
+.iconos { display: flex; flex-wrap: wrap; gap: 4px; margin-top: -4px; }
+
+.icono-opcion {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--jk-radio-sm);
+  border: 1px solid var(--jk-borde);
+  background: var(--jk-card);
+  color: var(--jk-suave);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.icono-opcion mat-icon { font-size: 18px; width: 18px; height: 18px; }
+.icono-opcion:hover { border-color: var(--jk-acento); color: var(--jk-acento-oscuro); }
+.icono-opcion--sel { background: var(--jk-acento); border-color: var(--jk-acento); color: #fff; }
+
+.opcion-celda { display: inline-flex; align-items: center; gap: 10px; }
+
+.fila--inactiva td { opacity: 0.6; }

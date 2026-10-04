@@ -1,0 +1,97 @@
+.grilla {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.panel--ancho { grid-column: 1 / -1; }
+
+.barra-fila__relleno--grafito { background: var(--jk-acero); }
+
+.nota { margin: 16px 0 0; font-size: 12px; color: var(--jk-tenue); }
+
+.col-barra { width: 30%; min-width: 140px; }
+.col-barra .barra-fila__pista { display: block; }
+.col-barra .barra-fila__relleno { display: block; }
+
+/* Columnas verticales (presupuestado por mes) */
+.columnas {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 10px;
+  height: 220px;
+  align-items: end;
+  padding-top: 8px;
+  border-bottom: 1px solid var(--jk-borde-fuerte);
+  background-image: linear-gradient(to top, var(--jk-borde) 1px, transparent 1px);
+  background-size: 100% 25%;
+}
+
+.columna {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  outline: none;
+}
+
+.columna__pista {
+  flex: 1;
+  width: 100%;
+  max-width: 36px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.columna__relleno {
+  width: 100%;
+  background: var(--jk-acento);
+  border-radius: 4px 4px 0 0;
+  transition: height 0.6s ease, background 0.15s ease;
+}
+
+.columna:hover .columna__relleno,
+.columna:focus .columna__relleno { background: var(--jk-acento-oscuro); }
+
+.columna__etiqueta {
+  position: absolute;
+  bottom: -22px;
+  font-size: 11px;
+  color: var(--jk-suave);
+  white-space: nowrap;
+}
+
+.columnas { margin-bottom: 26px; }
+
+.tooltip {
+  position: absolute;
+  bottom: calc(100% - 20px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 130px;
+  padding: 8px 10px;
+  border-radius: var(--jk-radio-sm);
+  background: var(--jk-carbon);
+  color: #f3f1ed;
+  font-size: 12px;
+  line-height: 1.45;
+  text-align: center;
+  box-shadow: var(--jk-sombra-hover);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+  z-index: 5;
+}
+
+.tooltip strong { display: block; color: #e3c58c; }
+
+.columna:hover .tooltip,
+.columna:focus .tooltip { opacity: 1; }
+
+@media (max-width: 1000px) {
+  .grilla { grid-template-columns: 1fr; }
+  .columnas { gap: 4px; }
+  .columna__etiqueta { font-size: 9.5px; }
+}

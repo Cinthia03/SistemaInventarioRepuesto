@@ -6,6 +6,8 @@ import { forkJoin } from 'rxjs';
 import { Rubro, RubrosObraGrisService } from '../../core/services/rubros-obra-gris.service';
 import { ApuService } from '../../core/services/apu.service';
 import { Router } from '@angular/router';
+import { PaginadorComponent } from '../../shared/components/paginador/paginador';
+import { Paginacion } from '../../shared/components/paginador/paginacion';
 
 interface GrupoSubcategoria {
   subcategoria: string;
@@ -15,7 +17,7 @@ interface GrupoSubcategoria {
 @Component({
   selector: 'app-obra-gris',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatIconModule],
+  imports: [CommonModule, FormsModule, MatIconModule, PaginadorComponent],
   templateUrl: './obra-gris.html',
   styleUrl: '../rubros.css'
 })
@@ -26,6 +28,9 @@ export class ObraGris implements OnInit {
   subcategorias: string[] = [];
   gruposPorSubcategoria: GrupoSubcategoria[] = [];
   subcategoriaSeleccionada: string = '';
+
+  /** Paginación de los rubros (15 por página). */
+  readonly pag = new Paginacion(15, [10, 15, 25, 50]);
   cargando: boolean = false;
 
   constructor(
@@ -84,7 +89,17 @@ export class ObraGris implements OnInit {
     rubro.desplegado = !rubro.desplegado;
   }
 
+  /** Rubros de la página actual en la vista agrupada (se pagina por rubro, no por subcategoría). */
+  gruposPagina(): GrupoSubcategoria[] {
+    return this.pag.aplicarAgrupado(this.gruposPorSubcategoria, g => g.rubros, (g, rubros) => ({ ...g, rubros }));
+  }
+
+  totalAgrupado(): number {
+    return this.gruposPorSubcategoria.reduce((n, g) => n + g.rubros.length, 0);
+  }
+
   filtrarPorCategoria(): void {
+    this.pag.reiniciar();
     this.rubrosMostrados = this.subcategoriaSeleccionada === ''
       ? [...this.todosLosRubros]
       : this.todosLosRubros.filter(r => r.subcategoria_nombre === this.subcategoriaSeleccionada);

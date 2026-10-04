@@ -7,16 +7,16 @@
    ===================================================================== */
 
 :host {
-  --color-primario:          #133b4b;
-  --color-personalizado:     #7c3aed;
-  --color-personalizado-suave: #7c3aed1f;
-  --color-fila:              #f8fafc;
-  --color-guardar:           #16a34a;
-  --color-guardar-suave:     #f5fff5;
-  --color-nuevo:             #1d4ed8;
-  --color-nuevo-suave:       #eff6ff;
-  --color-excel:             #1d6f42;
-  --sombra:                  0 2px 8px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.06);
+  --color-primario:          var(--jk-primario);
+  --color-personalizado:     #5e5a70;
+  --color-personalizado-suave: #5e5a701f;
+  --color-fila:              var(--jk-fila);
+  --color-guardar:           var(--jk-exito);
+  --color-guardar-suave:     var(--jk-exito-suave);
+  --color-nuevo:             var(--jk-info);
+  --color-nuevo-suave:       var(--jk-info-suave);
+  --color-excel:             #3f6b4a;
+  --sombra:                  var(--jk-sombra);
 }
 
 /* ══════════════════════════════════════
@@ -40,7 +40,7 @@
   border-radius: var(--radio);
   padding: 32px 0;
   margin-bottom: 28px;
-  box-shadow: 0 10px 25px rgba(26, 47, 110, 0.15);
+  box-shadow: 0 10px 25px rgba(28, 31, 34, 0.15);
   position: relative;
   overflow: hidden;
 }
@@ -299,7 +299,7 @@
 .campo-input:focus,
 .campo-select:focus {
   border-color: var(--color-primario);
-  box-shadow: 0 0 0 3px rgba(19, 59, 75, 0.10);
+  box-shadow: 0 0 0 3px rgba(44, 49, 54, 0.10);
 }
 
 .campo-input[readonly] {
@@ -431,7 +431,7 @@
   color: var(--color-primario);
 }
 .mensaje-form mat-icon { font-size: 16px; width: 16px; height: 16px; }
-.mensaje-form--error { color: #b91c1c; margin-top: 12px; }
+.mensaje-form--error { color: var(--jk-peligro); margin-top: 12px; }
 
 .mensaje-barra {
   display: flex;
@@ -440,24 +440,24 @@
   padding: 10px 20px;
   font-size: 13px;
   font-weight: 600;
-  background: #eff6ff;
+  background: var(--jk-info-suave);
   color: var(--color-nuevo);
   border-bottom: 1px solid var(--color-borde);
 }
-.mensaje-barra--ok { background: #dcfce7; color: #15803d; }
+.mensaje-barra--ok { background: var(--jk-exito-suave); color: var(--jk-exito-oscuro); }
 .mensaje-barra mat-icon { font-size: 18px; width: 18px; height: 18px; }
 
 .aviso {
   display: flex;
   gap: 14px;
   align-items: flex-start;
-  background: #fef3c7;
-  border: 1px solid #fcd34d;
+  background: #f5ead2;
+  border: 1px solid #d9b56e;
   border-radius: var(--radio);
   padding: 14px 20px;
   margin-bottom: 24px;
 }
-.aviso mat-icon { color: #b45309; flex-shrink: 0; }
+.aviso mat-icon { color: var(--jk-alerta); flex-shrink: 0; }
 .aviso-texto strong { display: block; font-size: 13.5px; color: var(--color-texto); margin-bottom: 2px; }
 .aviso-texto p { margin: 0; font-size: 12.5px; color: var(--color-suave); }
 
@@ -547,7 +547,7 @@
 .filtro-input:focus,
 .filtro-select:focus {
   border-color: var(--color-primario);
-  box-shadow: 0 0 0 3px rgba(19, 59, 75, 0.10);
+  box-shadow: 0 0 0 3px rgba(44, 49, 54, 0.10);
 }
 .filtro-select {
   appearance: none;
@@ -763,7 +763,7 @@
   vertical-align: middle;
 }
 .etiqueta-personalizado { background: var(--color-personalizado-suave); color: var(--color-personalizado); }
-.etiqueta-sin-apu { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+.etiqueta-sin-apu { background: var(--jk-alerta-suave); color: var(--jk-alerta); border: 1px solid #e6cfa4; }
 
 /* ══════════════════════════════════════
    MODAL RUBRO PERSONALIZADO
@@ -776,7 +776,7 @@
   align-items: center;
   justify-content: center;
   padding: 16px;
-  background: rgba(15, 23, 42, .5);
+  background: rgba(28, 31, 34, .5);
 }
 
 .modal-personalizado {
@@ -855,29 +855,29 @@
 
 
 /* ── Stock insuficiente ─────────────────────────────────────────────── */
-.aviso--stock { background: #fef2f2; border-color: #fecaca; }
-.aviso--stock mat-icon { color: #b91c1c; }
-.aviso-lista { margin: 4px 0 6px; padding-left: 18px; font-size: 12.5px; color: #7f1d1d; }
-.rubro-card--sin-stock { border-color: #fca5a5; background: #fff7f7; }
-.rubro-card--sin-stock .cantidad-input { border-color: #ef4444; }
-.etiqueta-sin-stock { display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 700; text-transform: uppercase; vertical-align: middle; background: #fee2e2; color: #b91c1c; cursor: help; }
-.btn-secundario--editar { border-color: #ea580c; color: #ea580c; }
+.aviso--stock { background: #faf0ed; border-color: #e9c8bf; }
+.aviso--stock mat-icon { color: var(--jk-peligro); }
+.aviso-lista { margin: 4px 0 6px; padding-left: 18px; font-size: 12.5px; color: #6b2a1f; }
+.rubro-card--sin-stock { border-color: #ddb0a5; background: #fbf3f1; }
+.rubro-card--sin-stock .cantidad-input { border-color: #b85a46; }
+.etiqueta-sin-stock { display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 700; text-transform: uppercase; vertical-align: middle; background: var(--jk-peligro-suave); color: var(--jk-peligro); cursor: help; }
+.btn-secundario--editar { border-color: var(--jk-alerta); color: var(--jk-alerta); }
 
 .aviso--en-panel { margin: 16px 20px; align-items: center; }
 .aviso--en-panel .btn-secundario { margin-left: auto; }
-.aviso--ok { background: #dcfce7; border-color: #86efac; align-items: center; }
-.aviso--ok mat-icon { color: #15803d; }
+.aviso--ok { background: var(--jk-exito-suave); border-color: #b6c9ad; align-items: center; }
+.aviso--ok mat-icon { color: var(--jk-exito-oscuro); }
 
 /* Botón Guardar / Actualizar: verde claro, más verde al pasar el mouse */
 .btn-principal.btn-guardar-verde {
-  border-color: #86efac;
-  background: #dcfce7;
-  color: #15803d;
+  border-color: #b6c9ad;
+  background: var(--jk-exito-suave);
+  color: var(--jk-exito-oscuro);
 }
 .btn-principal.btn-guardar-verde:hover:not([disabled]) {
   filter: none;
-  border-color: #16a34a;
-  background: #16a34a;
+  border-color: var(--jk-exito);
+  background: var(--jk-exito);
   color: #fff;
 }
 
@@ -980,4 +980,39 @@
 ══════════════════════════════════════ */
 @media print {
   .no-print { display: none !important; }
+}
+
+
+/* ══════════════════════════════════════
+   DISEÑO CORPORATIVO J KASG S.A
+   Fondo concreto, banners grafito con franja de color de módulo
+   y tipografía sobria.
+══════════════════════════════════════ */
+.container {
+  background: var(--jk-bg);
+}
+
+.header-banner {
+  background-color: var(--jk-primario);
+  background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.025) 0 2px, transparent 2px 16px);
+  border-left: 6px solid var(--jk-acento);
+  border-radius: var(--jk-radio);
+  box-shadow: var(--jk-sombra);
+}
+
+.header-badge {
+  border-radius: var(--jk-radio-sm);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.14);
+  backdrop-filter: none;
+}
+
+.titulo {
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-shadow: none;
+}
+
+.subtitulo {
+  color: #c9c4bb;
 }

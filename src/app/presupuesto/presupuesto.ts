@@ -30,6 +30,8 @@ import {
   imprimirHojaFormato,
   redondear2,
 } from './formato-presupuesto';
+import { PaginadorComponent } from '../shared/components/paginador/paginador';
+import { Paginacion } from '../shared/components/paginador/paginacion';
 
 /**
  * Un rubro dentro del presupuesto.
@@ -96,11 +98,14 @@ const hoyISO = () => {
 @Component({
   selector: 'app-presupuesto',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatIconModule],
+  imports: [CommonModule, FormsModule, MatIconModule, PaginadorComponent],
   templateUrl: './presupuesto.html',
   styleUrls: ['../calculo/rubros.css', './presupuesto.css'],
 })
 export class Presupuesto implements OnInit {
+  /** Paginación del historial de presupuestos guardados. */
+  readonly pagPresupuestos = new Paginacion();
+
 
   vista: VistaPresupuesto = 'nuevo';
 

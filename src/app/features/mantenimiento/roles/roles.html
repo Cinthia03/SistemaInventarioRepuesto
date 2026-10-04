@@ -1,0 +1,139 @@
+<div class="pagina">
+
+  <header class="encabezado">
+    <div class="encabezado__izq">
+      <div class="encabezado__icono"><mat-icon>badge</mat-icon></div>
+      <div>
+        <span class="miga">Mantenimiento</span>
+        <h1>Roles</h1>
+        <p>Catálogo de roles del sistema y su nivel de acceso</p>
+      </div>
+    </div>
+    <div class="encabezado__acciones">
+      <a class="btn btn--fantasma" routerLink="/parametrizacion/opciones-rol"><mat-icon>rule</mat-icon> Opciones x Rol</a>
+      <button type="button" class="btn btn--fantasma" (click)="cargar()"><mat-icon>refresh</mat-icon> Actualizar</button>
+    </div>
+  </header>
+
+  @if (mensaje) {
+    <div class="mensaje" [class.mensaje--ok]="mensaje.tipo === 'ok'" [class.mensaje--error]="mensaje.tipo === 'error'">
+      <mat-icon>{{ mensaje.tipo === 'ok' ? 'check_circle' : 'error_outline' }}</mat-icon>
+      {{ mensaje.texto }}
+    </div>
+  }
+
+  @if (sinTabla) {
+    <div class="mensaje mensaje--info">
+      <mat-icon>info</mat-icon>
+      La tabla de roles aún no existe. Ejecute <code>sql/MENU_ROLES_PERMISOS.sql</code> en Supabase.
+    </div>
+  } @else {
+    <div class="layout-2" [class.layout-2--completo]="soloLectura">
+
+      @if (!soloLectura) {
+        <section class="panel form-panel">
+          <div class="panel__cabecera">
+            <h2 class="panel__titulo">
+              <mat-icon>{{ editandoId ? 'edit' : 'add_moderator' }}</mat-icon>
+              {{ editandoId ? 'Editar rol' : 'Nuevo rol' }}
+            </h2>
+          </div>
+          <form class="panel__cuerpo form" (ngSubmit)="guardar()" autocomplete="off">
+            <label class="campo">
+              <span>Código</span>
+              <input class="control" name="codigo" [(ngModel)]="form.codigo" [disabled]="!!editandoId" maxlength="30" placeholder="ej. bodeguero" />
+            </label>
+            @if (!editandoId) {
+              <p class="ayuda">Es el valor que se guarda en el usuario. No se puede cambiar después.</p>
+            }
+            <label class="campo">
+              <span>Nombre</span>
+              <input class="control" name="nombre" [(ngModel)]="form.nombre" maxlength="60" placeholder="ej. Bodeguero" />
+            </label>
+            <label class="campo">
+              <span>Descripción</span>
+              <textarea class="control" name="descripcion" rows="3" [(ngModel)]="form.descripcion"></textarea>
+            </label>
+            <label class="check">
+              <input type="checkbox" name="solo_lectura" [(ngModel)]="form.solo_lectura" /> Solo lectura (no crea, edita ni elimina)
+            </label>
+            <label class="check">
+              <input type="checkbox" name="activo" [(ngModel)]="form.activo" /> Rol activo
+            </label>
+            <div class="form__acciones">
+              @if (editandoId) {
+                <button type="button" class="btn btn--claro" (click)="nuevo()">Cancelar</button>
+              }
+              <button type="submit" class="btn btn--primario" [disabled]="guardando">
+                <mat-icon>save</mat-icon> {{ guardando ? 'Guardando…' : 'Guardar' }}
+              </button>
+            </div>
+          </form>
+        </section>
+      }
+
+      <section class="panel">
+        <div class="panel__cabecera">
+          <h2 class="panel__titulo"><mat-icon>list</mat-icon> Roles registrados <span class="contador">{{ roles.length }}</span></h2>
+          <div class="buscador">
+            <mat-icon>search</mat-icon>
+            <input [(ngModel)]="busqueda" (input)="pag.reiniciar()" placeholder="Buscar rol" />
+          </div>
+        </div>
+
+        @if (cargando) {
+          <div class="cargando">Cargando roles…</div>
+        } @else if (filtrados.length === 0) {
+          <div class="vacio"><mat-icon>badge</mat-icon>No hay roles para mostrar.</div>
+        } @else {
+          <div class="tabla-scroll">
+            <table class="tabla">
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Nombre</th>
+                  <th>Acceso</th>
+                  <th class="num">Usuarios</th>
+                  <th class="num">Opciones</th>
+                  <th class="centro">Estado</th>
+                  <th class="acciones td-acciones"></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (r of pag.aplicar(filtrados); track r.id) {
+                  <tr [class.fila--editando]="r.id === editandoId">
+                    <td class="codigo">{{ r.codigo }}</td>
+                    <td>
+                      <span class="fuerte">{{ r.nombre }}</span>
+                      @if (r.descripcion) { <div class="sub">{{ r.descripcion }}</div> }
+                    </td>
+                    <td>
+                      @if (r.solo_lectura) {
+                        <span class="chip chip--info"><mat-icon class="chip__icono">visibility</mat-icon>Solo lectura</span>
+                      } @else {
+                        <span class="chip chip--acento"><mat-icon class="chip__icono">edit</mat-icon>Completo</span>
+                      }
+                    </td>
+                    <td class="num">{{ usuariosPorRol.get(r.codigo) || 0 }}</td>
+                    <td class="num">{{ opcionesPorRol.get(r.id!) || 0 }}</td>
+                    <td class="centro">
+                      <span class="chip" [class.chip--ok]="r.activo" [class.chip--peligro]="!r.activo">{{ r.activo ? 'Activo' : 'Inactivo' }}</span>
+                    </td>
+                    <td class="acciones td-acciones">
+                      <a class="btn-icono" title="Configurar opciones del rol" routerLink="/parametrizacion/opciones-rol" [queryParams]="{ rol: r.codigo }"><mat-icon>rule</mat-icon></a>
+                      <button type="button" class="btn-icono" title="Editar" (click)="editar(r)"><mat-icon>edit</mat-icon></button>
+                      @if (!esAdmin(r)) {
+                        <button type="button" class="btn-icono btn-icono--peligro" title="Eliminar" (click)="eliminar(r)"><mat-icon>delete</mat-icon></button>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <app-paginador [p]="pag" [total]="filtrados.length" etiqueta="roles" />
+        }
+      </section>
+    </div>
+  }
+</div>

@@ -1,22 +1,95 @@
-/* You can add global styles to this file, and also import other style files */
+/* ══════════════════════════════════════════════════════════════
+   J KASG S.A · SISTEMA DE DISEÑO
+   Paleta neutra inspirada en materiales de construcción:
+   grafito (acero), concreto, arena y ocre (señalética de obra).
+   Todos los componentes toman sus colores de estas variables,
+   así que basta con cambiarlas aquí para ajustar todo el sistema.
+══════════════════════════════════════════════════════════════ */
+:root {
+  /* Marca / estructura */
+  --jk-carbon:          #1c1f22;   /* barra superior, pie */
+  --jk-primario:        #2c3136;   /* grafito: banners, títulos */
+  --jk-primario-2:      #3d444b;   /* grafito claro (hover) */
+  --jk-acero:           #5a646d;   /* acero: elementos secundarios */
+  --jk-acento:          #b8862f;   /* ocre de obra: acento de marca */
+  --jk-acento-oscuro:   #94691f;
+  --jk-acento-suave:    #f4ead6;
+
+  /* Superficies (concreto / arena) */
+  --jk-bg:              #f3f1ed;   /* fondo general */
+  --jk-card:            #ffffff;
+  --jk-fila:            #f9f8f6;   /* filas alternas, cabeceras de panel */
+  --jk-borde:           #e2ded7;
+  --jk-borde-fuerte:    #cdc7bd;
+
+  /* Texto */
+  --jk-texto:           #23272b;
+  --jk-suave:           #6e6a63;
+  --jk-tenue:           #9c978e;
+
+  /* Estados (tonos apagados) */
+  --jk-exito:           #4f7449;
+  --jk-exito-oscuro:    #3c5a37;
+  --jk-exito-suave:     #e9efe5;
+  --jk-peligro:         #a4422f;
+  --jk-peligro-oscuro:  #823426;
+  --jk-peligro-suave:   #f6e7e2;
+  --jk-alerta:          #a8711f;
+  --jk-alerta-suave:    #f6ecda;
+  --jk-info:            #4a6274;
+  --jk-info-suave:      #e5eaee;
+
+  /* Categorías de inventario */
+  --jk-materiales:      #8a6a3c;   /* arena / bronce */
+  --jk-mano:            #8a5040;   /* terracota (ladrillo) */
+  --jk-equipos:         #586447;   /* verde oliva (maquinaria) */
+  --jk-predictivo:      #44596b;   /* azul acero */
+  --jk-transporte:      #6a5f55;   /* taupe */
+
+  /* Sistemas de cálculo (APU) */
+  --jk-obra-gris:       #5f6366;   /* concreto */
+  --jk-acabados:        #8a6a3c;   /* arena */
+  --jk-hidraulico:      #436a72;   /* petróleo */
+  --jk-electrico:       #9a7329;   /* ocre */
+
+  /* Tipografía, radios, sombras */
+  --jk-font:            'Inter', 'Segoe UI', system-ui, sans-serif;
+  --jk-font-titulo:     'Barlow', 'Inter', 'Segoe UI', sans-serif;
+  --jk-radio:           8px;
+  --jk-radio-sm:        6px;
+  --jk-sombra:          0 1px 2px rgba(28, 31, 34, 0.06), 0 1px 3px rgba(28, 31, 34, 0.05);
+  --jk-sombra-hover:    0 8px 24px rgba(28, 31, 34, 0.10);
+}
 
 /* ══════════════════════════════════════
-   FOOTER SIEMPRE ABAJO (sticky footer)
-   El contenido ocupa el alto disponible y el footer queda pegado al
-   final de la pantalla, aunque la página tenga poco contenido.
+   BASE
 ══════════════════════════════════════ */
 html,
 body {
   margin: 0;
   min-height: 100%;
-  background: #ffffff;   /* fondo blanco en todas las pantallas */
+  background: var(--jk-bg);
 }
 
+body {
+  font-family: var(--jk-font);
+  color: var(--jk-texto);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--jk-acento-suave);
+  color: var(--jk-texto);
+}
+
+/* ══════════════════════════════════════
+   FOOTER SIEMPRE ABAJO (sticky footer)
+══════════════════════════════════════ */
 app-root {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #ffffff;
+  background: var(--jk-bg);
 }
 
 app-header,
@@ -27,6 +100,11 @@ app-footer {
 
 app-footer {
   margin-top: auto;
+}
+
+/* Scrollbar discreta */
+* {
+  scrollbar-color: var(--jk-borde-fuerte) transparent;
 }
 
 /* ══════════════════════════════════════
@@ -61,4 +139,12 @@ body.modo-solo-lectura .btn-secundario--editar {
 /* Sin el formulario, la tabla de Inventario ocupa todo el ancho */
 body.modo-solo-lectura .layout-grid {
   grid-template-columns: 1fr !important;
+}
+
+/* Impresión de reportes: solo el contenido */
+@media print {
+  app-header,
+  app-footer,
+  app-asistente-inventario { display: none !important; }
+  html, body, app-root { background: #fff !important; }
 }

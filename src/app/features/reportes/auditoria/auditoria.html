@@ -1,0 +1,117 @@
+<div class="pagina">
+
+  <header class="encabezado">
+    <div class="encabezado__izq">
+      <div class="encabezado__icono"><mat-icon>policy</mat-icon></div>
+      <div>
+        <span class="miga">Reportes</span>
+        <h1>Auditoría</h1>
+        <p>Bitácora de ingresos al sistema y cambios en usuarios, roles y permisos</p>
+      </div>
+    </div>
+    <div class="encabezado__acciones">
+      <button type="button" class="btn btn--fantasma" [disabled]="!registros.length" (click)="exportar()"><mat-icon>download</mat-icon> Exportar CSV</button>
+      <button type="button" class="btn btn--fantasma" (click)="imprimir()"><mat-icon>print</mat-icon> Imprimir</button>
+    </div>
+  </header>
+
+  @if (sinTabla) {
+    <div class="mensaje mensaje--info">
+      <mat-icon>info</mat-icon>
+      La bitácora aún no existe. Ejecute <code>sql/MENU_ROLES_PERMISOS.sql</code> en Supabase para empezar a registrar la actividad.
+    </div>
+  }
+  @if (error) {
+    <div class="mensaje mensaje--error"><mat-icon>error_outline</mat-icon> {{ error }}</div>
+  }
+
+  <div class="kpis">
+    <div class="kpi">
+      <div class="kpi__icono"><mat-icon>history</mat-icon></div>
+      <div><div class="kpi__valor">{{ registros.length }}</div><div class="kpi__label">Eventos en el período</div></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi__icono kpi__icono--info"><mat-icon>login</mat-icon></div>
+      <div><div class="kpi__valor">{{ contar('INGRESO') }}</div><div class="kpi__label">Ingresos al sistema</div></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi__icono kpi__icono--acento"><mat-icon>edit_note</mat-icon></div>
+      <div><div class="kpi__valor">{{ cambios }}</div><div class="kpi__label">Cambios registrados</div></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi__icono kpi__icono--ok"><mat-icon>group</mat-icon></div>
+      <div><div class="kpi__valor">{{ usuariosDistintos }}</div><div class="kpi__label">Usuarios con actividad</div></div>
+    </div>
+  </div>
+
+  <section class="panel">
+    <form class="filtros" (ngSubmit)="buscar()">
+      <label class="campo">
+        <span>Desde</span>
+        <input class="control" type="date" name="desde" [(ngModel)]="filtro.desde" />
+      </label>
+      <label class="campo">
+        <span>Hasta</span>
+        <input class="control" type="date" name="hasta" [(ngModel)]="filtro.hasta" />
+      </label>
+      <label class="campo">
+        <span>Usuario</span>
+        <input class="control" name="usuario" [(ngModel)]="filtro.usuario" placeholder="Todos" />
+      </label>
+      <label class="campo">
+        <span>Acción</span>
+        <select class="control" name="accion" [(ngModel)]="filtro.accion">
+          <option value="">Todas</option>
+          @for (a of acciones; track a) { <option [value]="a">{{ a }}</option> }
+        </select>
+      </label>
+      <label class="campo">
+        <span>Módulo</span>
+        <select class="control" name="modulo" [(ngModel)]="filtro.modulo">
+          <option value="">Todos</option>
+          @for (m of modulos; track m) { <option [value]="m">{{ m }}</option> }
+        </select>
+      </label>
+      <div class="filtros__botones">
+        <button type="submit" class="btn btn--primario"><mat-icon>filter_alt</mat-icon> Filtrar</button>
+        <button type="button" class="btn btn--claro" (click)="limpiar()">Limpiar</button>
+      </div>
+    </form>
+
+    @if (cargando) {
+      <div class="cargando">Consultando bitácora…</div>
+    } @else if (registros.length === 0) {
+      <div class="vacio"><mat-icon>manage_search</mat-icon>No hay eventos registrados en el período seleccionado.</div>
+    } @else {
+      <div class="tabla-scroll">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Fecha y hora</th>
+              <th>Usuario</th>
+              <th>Acción</th>
+              <th>Módulo</th>
+              <th>Detalle</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of pag.aplicar(registros); track r.id) {
+              <tr>
+                <td class="fecha">{{ r.fecha | date:'dd/MM/yyyy HH:mm:ss' }}</td>
+                <td class="fuerte">{{ r.usuario || '—' }}</td>
+                <td>
+                  <span class="chip" [ngClass]="claseAccion(r.accion)">
+                    <mat-icon class="chip__icono">{{ icono(r.accion) }}</mat-icon>{{ r.accion }}
+                  </span>
+                </td>
+                <td>{{ r.modulo }}</td>
+                <td class="detalle">{{ r.detalle }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <app-paginador [p]="pag" [total]="registros.length" etiqueta="eventos" />
+    }
+  </section>
+</div>

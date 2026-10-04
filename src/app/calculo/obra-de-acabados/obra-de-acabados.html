@@ -39,7 +39,7 @@
 
     <!-- Vista Agrupada cuando no hay filtro o para 'Todas' -->
     <div *ngIf="subcategoriaSeleccionada === ''">
-      <div *ngFor="let grupo of gruposPorSubcategoria" class="categoria-seccion">
+      <div *ngFor="let grupo of gruposPagina()" class="categoria-seccion">
         <h3 class="categoria-title">{{ grupo.subcategoria }}</h3>
         <div class="rubros-acordeon-lista">
           <div *ngFor="let r of grupo.rubros" class="rubro-card">
@@ -169,12 +169,13 @@
           </div>
         </div>
       </div>
+      <app-paginador class="paginador-rubros" [p]="pag" [total]="totalAgrupado()" etiqueta="rubros" />
     </div>
 
     <!-- Vista Filtrada -->
     <div *ngIf="subcategoriaSeleccionada !== ''">
       <div class="rubros-acordeon-lista">
-        <div *ngFor="let r of rubrosMostrados" class="rubro-card">
+        <div *ngFor="let r of pag.aplicar(rubrosMostrados)" class="rubro-card">
 
           <div class="rubro-header" (click)="toggleDesplegar(r)">
             <div class="rubro-header__left">
@@ -281,6 +282,7 @@
 
         </div>
       </div>
+      <app-paginador class="paginador-rubros" [p]="pag" [total]="rubrosMostrados.length" etiqueta="rubros" />
     </div>
 
   </div>

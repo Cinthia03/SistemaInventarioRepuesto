@@ -1,0 +1,125 @@
+<div class="pagina">
+
+  <header class="encabezado">
+    <div class="encabezado__izq">
+      <div class="encabezado__icono"><mat-icon>manage_accounts</mat-icon></div>
+      <div>
+        <span class="miga">Parametrización</span>
+        <h1>Usuarios x Rol</h1>
+        <p>Asigne a cada usuario el rol que determina sus permisos</p>
+      </div>
+    </div>
+    <div class="encabezado__acciones">
+      <button type="button" class="btn btn--fantasma" (click)="cargar()"><mat-icon>refresh</mat-icon> Actualizar</button>
+    </div>
+  </header>
+
+  @if (mensaje) {
+    <div class="mensaje" [class.mensaje--ok]="mensaje.tipo === 'ok'" [class.mensaje--error]="mensaje.tipo === 'error'">
+      <mat-icon>{{ mensaje.tipo === 'ok' ? 'check_circle' : 'error_outline' }}</mat-icon>
+      {{ mensaje.texto }}
+    </div>
+  }
+
+  @if (sinTablaRoles) {
+    <div class="mensaje mensaje--info">
+      <mat-icon>info</mat-icon>
+      La tabla de roles aún no existe: solo se muestran los roles que ya tienen los usuarios.
+      Ejecute <code>sql/MENU_ROLES_PERMISOS.sql</code> para administrar los roles.
+    </div>
+  }
+
+  <div class="layout-2">
+
+    <!-- RESUMEN POR ROL -->
+    <section class="panel">
+      <div class="panel__cabecera">
+        <h2 class="panel__titulo"><mat-icon>donut_small</mat-icon> Usuarios por rol</h2>
+      </div>
+      <ul class="resumen">
+        <li class="resumen__item" [class.resumen__item--activo]="filtroRol === ''" (click)="filtroRol = ''">
+          <span>Todos</span><span class="contador">{{ filas.length }}</span>
+        </li>
+        @for (r of roles; track r.codigo) {
+          <li class="resumen__item" [class.resumen__item--activo]="filtroRol === r.codigo" (click)="filtroRol = r.codigo">
+            <span>
+              {{ r.nombre }}
+              @if (r.solo_lectura) { <mat-icon class="mini" title="Solo lectura">visibility</mat-icon> }
+            </span>
+            <span class="contador">{{ cantidad(r.codigo) }}</span>
+          </li>
+        }
+        @if (sinRol) {
+          <li class="resumen__item resumen__item--alerta" [class.resumen__item--activo]="filtroRol === '__sin'" (click)="filtroRol = '__sin'">
+            <span>Sin rol válido</span><span class="contador">{{ sinRol }}</span>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <!-- ASIGNACIÓN -->
+    <section class="panel">
+      <div class="panel__cabecera">
+        <h2 class="panel__titulo"><mat-icon>assignment_ind</mat-icon> Asignación de roles</h2>
+        <div class="buscador">
+          <mat-icon>search</mat-icon>
+          <input [(ngModel)]="busqueda" (input)="pag.reiniciar()" placeholder="Buscar usuario o nombre" />
+        </div>
+      </div>
+
+      @if (cargando) {
+        <div class="cargando">Cargando…</div>
+      } @else if (filtradas.length === 0) {
+        <div class="vacio"><mat-icon>person_search</mat-icon>No hay usuarios para mostrar.</div>
+      } @else {
+        <div class="tabla-scroll">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th>Usuario</th>
+                <th>Nombre</th>
+                <th class="centro">Estado</th>
+                <th>Rol asignado</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (f of pag.aplicar(filtradas); track f.id) {
+                <tr [class.fila--cambio]="f.rol !== f.rolGuardado">
+                  <td class="fuerte">{{ f.usuario }}</td>
+                  <td>{{ f.nombre }}</td>
+                  <td class="centro">
+                    <span class="chip" [class.chip--ok]="f.activo" [class.chip--peligro]="!f.activo">{{ f.activo ? 'Activo' : 'Inactivo' }}</span>
+                  </td>
+                  <td class="celda-rol">
+                    <select class="control" [(ngModel)]="f.rol" [disabled]="soloLectura">
+                      @if (!f.rolGuardado) { <option value="">Sin rol</option> }
+                      @for (r of roles; track r.codigo) {
+                        <option [value]="r.codigo" [disabled]="!r.activo">{{ r.nombre }}</option>
+                      }
+                    </select>
+                    @if (f.rol !== f.rolGuardado) {
+                      <span class="antes" [title]="'Antes: ' + nombreRol(f.rolGuardado)">antes: {{ nombreRol(f.rolGuardado) }}</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <app-paginador [p]="pag" [total]="filtradas.length" etiqueta="usuarios" />
+      }
+
+      @if (!soloLectura) {
+        <div class="pie-acciones">
+          <span class="pie-acciones__estado">
+            {{ pendientes.length ? pendientes.length + ' cambio(s) sin guardar' : 'Sin cambios pendientes' }}
+          </span>
+          <button type="button" class="btn btn--claro" [disabled]="!pendientes.length" (click)="deshacer()">Deshacer</button>
+          <button type="button" class="btn btn--primario" [disabled]="!pendientes.length || guardando" (click)="guardar()">
+            <mat-icon>save</mat-icon> {{ guardando ? 'Guardando…' : 'Guardar asignaciones' }}
+          </button>
+        </div>
+      }
+    </section>
+  </div>
+</div>

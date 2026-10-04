@@ -2,30 +2,52 @@
   <div class="login-card">
 
     <div class="logo-section">
-      <span class="logo-icon">🏗️</span>
+      <span class="logo-icon"><mat-icon>domain</mat-icon></span>
       <h2>J KASG S.A</h2>
       <p>Acceso al sistema corporativo</p>
     </div>
 
-    <input
-      type="text"
-      placeholder="Usuario"
-      [(ngModel)]="user"
-      class="input"
-    />
+    <form class="login-form" (ngSubmit)="login()">
+      <label class="campo">
+        <span class="campo__label">Usuario</span>
+        <span class="campo__control">
+          <mat-icon>person_outline</mat-icon>
+          <input
+            type="text"
+            name="user"
+            placeholder="Ingrese su usuario"
+            autocomplete="username"
+            [(ngModel)]="user"
+            class="input"
+          />
+        </span>
+      </label>
 
-    <input
-      type="password"
-      placeholder="Contraseña"
-      [(ngModel)]="password"
-      class="input"
-    />
+      <label class="campo">
+        <span class="campo__label">Contraseña</span>
+        <span class="campo__control">
+          <mat-icon>lock_outline</mat-icon>
+          <input
+            type="password"
+            name="password"
+            placeholder="Ingrese su contraseña"
+            autocomplete="current-password"
+            [(ngModel)]="password"
+            class="input"
+          />
+        </span>
+      </label>
 
-    <button class="login-btn" (click)="login()">
-      Ingresar
-    </button>
+      <button class="login-btn" type="submit">
+        Ingresar
+        <mat-icon>arrow_forward</mat-icon>
+      </button>
+    </form>
 
-    <p *ngIf="error" class="error">{{ error }}</p>
+    <p *ngIf="error" class="error">
+      <mat-icon>error_outline</mat-icon> {{ error }}
+    </p>
 
+    <p class="login-pie">Sistema de Inventario y Presupuestos de Obra</p>
   </div>
 </div>

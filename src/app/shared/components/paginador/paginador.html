@@ -1,0 +1,43 @@
+@if (total > 0) {
+  <nav class="paginador" aria-label="Paginación">
+    <span class="paginador__info">
+      Mostrando <strong>{{ desde }}–{{ hasta }}</strong> de <strong>{{ total }}</strong> {{ etiqueta }}
+    </span>
+
+    <label class="paginador__tamano">
+      Filas
+      <select [value]="'' + p.tamano" (change)="cambiarTamano($any($event.target).value)">
+        @for (o of p.opciones; track o) {
+          <option [value]="'' + o" [selected]="o === p.tamano">{{ o }}</option>
+        }
+      </select>
+    </label>
+
+    @if (paginas > 1) {
+      <div class="paginador__botones">
+        <button type="button" class="pag-btn" title="Primera página" [disabled]="actual === 1" (click)="ir(1)">
+          <mat-icon>first_page</mat-icon>
+        </button>
+        <button type="button" class="pag-btn" title="Anterior" [disabled]="actual === 1" (click)="ir(actual - 1)">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+
+        @for (b of botones; track $index) {
+          @if (b === null) {
+            <span class="pag-puntos">…</span>
+          } @else {
+            <button type="button" class="pag-btn pag-btn--num" [class.pag-btn--activo]="b === actual"
+                    [attr.aria-current]="b === actual ? 'page' : null" (click)="ir(b)">{{ b }}</button>
+          }
+        }
+
+        <button type="button" class="pag-btn" title="Siguiente" [disabled]="actual === paginas" (click)="ir(actual + 1)">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+        <button type="button" class="pag-btn" title="Última página" [disabled]="actual === paginas" (click)="ir(paginas)">
+          <mat-icon>last_page</mat-icon>
+        </button>
+      </div>
+    }
+  </nav>
+}

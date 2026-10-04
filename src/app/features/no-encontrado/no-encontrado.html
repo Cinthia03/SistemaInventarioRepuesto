@@ -1,0 +1,28 @@
+<div class="nf">
+  <div class="nf__tarjeta">
+    <div class="nf__codigo" aria-hidden="true">
+      <span>4</span>
+      <span class="nf__cono"><mat-icon>engineering</mat-icon></span>
+      <span>4</span>
+    </div>
+
+    <div class="nf__cinta" aria-hidden="true"></div>
+
+    <h1>Página no encontrada</h1>
+    <p>
+      La dirección <code>{{ ruta }}</code> no existe o está en construcción.
+      Verifique la ruta o regrese a una sección disponible del sistema.
+    </p>
+
+    <div class="nf__acciones">
+      <button type="button" class="nf__btn nf__btn--claro" (click)="volver()">
+        <mat-icon>arrow_back</mat-icon> Volver
+      </button>
+      @if (conSesion) {
+        <a class="nf__btn nf__btn--primario" routerLink="/inicio"><mat-icon>home</mat-icon> Ir al inicio</a>
+      } @else {
+        <a class="nf__btn nf__btn--primario" routerLink="/login"><mat-icon>login</mat-icon> Iniciar sesión</a>
+      }
+    </div>
+  </div>
+</div>
