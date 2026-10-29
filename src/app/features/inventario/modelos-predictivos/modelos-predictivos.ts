@@ -11,6 +11,8 @@ import {
   PrediccionItem,
   PuntoHistorico
 } from '../../../core/services/modelos-predictivos.service';
+import { PaginadorComponent } from '../../../shared/components/paginador/paginador';
+import { Paginacion } from '../../../shared/components/paginador/paginacion';
 
 @Component({
   selector: 'app-modelos-predictivos',
@@ -19,12 +21,16 @@ import {
     CommonModule,
     MatIconModule,
     MatButtonModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    PaginadorComponent
   ],
   templateUrl: './modelos-predictivos.html',
   styleUrls: ['./modelos-predictivos.css']
 })
 export class ModelosPredictivos implements OnInit {
+
+  /** Paginación de la tabla de proyecciones. */
+  readonly pag = new Paginacion();
 
   tipoActual: TipoInventario = 'materiales';
 
@@ -64,6 +70,7 @@ export class ModelosPredictivos implements OnInit {
   cambiarTipo(tipo: TipoInventario): void {
     if (this.tipoActual === tipo) return;
     this.tipoActual = tipo;
+    this.pag.reiniciar();
     this.cargarPredicciones();
   }
 

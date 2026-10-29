@@ -1,0 +1,41 @@
+.resumen { list-style: none; margin: 0; padding: 8px; display: flex; flex-direction: column; gap: 2px; }
+
+.resumen__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: var(--jk-radio-sm);
+  border: 1px solid transparent;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.resumen__item > span:first-child { display: inline-flex; align-items: center; gap: 6px; }
+.resumen__item:hover { background: var(--jk-fila); }
+.resumen__item--activo { background: var(--jk-acento-suave); border-color: #e6d3ad; font-weight: 600; }
+.resumen__item--activo .contador { background: var(--jk-acento); color: #fff; }
+.resumen__item--alerta { color: var(--jk-peligro); }
+
+.mini { font-size: 15px; width: 15px; height: 15px; color: var(--jk-tenue); }
+
+.celda-rol { display: flex; align-items: center; gap: 10px; min-width: 260px; }
+.celda-rol .control { max-width: 220px; padding: 7px 10px; }
+
+.antes { font-size: 11.5px; color: var(--jk-suave); white-space: nowrap; }
+
+.fila--cambio td { background: var(--jk-acento-suave) !important; }
+
+.pie-acciones {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--jk-borde);
+  background: var(--jk-fila);
+}
+
+.pie-acciones__estado { margin-right: auto; font-size: 12.5px; color: var(--jk-suave); }

@@ -1,0 +1,174 @@
+<div class="pagina">
+
+  <header class="encabezado">
+    <div class="encabezado__izq">
+      <div class="encabezado__icono"><mat-icon>group</mat-icon></div>
+      <div>
+        <span class="miga">Mantenimiento</span>
+        <h1>Usuarios</h1>
+        <p>Registro y control de las cuentas que acceden al sistema</p>
+      </div>
+    </div>
+    <div class="encabezado__acciones">
+      <button type="button" class="btn btn--fantasma" (click)="cargarUsuarios()">
+        <mat-icon>refresh</mat-icon> Actualizar
+      </button>
+    </div>
+  </header>
+
+  <div class="kpis">
+    <div class="kpi">
+      <div class="kpi__icono"><mat-icon>group</mat-icon></div>
+      <div><div class="kpi__valor">{{ usuarios.length }}</div><div class="kpi__label">Usuarios registrados</div></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi__icono kpi__icono--ok"><mat-icon>how_to_reg</mat-icon></div>
+      <div><div class="kpi__valor">{{ totalActivos }}</div><div class="kpi__label">Activos</div></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi__icono kpi__icono--peligro"><mat-icon>person_off</mat-icon></div>
+      <div><div class="kpi__valor">{{ usuarios.length - totalActivos }}</div><div class="kpi__label">Inactivos</div></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi__icono kpi__icono--acento"><mat-icon>badge</mat-icon></div>
+      <div><div class="kpi__valor">{{ roles.length }}</div><div class="kpi__label">Roles disponibles</div></div>
+    </div>
+  </div>
+
+  @if (mensaje) {
+    <div class="mensaje" [class.mensaje--ok]="mensaje.tipo === 'ok'" [class.mensaje--error]="mensaje.tipo === 'error'">
+      <mat-icon>{{ mensaje.tipo === 'ok' ? 'check_circle' : 'error_outline' }}</mat-icon>
+      {{ mensaje.texto }}
+    </div>
+  }
+
+  @if (sinColumnaActivo) {
+    <div class="mensaje mensaje--info">
+      <mat-icon>info</mat-icon>
+      Para activar o desactivar usuarios ejecute <code>sql/MENU_ROLES_PERMISOS.sql</code> en Supabase.
+    </div>
+  }
+
+  <div class="layout-2" [class.layout-2--completo]="soloLectura">
+
+    <!-- FORMULARIO -->
+    @if (!soloLectura) {
+      <section class="panel form-panel">
+        <div class="panel__cabecera">
+          <h2 class="panel__titulo">
+            <mat-icon>{{ editandoId ? 'edit' : 'person_add' }}</mat-icon>
+            {{ editandoId ? 'Editar usuario' : 'Nuevo usuario' }}
+          </h2>
+        </div>
+        <form class="panel__cuerpo form" (ngSubmit)="guardar()" autocomplete="off">
+          <label class="campo">
+            <span>Usuario</span>
+            <input class="control" name="usuario" [(ngModel)]="form.usuario" maxlength="50" placeholder="ej. jperez" />
+          </label>
+          <label class="campo">
+            <span>Nombre completo</span>
+            <input class="control" name="nombre" [(ngModel)]="form.nombre" maxlength="120" placeholder="ej. Juan Pérez" />
+          </label>
+          <label class="campo">
+            <span>Contraseña</span>
+            <input class="control" type="password" name="password" [(ngModel)]="form.password"
+                   autocomplete="new-password" [placeholder]="editandoId ? 'Dejar vacío para no cambiarla' : 'Mínimo 6 caracteres'" />
+          </label>
+          <label class="campo">
+            <span>Rol</span>
+            <select class="control" name="rol" [(ngModel)]="form.rol">
+              <option value="" disabled>Seleccione un rol</option>
+              @for (r of roles; track r.codigo) {
+                <option [value]="r.codigo">{{ r.nombre }}</option>
+              }
+            </select>
+          </label>
+          @if (!sinColumnaActivo) {
+            <label class="check">
+              <input type="checkbox" name="activo" [(ngModel)]="form.activo" /> Usuario activo
+            </label>
+          }
+          <div class="form__acciones">
+            @if (editandoId) {
+              <button type="button" class="btn btn--claro" (click)="nuevo()">Cancelar</button>
+            }
+            <button type="submit" class="btn btn--primario" [disabled]="guardando">
+              <mat-icon>save</mat-icon> {{ guardando ? 'Guardando…' : 'Guardar' }}
+            </button>
+          </div>
+        </form>
+      </section>
+    }
+
+    <!-- LISTADO -->
+    <section class="panel">
+      <div class="panel__cabecera">
+        <h2 class="panel__titulo"><mat-icon>list</mat-icon> Listado de usuarios</h2>
+        <div class="herramientas">
+          <div class="buscador">
+            <mat-icon>search</mat-icon>
+            <input [(ngModel)]="busqueda" (input)="pag.reiniciar()" placeholder="Buscar usuario, nombre o rol" />
+          </div>
+          @if (!sinColumnaActivo) {
+            <select class="control control--corto" [(ngModel)]="filtroEstado" (change)="pag.reiniciar()">
+              <option value="">Todos</option>
+              <option value="activos">Activos</option>
+              <option value="inactivos">Inactivos</option>
+            </select>
+          }
+        </div>
+      </div>
+
+      @if (cargando) {
+        <div class="cargando">Cargando usuarios…</div>
+      } @else if (filtrados.length === 0) {
+        <div class="vacio"><mat-icon>person_search</mat-icon>No hay usuarios que coincidan con la búsqueda.</div>
+      } @else {
+        <div class="tabla-scroll">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th>Usuario</th>
+                <th>Nombre</th>
+                <th>Rol</th>
+                <th class="centro">Estado</th>
+                <th class="acciones td-acciones"></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (u of pag.aplicar(filtrados); track u.id) {
+                <tr [class.fila--editando]="u.id === editandoId">
+                  <td>
+                    <span class="usuario-celda">
+                      <span class="avatar">{{ (u.usuario || '?').charAt(0).toUpperCase() }}</span>
+                      <span class="fuerte">{{ u.usuario }}</span>
+                    </span>
+                  </td>
+                  <td>{{ u.nombre }}</td>
+                  <td><span class="chip chip--acento">{{ nombreRol(u.rol) }}</span></td>
+                  <td class="centro">
+                    @if (u.activo === false) {
+                      <span class="chip chip--peligro">Inactivo</span>
+                    } @else {
+                      <span class="chip chip--ok">Activo</span>
+                    }
+                  </td>
+                  <td class="acciones td-acciones">
+                    <button type="button" class="btn-icono" title="Editar" (click)="editar(u)"><mat-icon>edit</mat-icon></button>
+                    @if (!sinColumnaActivo) {
+                      <button type="button" class="btn-icono" [title]="u.activo === false ? 'Activar' : 'Desactivar'" (click)="alternarActivo(u)">
+                        <mat-icon>{{ u.activo === false ? 'toggle_off' : 'toggle_on' }}</mat-icon>
+                      </button>
+                    }
+                    <button type="button" class="btn-icono btn-icono--peligro" title="Eliminar" (click)="eliminar(u)"><mat-icon>delete</mat-icon></button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <app-paginador [p]="pag" [total]="filtrados.length" etiqueta="usuarios" />
+      }
+    </section>
+  </div>
+</div>

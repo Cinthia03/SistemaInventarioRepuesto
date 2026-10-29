@@ -1,37 +1,37 @@
 /*RUBRO CSS*/
 :host {
-  --color-primario: #133b4b;
+  --color-primario: var(--jk-primario);
   
-  --color-obraGris: #5e584f;
-  --color-obraGris-suave: #5e584f96;
+  --color-obraGris: var(--jk-obra-gris);
+  --color-obraGris-suave: #5f636633;
 
-  --color-acabados:          #92400e;
-  --color-acabados-suave:    #92400e20;
+  --color-acabados:          var(--jk-acabados);
+  --color-acabados-suave:    #8a6a3c1f;
 
-  --color-hidraulico:        #297771;
-  --color-hidraulico-suave:  rgba(12, 74, 110, 0.151);
+  --color-hidraulico:        var(--jk-hidraulico);
+  --color-hidraulico-suave:  #436a721f;
 
-  --color-electrico:         #15376b;
-  --color-electrico-suave:   #15376b5e;
+  --color-electrico:         var(--jk-electrico);
+  --color-electrico-suave:   #9a73291f;
 
-  --color-equipos:        #126d59;
-  --color-mano:           #572a55;
-  --color-materiales:     #6d4d12;
-  --color-transporte:     #5f1a1a;
+  --color-equipos:        var(--jk-equipos);
+  --color-mano:           var(--jk-mano);
+  --color-materiales:     var(--jk-materiales);
+  --color-transporte:     var(--jk-transporte);
 
-  --color-bg: #f1f5f9;
-  --color-card: #ffffff;
-  --color-borde: #e2e8f0;
-  --color-texto: #0f172a;
-  --color-suave: #64748b;
+  --color-bg: var(--jk-bg);
+  --color-card: var(--jk-card);
+  --color-borde: var(--jk-borde);
+  --color-texto: var(--jk-texto);
+  --color-suave: var(--jk-suave);
 
-  --radio: 12px;
-  --radio-sm: 6px;
-  --sombra: 0 2px 8px rgba(0, 0, 0, 0.07);
-  --sombra-hover: 0 10px 32px rgba(0, 0, 0, 0.13);
+  --radio: var(--jk-radio);
+  --radio-sm: var(--jk-radio-sm);
+  --sombra: var(--jk-sombra);
+  --sombra-hover: var(--jk-sombra-hover);
   
-  --font-titulo: 'Georgia', 'Times New Roman', serif;
-  --font-cuerpo: 'Segoe UI', system-ui, sans-serif;
+  --font-titulo: var(--jk-font-titulo);
+  --font-cuerpo: var(--jk-font);
   --trans: 0.22s ease;
 }
 
@@ -67,7 +67,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(94, 88, 79, 0.2);
+  box-shadow: 0 4px 12px rgba(28, 31, 34, 0.2);
 }
 
 .header-interno__badge_acabados {
@@ -79,7 +79,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(94, 88, 79, 0.2);
+  box-shadow: 0 4px 12px rgba(28, 31, 34, 0.2);
 }
 
 .header-interno__badge_hidraulico {
@@ -91,7 +91,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(94, 88, 79, 0.2);
+  box-shadow: 0 4px 12px rgba(28, 31, 34, 0.2);
 }
 
 .header-interno__badge_electrico {
@@ -103,7 +103,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(94, 88, 79, 0.2);
+  box-shadow: 0 4px 12px rgba(28, 31, 34, 0.2);
 }
 
 .titulo-interno {
@@ -269,9 +269,9 @@
   font-family: var(--font-titulo);
   font-size: 15px;
   font-weight: 800;
-  color: #15803d;
-  background: #dcfce7;
-  border: 1px solid #86efac;
+  color: var(--jk-exito-oscuro);
+  background: var(--jk-exito-suave);
+  border: 1px solid #b6c9ad;
   padding: 5px 14px;
   border-radius: 99px;
   white-space: nowrap;
@@ -285,7 +285,7 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
-  background: #0f172a;
+  background: var(--jk-texto);
 }
 
 .tabla-seccion {
@@ -420,23 +420,23 @@
 }
 
 .btn-editar-rubro {
-  border: 1.5px solid #ea580c;
-  color: #ea580c;
+  border: 1.5px solid var(--jk-alerta);
+  color: var(--jk-alerta);
 }
 
 .btn-editar-rubro:hover {
-  background: #ea580c;
+  background: var(--jk-alerta);
   color: white;
   transform: translateY(-1px);
 }
 
 .btn-eliminar-rubro {
-  border: 1.5px solid #dc2626;
-  color: #dc2626;
+  border: 1.5px solid var(--jk-peligro);
+  color: var(--jk-peligro);
 }
 
 .btn-eliminar-rubro:hover {
-  background: #dc2626;
+  background: var(--jk-peligro);
   color: white;
   transform: translateY(-1px);
 }
@@ -456,7 +456,7 @@
   border-radius: var(--radio);
   padding: 32px 0;
   margin-bottom: 32px;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
+  box-shadow: 0 10px 25px rgba(28, 31, 34, 0.18);
   position: relative;
   overflow: hidden;
 }
@@ -550,4 +550,51 @@
   .obra-gris { padding: 20px 16px; }
   .banner-contenido { padding: 0 16px; }
   .titulo { font-size: 22px; }
+}
+
+
+/* ══════════════════════════════════════
+   DISEÑO CORPORATIVO J KASG S.A
+   Fondo concreto, banners grafito con franja de color de módulo
+   y tipografía sobria.
+══════════════════════════════════════ */
+.obra-gris {
+  background: var(--jk-bg);
+}
+
+.header-banner {
+  background-color: var(--jk-primario);
+  background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.025) 0 2px, transparent 2px 16px);
+  border-left: 6px solid var(--jk-acento);
+  border-radius: var(--jk-radio);
+  box-shadow: var(--jk-sombra);
+}
+
+.header-badge {
+  border-radius: var(--jk-radio-sm);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.14);
+  backdrop-filter: none;
+}
+
+.titulo {
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-shadow: none;
+}
+
+.subtitulo {
+  color: #c9c4bb;
+}
+
+.header-banner { border-left-color: var(--tema, var(--jk-acento)); }
+
+/* Paginación de rubros */
+app-paginador.paginador-rubros {
+  display: block;
+  margin-top: 16px;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  overflow: hidden;
+  box-shadow: var(--sombra);
 }

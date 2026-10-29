@@ -1,0 +1,137 @@
+<div class="pagina">
+
+  <header class="encabezado">
+    <div class="encabezado__izq">
+      <div class="encabezado__icono"><mat-icon>assignment</mat-icon></div>
+      <div>
+        <span class="miga">Reportes</span>
+        <h1>Reportes operacionales</h1>
+        <p>Existencias, estado de stock y tarifas vigentes · {{ fechaReporte | date:'dd/MM/yyyy HH:mm' }}</p>
+      </div>
+    </div>
+    <div class="encabezado__acciones">
+      <button type="button" class="btn btn--fantasma" (click)="exportar()"><mat-icon>download</mat-icon> Exportar CSV</button>
+      <button type="button" class="btn btn--fantasma" (click)="imprimir()"><mat-icon>print</mat-icon> Imprimir</button>
+    </div>
+  </header>
+
+  @if (error) {
+    <div class="mensaje mensaje--error"><mat-icon>error_outline</mat-icon> {{ error }}</div>
+  }
+
+  @if (conStock) {
+    <div class="kpis">
+      <div class="kpi">
+        <div class="kpi__icono"><mat-icon>inventory_2</mat-icon></div>
+        <div><div class="kpi__valor">{{ datos[pestana].length }}</div><div class="kpi__label">Ítems registrados</div></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi__icono kpi__icono--ok"><mat-icon>check_circle</mat-icon></div>
+        <div><div class="kpi__valor">{{ contar('normal') }}</div><div class="kpi__label">Stock normal</div></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi__icono kpi__icono--acento"><mat-icon>trending_down</mat-icon></div>
+        <div><div class="kpi__valor">{{ contar('bajo') }}</div><div class="kpi__label">Stock bajo (&lt; 10)</div></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi__icono kpi__icono--peligro"><mat-icon>remove_shopping_cart</mat-icon></div>
+        <div><div class="kpi__valor">{{ contar('agotado') }}</div><div class="kpi__label">Agotados</div></div>
+      </div>
+    </div>
+  }
+
+  <section class="panel">
+    <div class="tabs">
+      @for (p of pestanas; track p.id) {
+        <button type="button" class="tab" [class.tab--activa]="pestana === p.id" (click)="cambiar(p.id)">
+          <mat-icon>{{ p.icono }}</mat-icon> {{ p.nombre }}
+          <span class="contador">{{ datos[p.id].length }}</span>
+        </button>
+      }
+    </div>
+
+    <div class="filtros">
+      <div class="buscador">
+        <mat-icon>search</mat-icon>
+        <input [(ngModel)]="busqueda" (input)="pag.reiniciar()" placeholder="Buscar código o descripción" />
+      </div>
+      @if (categorias.length) {
+        <label class="campo">
+          <span>Categoría</span>
+          <select class="control" [(ngModel)]="filtroCategoria" (change)="pag.reiniciar()">
+            <option value="">Todas</option>
+            @for (c of categorias; track c) { <option [value]="c">{{ c }}</option> }
+          </select>
+        </label>
+      }
+      @if (conStock) {
+        <label class="campo">
+          <span>Estado</span>
+          <select class="control" [(ngModel)]="filtroEstado" (change)="pag.reiniciar()">
+            <option value="">Todos</option>
+            <option value="normal">Normal</option>
+            <option value="bajo">Stock bajo</option>
+            <option value="agotado">Agotado</option>
+          </select>
+        </label>
+      }
+    </div>
+
+    @if (cargando) {
+      <div class="cargando">Generando reporte…</div>
+    } @else if (filas.length === 0) {
+      <div class="vacio"><mat-icon>search_off</mat-icon>No hay registros con los filtros seleccionados.</div>
+    } @else {
+      <div class="tabla-scroll">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Descripción</th>
+              @if (categorias.length) { <th>Categoría</th> }
+              <th>Unidad</th>
+              <th class="num">Precio</th>
+              @if (conStock) {
+                <th class="num">Stock</th>
+                <th class="num">Valor</th>
+                <th class="centro">Estado</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (i of pag.aplicar(filas); track i.codigo) {
+              <tr>
+                <td class="codigo">{{ i.codigo }}</td>
+                <td>{{ i.descripcion }}</td>
+                @if (categorias.length) { <td>{{ i.categoria }}</td> }
+                <td>{{ i.unidad }}</td>
+                <td class="num">{{ i.precio | number:'1.2-2' }}</td>
+                @if (conStock) {
+                  <td class="num fuerte">{{ i.stock | number:'1.0-2' }}</td>
+                  <td class="num">{{ (i.stock ?? 0) * i.precio | number:'1.2-2' }}</td>
+                  <td class="centro">
+                    @switch (estado(i)) {
+                      @case ('agotado') { <span class="chip chip--peligro">Agotado</span> }
+                      @case ('bajo') { <span class="chip chip--alerta">Stock bajo</span> }
+                      @default { <span class="chip chip--ok">Normal</span> }
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+          @if (conStock) {
+            <tfoot>
+              <tr>
+                <td [attr.colspan]="categorias.length ? 6 : 5">Total ({{ filas.length }} ítems)</td>
+                <td class="num">$ {{ totalValor | number:'1.2-2' }}</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          }
+        </table>
+      </div>
+      <app-paginador [p]="pag" [total]="filas.length" etiqueta="ítems" />
+    }
+  </section>
+</div>

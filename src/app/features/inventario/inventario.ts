@@ -1,9 +1,10 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { SupabaseService } from '../../core/services/supabase.service';
+import { PermisosService } from '../../core/services/permisos.service';
 import { AsistenteInventarioComponent } from '../../shared/components/asistente-inventario/asistente-inventario';
 
 @Component({
@@ -19,6 +20,13 @@ import { AsistenteInventarioComponent } from '../../shared/components/asistente-
   styleUrls: ['./inventario.css']
 })
 export class InventarioComponent implements OnInit {
+  private readonly permisos = inject(PermisosService);
+
+  /** Modelos predictivos es una opción propia del menú (Procesos). */
+  get puedePredictivo(): boolean {
+    return this.permisos.puede('PROC_PREDICTIVO');
+  }
+
 
   // TOTALES
   totalMateriales = 0;
@@ -334,4 +342,4 @@ export class InventarioComponent implements OnInit {
         console.error('Error navegación:', err)
       );
   }
-}
+}

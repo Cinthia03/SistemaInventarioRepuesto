@@ -1,40 +1,40 @@
 :host {
-  --color-primario:         #133b4b;
+  --color-primario:         var(--jk-primario);
 
-  --color-materiales:       #6d4d12;
-  --color-materiales-tabla: #6d4d12c7;
-  --color-materiales-suave: #50696446;
-  --color-materiales-dark:  #4e3509;
+  --color-materiales:       var(--jk-materiales);
+  --color-materiales-tabla: #8a6a3cd9;
+  --color-materiales-suave: #8a6a3c1f;
+  --color-materiales-dark:  #6b5130;
 
-  --color-mano:             #572a55;
-  --color-mano-tabla:       #572a55be;
-  --color-mano-suave:       #50696446;
-  --color-mano-dark:        #3d1c3b;
+  --color-mano:             var(--jk-mano);
+  --color-mano-tabla:       #8a5040d9;
+  --color-mano-suave:       #8a50401f;
+  --color-mano-dark:        #6b3d31;
 
-  --color-equipos:          #126d59;
-  --color-equipos-tabla:    #126d59c5;
-  --color-equipos-suave:    #50696446;
-  --color-equipos-dark:     #0c4237;
+  --color-equipos:          var(--jk-equipos);
+  --color-equipos-tabla:    #586447d9;
+  --color-equipos-suave:    #5864471f;
+  --color-equipos-dark:     #434c36;
 
-  --color-bg:               #f1f5f9;
-  --color-card:             #ffffff;
-  --color-borde:            #e2e8f0;
-  --color-texto:            #0f172a;
-  --color-suave:            #64748b;
-  --color-fila:             #f8fafc;
+  --color-bg:               var(--jk-bg);
+  --color-card:             var(--jk-card);
+  --color-borde:            var(--jk-borde);
+  --color-texto:            var(--jk-texto);
+  --color-suave:            var(--jk-suave);
+  --color-fila:             var(--jk-fila);
 
-  --color-guardar:          #16a34a;
-  --color-guardar-suave:    #f5fff5;
-  --color-nuevo:            #1d4ed8;
-  --color-nuevo-suave:      #eff6ff;
+  --color-guardar:          var(--jk-exito);
+  --color-guardar-suave:    var(--jk-exito-suave);
+  --color-nuevo:            var(--jk-info);
+  --color-nuevo-suave:      var(--jk-info-suave);
 
-  --radio:                  12px;
-  --radio-sm:               8px;
-  --sombra:                 0 2px 8px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.06);
-  --sombra-hover:           0 10px 32px rgba(0,0,0,0.13);
+  --radio:                  var(--jk-radio);
+  --radio-sm:               var(--jk-radio-sm);
+  --sombra:                 var(--jk-sombra);
+  --sombra-hover:           var(--jk-sombra-hover);
 
-  --font-titulo:            'Georgia','Times New Roman',serif;
-  --font-cuerpo:            'Segoe UI',system-ui,sans-serif;
+  --font-titulo:            var(--jk-font-titulo);
+  --font-cuerpo:            var(--jk-font);
   --trans:                  0.22s ease;
 }
 
@@ -58,7 +58,7 @@
   border-radius: var(--radio);
   padding: 32px 0px;
   margin-bottom: 32px;
-  box-shadow: 0 10px 25px rgba(26, 47, 110, 0.15);
+  box-shadow: 0 10px 25px rgba(28, 31, 34, 0.15);
   position: relative;
   overflow: hidden;
 }
@@ -66,19 +66,19 @@
 /* Módulo Materiales */
 .header-banner.banner--materiales {
   background: var(--color-materiales);
-  box-shadow: 0 10px 25px rgba(109,77,18,0.20);
+  box-shadow: 0 10px 25px rgba(138, 106, 60,0.20);
 }
 
 /* Módulo Mano de Obra */
 .header-banner.banner--mano {
   background: var(--color-mano);
-  box-shadow: 0 10px 25px rgba(87,42,85,0.20);
+  box-shadow: 0 10px 25px rgba(138, 80, 64,0.20);
 }
 
 /* Módulo equipos */
 .header-banner.banner--equipos {
   background: var(--color-equipos);
-  box-shadow: 0 10px 25px rgba(42, 87, 85, 0.2);
+  box-shadow: 0 10px 25px rgba(88, 100, 71, 0.2);
 }
 
 .banner-contenido {
@@ -333,7 +333,7 @@
   justify-content: center; 
   gap: 6px;
   padding: 10px 16px;
-  border: 1.5px solid #e2e8f0;
+  border: 1.5px solid var(--jk-borde);
   border-radius: var(--radio-sm);
   background: var(--color-card);
   color: var(--color-suave);
@@ -450,7 +450,7 @@
 
 .filtro-input:focus, .filtro-select:focus {
   border-color: var(--color-primario);
-  box-shadow: 0 0 0 3px rgba(19,59,75,0.10);
+  box-shadow: 0 0 0 3px rgba(44, 49, 54,0.10);
 }
 
 .filtro-select {
@@ -608,8 +608,8 @@ tr.mat-mdc-row:last-child td.mat-mdc-cell {
   color: var(--color-guardar);
 }
 
-.stock-bajo    { background: #ffedd5 !important; color: #c2410c !important; }
-.stock-critico { background: #fee2e2 !important; color: #b91c1c !important; }
+.stock-bajo    { background: #f3e4c8 !important; color: var(--jk-alerta) !important; }
+.stock-critico { background: var(--jk-peligro-suave) !important; color: var(--jk-peligro) !important; }
 
 /* BOTONES TABLA */
 .btn-icono {
@@ -628,7 +628,7 @@ tr.mat-mdc-row:last-child td.mat-mdc-cell {
 }
 
 .btn-eliminar { 
-  color: #dc2626 !important; 
+  color: var(--jk-peligro) !important; 
 }
 
 .btn-eliminar:hover { 
@@ -658,3 +658,48 @@ mat-paginator {
   .botones-form { flex-direction: column; }
   .filter-bar__campos { flex-direction: column; }
 }
+
+
+/* ══════════════════════════════════════
+   DISEÑO CORPORATIVO J KASG S.A
+   Fondo concreto, banners grafito con franja de color de módulo
+   y tipografía sobria.
+══════════════════════════════════════ */
+.container {
+  background: var(--jk-bg);
+}
+
+.header-banner {
+  background-color: var(--jk-primario);
+  background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.025) 0 2px, transparent 2px 16px);
+  border-left: 6px solid var(--jk-acento);
+  border-radius: var(--jk-radio);
+  box-shadow: var(--jk-sombra);
+}
+
+.header-badge {
+  border-radius: var(--jk-radio-sm);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.14);
+  backdrop-filter: none;
+}
+
+.titulo {
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-shadow: none;
+}
+
+.subtitulo {
+  color: #c9c4bb;
+}
+
+.header-banner.banner--materiales,
+.header-banner.banner--mano,
+.header-banner.banner--equipos {
+  background-color: var(--jk-primario);
+  box-shadow: var(--jk-sombra);
+}
+.header-banner.banner--materiales { border-left-color: var(--color-materiales); }
+.header-banner.banner--mano       { border-left-color: var(--color-mano); }
+.header-banner.banner--equipos    { border-left-color: var(--color-equipos); }

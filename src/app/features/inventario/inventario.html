@@ -196,7 +196,7 @@
     </div>
 
     <!-- MODELOS PREDICTIVOS -->
-    <div class="card predictivo" (click)="abrirModelosPredictivos()">
+    <div class="card predictivo" *ngIf="puedePredictivo" (click)="abrirModelosPredictivos()">
       <div class="card-header">
         <div class="card-header__left">
           <div class="card-header__icono">
@@ -328,4 +328,4 @@
            (preciosActualizados)="cargarDashboard()"
          ></app-asistente-inventario>
 
-</div>
+</div>

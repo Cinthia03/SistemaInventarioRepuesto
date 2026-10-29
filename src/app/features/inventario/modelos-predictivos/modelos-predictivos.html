@@ -125,7 +125,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let p of predicciones" [attr.data-codigo]="p.codigo">
+          <tr *ngFor="let p of pag.aplicar(predicciones)" [attr.data-codigo]="p.codigo">
             <td class="col-codigo">{{ p.codigo }}</td>
             <td class="col-desc">{{ p.descripcion }}</td>
 
@@ -175,6 +175,7 @@
         </tbody>
       </table>
     </div>
+    <app-paginador [p]="pag" [total]="predicciones.length" etiqueta="ítems" />
   </div>
 
   <!-- LOADING -->

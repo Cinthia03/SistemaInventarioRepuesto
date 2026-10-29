@@ -648,7 +648,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let p of presupuestosGuardados" (click)="verDetalle(p.id)">
+            <tr *ngFor="let p of pagPresupuestos.aplicar(presupuestosGuardados)" (click)="verDetalle(p.id)">
               <td class="col-proyecto">{{ p.nombre }}</td>
               <td>{{ p.numero_tramite || '—' }}</td>
               <td>{{ p.fecha_presupuesto ? fechaFormato(p.fecha_presupuesto) : (p.creado_en | date:'dd/MM/yyyy') }}</td>
@@ -669,6 +669,7 @@
           </tbody>
         </table>
       </div>
+      <app-paginador *ngIf="!cargandoHistorial && presupuestosGuardados.length > 0" [p]="pagPresupuestos" [total]="presupuestosGuardados.length" etiqueta="presupuestos" />
     </div>
   </ng-container>
 

@@ -15,7 +15,21 @@ export function rolActual(): string {
 }
 
 export function esSoloLectura(): boolean {
-  return ROLES_SOLO_LECTURA.includes(rolActual());
+  if (ROLES_SOLO_LECTURA.includes(rolActual())) return true;
+  // Marcado desde Parametrización (roles.solo_lectura); lo guarda PermisosService al cargar.
+  try {
+    return localStorage.getItem('rol_solo_lectura') === '1';
+  } catch {
+    return false;
+  }
+}
+
+export function usuarioActual(): string {
+  try {
+    return (localStorage.getItem('usuario') || '').trim();
+  } catch {
+    return '';
+  }
 }
 
 export const MENSAJE_SOLO_LECTURA =

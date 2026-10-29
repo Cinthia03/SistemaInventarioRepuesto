@@ -1,71 +1,81 @@
 <div class="page">
 
-  <!-- ══ INVENTARIO ══ -->
-  <section class="section inventario">
-    <div class="section__bg"></div>
-    <div class="section__overlay"></div>
-
-    <div class="content">
-      <span class="section-num">01 · Módulo</span>
-      <h2>Gestión de<br>Inventario</h2>
-      <p>
-        Administra materiales, controla stock y optimiza recursos en tiempo real
-        para garantizar eficiencia en cada proyecto de obra.
-      </p>
-      <button class="btn" (click)="irInventario()">Ver módulo</button>
+  <!-- ══ BIENVENIDA ══ -->
+  <section class="hero">
+    <div class="hero__texto">
+      <span class="hero__miga">J KASG S.A · Construcción</span>
+      <h1>{{ saludo }}@if (usuario) {, <span class="hero__nombre">{{ usuario }}</span>}</h1>
+      <p>Sistema de gestión de inventario, análisis de precios unitarios y presupuestos de obra.</p>
+      <div class="hero__datos">
+        <span><mat-icon>calendar_today</mat-icon>{{ fechaTexto }}</span>
+        @if (rol) {
+          <span><mat-icon>badge</mat-icon>Rol: {{ rol }}</span>
+        }
+      </div>
     </div>
-
-    <div class="section-meta">
-      <span class="meta-icon">📦</span>
-      <span class="meta-tag">Inventario · Stock · Recursos</span>
-    </div>
-
-    <div class="divider"></div>
+    <div class="hero__imagen" aria-hidden="true"></div>
   </section>
 
-  <!-- ══ CÁLCULO ══ -->
-  <section class="section calculo">
-    <div class="section__bg"></div>
-    <div class="section__overlay"></div>
+  <div class="contenido">
 
-    <div class="content">
-      <span class="section-num">02 · Módulo</span>
-      <h2>Análisis de<br>Precios Unitarios</h2>
-      <p>
-        Herramientas avanzadas para el cálculo APU, análisis estructural
-        y validación técnica de cada rubro de construcción.
-      </p>
-      <button class="btn" (click)="irCalculo()">Ver módulo</button>
-    </div>
+    @if (sinPermiso) {
+      <div class="aviso-permiso">
+        <mat-icon>block</mat-icon>
+        No tiene permiso para acceder a esa opción. Solicite acceso al administrador.
+      </div>
+    }
 
-    <div class="section-meta">
-      <span class="meta-icon">📐</span>
-      <span class="meta-tag">APU · Cálculo · Análisis</span>
-    </div>
+    <!-- ══ MÓDULOS DE PROCESOS ══ -->
+    @if (modulos().length) {
+      <div class="titulo-seccion">
+        <h2>Procesos</h2>
+        <span>Módulos operativos del sistema</span>
+      </div>
 
-    <div class="divider"></div>
-  </section>
+      <div class="modulos">
+        @for (m of modulos(); track m.codigo) {
+          <article class="mod {{ m.clase }}" (click)="ir(m.ruta)" (keydown.enter)="ir(m.ruta)" tabindex="0" role="link">
+            <div class="mod__media">
+              @if (m.imagen) {
+                <img [src]="m.imagen" [alt]="m.titulo" loading="lazy" />
+              } @else {
+                <div class="mod__grafico"><mat-icon>{{ m.icono }}</mat-icon></div>
+              }
+              <span class="mod__numero">{{ m.numero }}</span>
+            </div>
+            <div class="mod__cuerpo">
+              <span class="mod__etiquetas">{{ m.etiquetas }}</span>
+              <h3>
+                <mat-icon>{{ m.icono }}</mat-icon>
+                {{ m.titulo }}
+              </h3>
+              <p>{{ m.descripcion }}</p>
+              <span class="mod__ir">Ingresar al módulo <mat-icon>arrow_forward</mat-icon></span>
+            </div>
+          </article>
+        }
+      </div>
+    }
 
-  <!-- ══ PRESUPUESTO ══ -->
-  <section class="section presupuesto">
-    <div class="section__bg"></div>
-    <div class="section__overlay"></div>
+    <!-- ══ ACCESOS RÁPIDOS ══ -->
+    @if (accesos().length) {
+      <div class="titulo-seccion">
+        <h2>Accesos rápidos</h2>
+        <span>Mantenimiento, parametrización y reportes</span>
+      </div>
 
-    <div class="content">
-      <span class="section-num">03 · Módulo</span>
-      <h2>Control de<br>Presupuestos</h2>
-      <p>
-        Genera, analiza y controla presupuestos de obra con precisión
-        para una toma de decisiones rápida y fundamentada.
-      </p>
-      <button class="btn" (click)="irPresupuesto()">Ver módulo</button>
-    </div>
-
-    <div class="section-meta">
-      <span class="meta-icon">📊</span>
-      <span class="meta-tag">Presupuesto · Control · Costos</span>
-    </div>
-
-  </section>
-
+      <div class="accesos">
+        @for (a of accesos(); track a.codigo) {
+          <a class="acceso" [routerLink]="a.ruta">
+            <span class="acceso__icono"><mat-icon>{{ a.icono }}</mat-icon></span>
+            <span class="acceso__textos">
+              <span class="acceso__modulo">{{ a.modulo }}</span>
+              <span class="acceso__nombre">{{ a.nombre }}</span>
+            </span>
+            <mat-icon class="acceso__flecha">chevron_right</mat-icon>
+          </a>
+        }
+      </div>
+    }
+  </div>
 </div>

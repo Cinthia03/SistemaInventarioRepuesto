@@ -1,17 +1,88 @@
 <header class="header">
-  <div class="logo">
-    <span class="icon" (click)="irInicio()">🏗️</span>
-    <div>
-      <h1>J KASG S.A</h1>
-      <p>Sistema de Gestión Empresarial</p>
+  <!-- Barra de marca -->
+  <div class="barra">
+    <button type="button" class="marca" (click)="irInicio()" title="Ir al inicio">
+      <span class="marca__logo" aria-hidden="true">
+        <mat-icon>domain</mat-icon>
+      </span>
+      <span class="marca__textos">
+        <span class="marca__nombre">J KASG S.A</span>
+        <span class="marca__sub">Construcción · Sistema de Gestión</span>
+      </span>
+    </button>
+
+    <div class="header-der">
+      @if (soloLectura) {
+        <span class="badge-lectura" title="Este usuario solo puede ver la información">
+          <mat-icon>visibility</mat-icon> Solo lectura
+        </span>
+      }
+      @if (usuario) {
+        <a class="usuario" routerLink="/perfil" routerLinkActive="usuario--activo" title="Mi perfil">
+          <span class="usuario__avatar">{{ inicial }}</span>
+          <span class="usuario__datos">
+            <span class="usuario__nombre">{{ usuario }}</span>
+            <span class="usuario__rol">Mi perfil · {{ rol || 'sin rol' }}</span>
+          </span>
+        </a>
+      }
+      <button type="button" class="logout-btn" (click)="irLogin()">
+        <mat-icon>logout</mat-icon>
+        <span>Cerrar sesión</span>
+      </button>
+      <button type="button" class="btn-movil" (click)="menuMovil = !menuMovil; $event.stopPropagation()"
+              [attr.aria-expanded]="menuMovil" aria-label="Abrir menú">
+        <mat-icon>{{ menuMovil ? 'close' : 'menu' }}</mat-icon>
+        <span>Menú</span>
+      </button>
     </div>
   </div>
 
-  <div class="header-der">
-    @if (soloLectura) {
-      <span class="badge-lectura" title="Este usuario solo puede ver la información">👁 Solo lectura</span>
-    }
-    <button class="logout-btn" (click)="irLogin()">Cerrar sesión</button>
-  </div>
-</header>
+  <!-- Menú principal -->
+  <nav class="nav" [class.nav--abierto]="menuMovil" aria-label="Menú principal">
+    <ul class="nav__lista">
+      @for (m of menu; track m.codigo) {
+        <li class="nav__item" [class.nav__item--activo]="moduloActivo() === m.codigo">
+          @if (esDirecto(m)) {
+            <a class="nav__boton" [routerLink]="m.opciones[0].ruta">
+              <mat-icon>{{ m.icono }}</mat-icon>
+              <span>{{ m.nombre }}</span>
+            </a>
+          } @else {
+            <button type="button" class="nav__boton"
+                    [class.nav__boton--abierto]="abierto === m.codigo"
+                    [attr.aria-expanded]="abierto === m.codigo"
+                    (click)="alternar(m.codigo, $event)">
+              <mat-icon>{{ m.icono }}</mat-icon>
+              <span>{{ m.nombre }}</span>
+              <mat-icon class="nav__flecha">expand_more</mat-icon>
+            </button>
 
+            @if (abierto === m.codigo) {
+              <div class="submenu" (click)="$event.stopPropagation()">
+                <span class="submenu__titulo">{{ m.nombre }}</span>
+                @for (o of m.opciones; track o.codigo) {
+                  <a class="submenu__opcion" [routerLink]="o.ruta" routerLinkActive="submenu__opcion--activa">
+                    <span class="submenu__icono"><mat-icon>{{ o.icono }}</mat-icon></span>
+                    <span class="submenu__textos">
+                      <span class="submenu__nombre">{{ o.nombre }}</span>
+                      @if (o.descripcion) {
+                        <span class="submenu__desc">{{ o.descripcion }}</span>
+                      }
+                    </span>
+                  </a>
+                }
+              </div>
+            }
+          }
+        </li>
+      }
+    </ul>
+
+    @if (permisos.sinParametrizar()) {
+      <span class="nav__aviso" title="Ejecute sql/MENU_ROLES_PERMISOS.sql en Supabase para activar los permisos por rol">
+        <mat-icon>info</mat-icon> Permisos por rol no configurados
+      </span>
+    }
+  </nav>
+</header>

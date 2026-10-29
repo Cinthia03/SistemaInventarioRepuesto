@@ -1,31 +1,31 @@
 :host {
-  --color-primario:          #133b4b;
+  --color-primario:          var(--jk-primario);
 
-  --color-materiales:        #6d4d12;
-  --color-materiales-suave:  #6d4d122a;
-  --color-mano:              #572a55;
-  --color-mano-suave:        #572a5538;
-  --color-equipos:           #126d59;
-  --color-equipos-suave:     #126d5946;
-  --color-predictivo:        #3730a3;
-  --color-predictivo-suave:  #3730a324;
+  --color-materiales:        var(--jk-materiales);
+  --color-materiales-suave:  #8a6a3c1f;
+  --color-mano:              var(--jk-mano);
+  --color-mano-suave:        #8a50401f;
+  --color-equipos:           var(--jk-equipos);
+  --color-equipos-suave:     #5864471f;
+  --color-predictivo:        var(--jk-predictivo);
+  --color-predictivo-suave:  #44596b1f;
 
-  --color-bg:                #f1f5f9;
-  --color-card:              #ffffff;
-  --color-borde:             #e2e8f0;
+  --color-bg:                var(--jk-bg);
+  --color-card:              var(--jk-card);
+  --color-borde:             var(--jk-borde);
 
-  --color-texto:             #0f172a;
-  --color-suave:             #64748b;
+  --color-texto:             var(--jk-texto);
+  --color-suave:             var(--jk-suave);
 
-  --color-fila:              #f8fafc;
-  --radio:                   12px;
-  --radio-sm:                6px;
+  --color-fila:              var(--jk-fila);
+  --radio:                   var(--jk-radio);
+  --radio-sm:                var(--jk-radio-sm);
 
-  --sombra:                  0 2px 8px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.06);
+  --sombra:                  var(--jk-sombra);
 
-  --sombra-hover:            0 10px 32px rgba(0,0,0,0.13);
-  --font-titulo:            'Georgia', 'Times New Roman', serif;
-  --font-cuerpo:            'Segoe UI', system-ui, sans-serif;
+  --sombra-hover:            var(--jk-sombra-hover);
+  --font-titulo:            var(--jk-font-titulo);
+  --font-cuerpo:            var(--jk-font);
   --trans:                   0.22s ease;
 }
 
@@ -44,7 +44,7 @@
   border-radius: var(--radio);
   padding: 32px 0px;
   margin-bottom: 32px;
-  box-shadow: 0 10px 25px rgba(26, 47, 110, 0.15);
+  box-shadow: 0 10px 25px rgba(28, 31, 34, 0.15);
   position: relative;
   overflow: hidden;
 }
@@ -162,10 +162,10 @@
 
 .kpi-icon mat-icon { font-size: 22px; width: 22px; height: 22px; }
 
-.kpi-icon--blue  { background: #dbeafe; } .kpi-icon--blue mat-icon  { color: #1d4ed8; }
-.kpi-icon--green { background: #dcfce7; } .kpi-icon--green mat-icon { color: #16543e; }
-.kpi-icon--red   { background: #fee2e2; } .kpi-icon--red mat-icon   { color: #b91c1c; }
-.kpi-icon--amber { background: #fff7ed; } .kpi-icon--amber mat-icon { color: #c2410c; }
+.kpi-icon--blue  { background: var(--jk-info-suave); } .kpi-icon--blue mat-icon  { color: var(--jk-info); }
+.kpi-icon--green { background: var(--jk-exito-suave); } .kpi-icon--green mat-icon { color: var(--jk-exito-oscuro); }
+.kpi-icon--red   { background: var(--jk-peligro-suave); } .kpi-icon--red mat-icon   { color: var(--jk-peligro); }
+.kpi-icon--amber { background: var(--jk-alerta-suave); } .kpi-icon--amber mat-icon { color: var(--jk-alerta); }
 
 .kpi-val {
   font-family: var(--font-titulo);
@@ -457,8 +457,8 @@
 
 /* ALERTA */
 .alerta-header mat-icon,
-.icono-alerta { color: #c2410c !important; }
-.titulo-alerta { color: #c2410c !important; }
+.icono-alerta { color: var(--jk-alerta) !important; }
+.titulo-alerta { color: var(--jk-alerta) !important; }
 
 /* ACTIVIDAD */
 .actividad-item {
@@ -518,14 +518,14 @@
 }
 
 .alerta-item:last-child { border-bottom: none; }
-.alerta-item:hover { background: #fff7ed; }
+.alerta-item:hover { background: var(--jk-alerta-suave); }
 
 .alerta-icono {
   width: 32px;
   height: 32px;
   border-radius: var(--radio-sm);
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
+  background: var(--jk-alerta-suave);
+  border: 1px solid #e6cfa4;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -536,7 +536,7 @@
   font-size: 16px;
   width: 16px;
   height: 16px;
-  color: #c2410c;
+  color: var(--jk-alerta);
 }
 
 .alerta-info { flex: 1; }
@@ -562,8 +562,8 @@
   white-space: nowrap;
 }
 
-.alerta-badge--critico { background: #fee2e2; color: #b91c1c; }
-.alerta-badge--bajo    { background: #fff7ed; color: #c2410c; }
+.alerta-badge--critico { background: var(--jk-peligro-suave); color: var(--jk-peligro); }
+.alerta-badge--bajo    { background: var(--jk-alerta-suave); color: var(--jk-alerta); }
 
 /* PAGINACION */
 .paginacion-manual {
@@ -571,7 +571,7 @@
   align-items: center;
   gap: 4px;
   font-size: 13px;
-  color: #666;
+  color: var(--jk-suave);
 }
 
 .paginacion-manual button {
@@ -597,4 +597,39 @@
   .container    { padding: 20px 16px 40px; }
   .kpi-row      { grid-template-columns: 1fr 1fr; }
   .header-fecha { display: none; }
+}
+
+
+/* ══════════════════════════════════════
+   DISEÑO CORPORATIVO J KASG S.A
+   Fondo concreto, banners grafito con franja de color de módulo
+   y tipografía sobria.
+══════════════════════════════════════ */
+.container {
+  background: var(--jk-bg);
+}
+
+.header-banner {
+  background-color: var(--jk-primario);
+  background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.025) 0 2px, transparent 2px 16px);
+  border-left: 6px solid var(--jk-acento);
+  border-radius: var(--jk-radio);
+  box-shadow: var(--jk-sombra);
+}
+
+.header-badge {
+  border-radius: var(--jk-radio-sm);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.14);
+  backdrop-filter: none;
+}
+
+.titulo {
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-shadow: none;
+}
+
+.subtitulo {
+  color: #c9c4bb;
 }

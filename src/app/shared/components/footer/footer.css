@@ -1,8 +1,30 @@
 .footer {
   width: 100%;
-  background-color: black;
-  color: white;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 14px 24px;
+  background: var(--jk-carbon);
+  color: #9c978e;
+  font-family: var(--jk-font);
+  font-size: 12.5px;
+  letter-spacing: 0.2px;
   text-align: center;
-  padding: 5px 0;
-  font-size: 14px;
+  flex-wrap: wrap;
+}
+
+.footer__marca {
+  font-family: var(--jk-font-titulo);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #d9d5ce;
+}
+
+.footer__sep {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--jk-acento);
 }

@@ -1,37 +1,53 @@
-
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
+// Tema de Angular Material alineado con la paleta de J KASG S.A (ver styles.css).
+// Se parte de una paleta base de Material 3 y se sobrescriben los roles de color
+// principales con los tonos grafito / concreto / ocre de la empresa.
 @use '@angular/material' as mat;
 
 html {
   height: 100%;
   @include mat.theme((
     color: (
-      primary: mat.$azure-palette,
-      tertiary: mat.$blue-palette,
+      primary: mat.$orange-palette,
+      tertiary: mat.$yellow-palette,
     ),
-    typography: Roboto,
+    typography: (
+      plain-family: 'Inter, Segoe UI, sans-serif',
+      brand-family: 'Barlow, Inter, sans-serif',
+    ),
     density: 0,
+  ));
+
+  @include mat.theme-overrides((
+    primary: #2c3136,
+    on-primary: #ffffff,
+    primary-container: #e2ded7,
+    on-primary-container: #1c1f22,
+    secondary: #5a646d,
+    on-secondary: #ffffff,
+    secondary-container: #ebe8e3,
+    on-secondary-container: #23272b,
+    tertiary: #b8862f,
+    on-tertiary: #ffffff,
+    surface: #ffffff,
+    on-surface: #23272b,
+    on-surface-variant: #6e6a63,
+    surface-container: #f6f4f1,
+    surface-container-low: #f9f8f6,
+    surface-container-high: #f0ede8,
+    surface-container-highest: #e9e5df,
+    outline: #b9b2a7,
+    outline-variant: #e2ded7,
+    error: #a4422f,
+    corner-small: 6px,
+    corner-medium: 8px,
   ));
 }
 
 body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
   color-scheme: light;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
+  background-color: #f3f1ed;
   color: var(--mat-sys-on-surface);
   font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
   margin: 0;
   height: 100%;
 }

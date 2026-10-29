@@ -1,0 +1,114 @@
+<div class="pagina">
+
+  <header class="encabezado">
+    <div class="encabezado__izq">
+      <div class="encabezado__icono"><mat-icon>rule</mat-icon></div>
+      <div>
+        <span class="miga">Parametrización</span>
+        <h1>Opciones x Rol</h1>
+        <p>Defina qué opciones del menú puede usar cada rol</p>
+      </div>
+    </div>
+  </header>
+
+  @if (mensaje) {
+    <div class="mensaje" [class.mensaje--ok]="mensaje.tipo === 'ok'" [class.mensaje--error]="mensaje.tipo === 'error'">
+      <mat-icon>{{ mensaje.tipo === 'ok' ? 'check_circle' : 'error_outline' }}</mat-icon>
+      {{ mensaje.texto }}
+    </div>
+  }
+
+  @if (cargando) {
+    <div class="cargando">Cargando parametrización…</div>
+  } @else if (sinTablas) {
+    <div class="mensaje mensaje--info">
+      <mat-icon>info</mat-icon>
+      Las tablas de roles y opciones aún no existen. Ejecute <code>sql/MENU_ROLES_PERMISOS.sql</code> en Supabase y recargue la página.
+    </div>
+  } @else {
+    <div class="layout-2">
+
+      <!-- ROLES -->
+      <section class="panel">
+        <div class="panel__cabecera">
+          <h2 class="panel__titulo"><mat-icon>badge</mat-icon> Roles</h2>
+          <a class="btn btn--claro btn--chico" routerLink="/mantenimiento/roles" title="Crear o editar roles">
+            <mat-icon>settings</mat-icon> Administrar
+          </a>
+        </div>
+
+        <ul class="lista-roles">
+          @for (r of roles; track r.id) {
+            <li class="rol" [class.rol--activo]="rolSel?.id === r.id" (click)="seleccionar(r)">
+              <span class="rol__icono"><mat-icon>{{ r.solo_lectura ? 'visibility' : 'shield_person' }}</mat-icon></span>
+              <span class="rol__textos">
+                <span class="rol__nombre">{{ r.nombre }}</span>
+                <span class="rol__codigo">{{ r.codigo }}
+                  @if (r.solo_lectura) { · solo lectura }
+                  @if (!r.activo) { · inactivo }
+                </span>
+              </span>
+            </li>
+          }
+        </ul>
+      </section>
+
+      <!-- OPCIONES -->
+      <section class="panel">
+        <div class="panel__cabecera">
+          <h2 class="panel__titulo">
+            <mat-icon>checklist</mat-icon>
+            Opciones de {{ rolSel?.nombre || '—' }}
+            <span class="contador">{{ marcadas.size }}</span>
+          </h2>
+          @if (rolSel && !soloLectura) {
+            <div class="acciones-opciones">
+              <button type="button" class="btn btn--claro btn--chico" (click)="marcarTodo(true)">Marcar todo</button>
+              <button type="button" class="btn btn--claro btn--chico" (click)="marcarTodo(false)">Quitar todo</button>
+            </div>
+          }
+        </div>
+
+        @if (!rolSel) {
+          <div class="vacio"><mat-icon>badge</mat-icon>Seleccione un rol para ver sus opciones.</div>
+        } @else {
+          <div class="panel__cuerpo grupos">
+            @for (g of grupos; track g.modulo) {
+              <div class="grupo">
+                <label class="grupo__cabecera">
+                  <input type="checkbox" [checked]="todoGrupo(g)" [disabled]="soloLectura" (change)="alternarGrupo(g)" />
+                  <mat-icon>{{ g.icono }}</mat-icon>
+                  <span>{{ g.nombre }}</span>
+                </label>
+                <div class="grupo__opciones">
+                  @for (o of g.opciones; track o.id) {
+                    <label class="opcion" [class.opcion--marcada]="marcadas.has(o.id)">
+                      <input type="checkbox" [checked]="marcadas.has(o.id)" [disabled]="soloLectura" (change)="alternar(o)" />
+                      <mat-icon>{{ o.icono || 'chevron_right' }}</mat-icon>
+                      <span class="opcion__textos">
+                        <span class="opcion__nombre">{{ o.nombre }}</span>
+                        <span class="opcion__ruta">{{ o.ruta }}</span>
+                      </span>
+                    </label>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+
+          @if (!soloLectura) {
+            <div class="pie-acciones">
+              <span class="pie-acciones__estado">
+                @if (hayCambios) { <mat-icon>edit_note</mat-icon> Hay cambios sin guardar } @else { Sin cambios pendientes }
+              </span>
+              <button type="button" class="btn btn--claro" [disabled]="!hayCambios" (click)="deshacer()">Deshacer</button>
+              <button type="button" class="btn btn--primario" [disabled]="!hayCambios || guardando" (click)="guardarPermisos()">
+                <mat-icon>save</mat-icon> {{ guardando ? 'Guardando…' : 'Guardar permisos' }}
+              </button>
+            </div>
+          }
+        }
+      </section>
+    </div>
+  }
+</div>
